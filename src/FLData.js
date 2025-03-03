@@ -866,10 +866,10 @@ const FLData = [
     "clientRevisionsWeek": 2,
     "clientRevisionsMonth": 8,
     "clientRevisionsPast60": 13,
-    "lateCasePercentage": 7,
+    "lateCasePercentage": 6,
     "avgCasesPerDay": 4.3,
     "revisionRate": 8.13,
-    "timelinessScore": 95,
+    "timelinessScore": 94,
     "efficiencyScore": 90.5,
     "accuracyScore": 91.87,
     "qualityScore": 92.27

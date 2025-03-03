@@ -1,6 +1,5 @@
-// src/Navbar.js
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Button, Box, Typography } from "@mui/material";
 import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
@@ -10,10 +9,16 @@ const Navbar = () => {
       sx={{
         backgroundColor: "#1E73BE",
         boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-        paddingY: "0.5rem",
+        py: 1,
       }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography
           variant="h5"
           component={NavLink}
@@ -23,12 +28,11 @@ const Navbar = () => {
             letterSpacing: ".5px",
             color: "white",
             textDecoration: "none",
-            "&:hover": { opacity: 0.8 },
+            fontFamily: "Open Sans, sans-serif",
           }}
         >
-          MRA Dashboard_v1.0
+          MRA Dashboard
         </Typography>
-
         <Box sx={{ display: "flex", gap: 2 }}>
           {[
             { label: "Data Table", path: "/table" },
@@ -44,9 +48,10 @@ const Navbar = () => {
                 color: "white",
                 textTransform: "none",
                 fontWeight: 500,
-                padding: "8px 16px",
+                px: 2,
+                py: 1,
                 transition: "0.3s ease-in-out",
-                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
                 "&.active": { borderBottom: "3px solid white" },
               }}
             >
