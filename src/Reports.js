@@ -14,6 +14,12 @@ import {
   Tabs,
   Tab,
   Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Paper
 } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -49,18 +55,7 @@ const getUniqueClients = () => {
   return ['All Clients', ...Array.from(clientSet).sort()];
 };
 
-// Feedback grouping helpers.
-const extractClientFromFeedback = (text) => {
-  const match = text.match(/^Client revision feedback for ([^:]+):/);
-  return match ? match[1].trim() : "Unknown Client";
-};
-
-const cleanFeedbackText = (text) => {
-  return text.replace(/^Client revision feedback for [^:]+:\s*/, '')
-             .replace(/^Internal QA feedback for [^:]+:\s*/, '');
-};
-
-// Trend helpers.
+// Trend helper functions.
 const computeRevisionsSlope = (trend) => {
   if (trend.length < 2) return 0;
   return trend[trend.length - 1].cumulativeRevisions - trend[0].cumulativeRevisions;
@@ -79,7 +74,6 @@ const getSlopeIndicator = (slope) => {
   return "-";
 };
 
-// Late % trend helpers.
 const computeLateSlope = (trend) => {
   if (trend.length < 2) return 0;
   return trend[trend.length - 1].latePercentage - trend[0].latePercentage;
@@ -104,12 +98,14 @@ const Reports = ({ reviewers }) => {
   const [selectedClient, setSelectedClient] = useState('All Clients');
   const [startDate, setStartDate] = useState(dayjs().subtract(30, 'day'));
   const [endDate, setEndDate] = useState(dayjs());
-  // Two tabs: 0 = Cases/Revisions, 1 = Feedback.
+  // Tabs: 0 = Cases/Revisions, 1 = Feedback.
   const [tabValue, setTabValue] = useState(0);
   // For Feedback Report.
   const [selectedFeedbackType, setSelectedFeedbackType] = useState('client');
+  // For client feedback: Group by client then by reviewer.
   const [clientComments, setClientComments] = useState({});
-  const [qaComments, setQaComments] = useState({});
+  // For internal feedback: group by reviewer.
+  const [groupedQaFeedback, setGroupedQaFeedback] = useState({});
   // For Cases/Revisions report.
   const [reportResult, setReportResult] = useState(null);
   const [clientBreakdown, setClientBreakdown] = useState({});
@@ -119,8 +115,6 @@ const Reports = ({ reviewers }) => {
   const [lateTrend, setLateTrend] = useState([]);
 
   const uniqueClients = getUniqueClients();
-
-  // Ref for charts container (for PDF export).
   const chartsRef = useRef(null);
 
   const handleGenerateReport = () => {
@@ -129,34 +123,57 @@ const Reports = ({ reviewers }) => {
 
     if (tabValue === 1) {
       // Feedback Report.
-      const filteredFeedback = FeedbackData.filter(item => {
+      let filteredFeedback = FeedbackData.filter(item => {
         const itemDate = dayjs(item.date);
         return itemDate.isSameOrAfter(startDate) && itemDate.isSameOrBefore(endDate);
       });
-      const reviewerFeedback = selectedReviewer !== 'All Reviewers'
+      let reviewerFeedback = selectedReviewer !== 'All Reviewers'
         ? filteredFeedback.filter(item => item.name === selectedReviewer)
         : filteredFeedback;
+      // Filter by client if a specific client is selected.
+      if (selectedClient !== 'All Clients') {
+        reviewerFeedback = reviewerFeedback.filter(item => item.client === selectedClient);
+      }
       if (selectedFeedbackType === 'client') {
-        // Group feedback by client type.
+        // Group client feedback by client, then by reviewer.
         const groupedFeedback = {};
-        reviewerFeedback.forEach(item => {
-          if (item.feedbackType === 'client') {
-            const client = item.client ? item.client : extractClientFromFeedback(item.text);
-            const text = cleanFeedbackText(item.text);
-            if (!groupedFeedback[client]) groupedFeedback[client] = [];
-            groupedFeedback[client].push(text);
-          }
+        reviewerFeedback.filter(item => item.feedbackType === 'client').forEach(item => {
+          const client = item.client || "Unknown Client";
+          if (!groupedFeedback[client]) groupedFeedback[client] = {};
+          if (!groupedFeedback[client][item.name]) groupedFeedback[client][item.name] = [];
+          // Push an object with both text and caseID.
+          groupedFeedback[client][item.name].push({
+            text: item.text,
+            caseID: item.caseID
+          });
         });
-        setClientComments(groupedFeedback);
-        setQaComments({});
+        // Sort reviewers alphabetically within each client.
+        const sortedGroupedFeedback = {};
+        Object.keys(groupedFeedback).forEach(client => {
+          const sortedReviewers = Object.keys(groupedFeedback[client]).sort();
+          sortedGroupedFeedback[client] = {};
+          sortedReviewers.forEach(reviewer => {
+            sortedGroupedFeedback[client][reviewer] = groupedFeedback[client][reviewer];
+          });
+        });
+        setClientComments(sortedGroupedFeedback);
+        setGroupedQaFeedback({});
       } else {
-        // For Internal feedback, just list feedback items.
-        const internalFeedback = reviewerFeedback
-          .filter(item => item.feedbackType === 'internal')
-          .map(item => cleanFeedbackText(item.text));
-        setQaComments({ "Internal Feedback": internalFeedback });
+        // Internal feedback: group by reviewer.
+        const grouped = {};
+        reviewerFeedback.filter(item => item.feedbackType === 'internal').forEach(item => {
+          if (!grouped[item.name]) grouped[item.name] = [];
+          grouped[item.name].push(item);
+        });
+        // Sort reviewer keys alphabetically.
+        const sortedGrouped = {};
+        Object.keys(grouped).sort().forEach(key => {
+          sortedGrouped[key] = grouped[key];
+        });
+        setGroupedQaFeedback(sortedGrouped);
         setClientComments({});
       }
+      // Clear other report states.
       setReportResult(null);
       setClientBreakdown({});
       setClientTrendData({});
@@ -195,7 +212,6 @@ const Reports = ({ reviewers }) => {
       const overallRevisionPercentage = overallTotalCases > 0
         ? ((overallRevisionRequests / overallTotalCases) * 100).toFixed(2)
         : '0.00';
-      // Compute overall Late %.
       const overallLatePercentage = filteredFLData.reduce(
         (sum, item) => sum + item.lateCasePercentage,
         0
@@ -261,10 +277,13 @@ const Reports = ({ reviewers }) => {
         });
       }
       setLateTrend(lateTrendData);
+      // Clear feedback-specific states.
+      setClientComments({});
+      setGroupedQaFeedback({});
     }
   };
 
-  // Export report as CSV.
+  // Export functions remain unchanged.
   const exportReportCSV = () => {
     if (reportResult && Object.keys(clientBreakdown).length > 0) {
       let csvContent = "data:text/csv;charset=utf-8,";
@@ -292,7 +311,6 @@ const Reports = ({ reviewers }) => {
     }
   };
 
-  // Export report as PDF including charts.
   const exportReportPDF = async () => {
     if (reportResult && Object.keys(clientBreakdown).length > 0) {
       const doc = new jsPDF();
@@ -322,8 +340,6 @@ const Reports = ({ reviewers }) => {
         body: tableRows,
         startY: selectedReviewer !== 'All Reviewers' ? 90 : 80,
       });
-
-      // Capture the charts container (Quality Trend, Late % Trend, and Per-Client Trend Charts).
       if ((Object.keys(clientTrendData).length > 0 || qualityTrend.length > 0 || lateTrend.length > 0) && chartsRef.current) {
         const canvas = await html2canvas(chartsRef.current);
         const imgData = canvas.toDataURL('image/png');
@@ -352,7 +368,6 @@ const Reports = ({ reviewers }) => {
           }
         }
       }
-
       doc.save("cases_revisions_report.pdf");
     }
   };
@@ -424,7 +439,7 @@ const Reports = ({ reviewers }) => {
         <Tab label="Feedback" />
       </Tabs>
 
-      {/* When Feedback tab is active, show a dropdown to select feedback type */}
+      {/* Feedback Type Dropdown */}
       {tabValue === 1 && (
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Feedback Type</InputLabel>
@@ -452,7 +467,7 @@ const Reports = ({ reviewers }) => {
             Total Estimated Cases (over {reportResult.periodDays} days): {Math.round(reportResult.totalCases)}
           </Typography>
           <Typography>
-            Total Estimated Revision Requests: {Math.round(reportResult.revisionRequests)}{' '}
+            Total Revision Requests: {Math.round(reportResult.revisionRequests)}{' '}
             <span title={`Revision Rate: ${reportResult.revisionPercentage}%`}>
               (Revision Rate: {reportResult.revisionPercentage}%)
             </span>
@@ -463,7 +478,7 @@ const Reports = ({ reviewers }) => {
               {Object.entries(clientBreakdown).map(([client, totals]) => {
                 const rate = totals.totalCases > 0
                   ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
-                  : '0.00';
+                  : "0.00";
                 return (
                   <ListItem key={client} disablePadding>
                     <ListItemText primary={`${client}: ${Math.round(totals.totalCases)} cases, ${Math.round(totals.totalRevisions)} revisions (Rate: ${rate}%)`} />
@@ -472,7 +487,6 @@ const Reports = ({ reviewers }) => {
               })}
             </List>
           </Box>
-          {/* Overall Quality Score Section */}
           <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
               Overall Quality Score:{" "}
@@ -492,7 +506,6 @@ const Reports = ({ reviewers }) => {
               )}
             </Typography>
           </Box>
-          {/* Quality Score Trend Chart */}
           {qualityTrend.length > 0 && (
             <Box sx={{ mt: 2, height: 300 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
@@ -510,13 +523,11 @@ const Reports = ({ reviewers }) => {
               </ResponsiveContainer>
             </Box>
           )}
-          {/* Overall Late % Section */}
           <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
               Average Late %: {lateTrend.length > 0 ? lateTrend[0].latePercentage.toFixed(1) : "N/A"}%
             </Typography>
           </Box>
-          {/* Late % Trend Chart with Indicator */}
           {lateTrend.length > 0 && (
             <Box sx={{ mt: 2, height: 300 }}>
               {(() => {
@@ -546,7 +557,6 @@ const Reports = ({ reviewers }) => {
               </ResponsiveContainer>
             </Box>
           )}
-          {/* Unified Charts Container: Wrap Quality, Late, and Per-Client Trend Charts */}
           <Box ref={chartsRef}>
             {Object.keys(clientTrendData).length > 0 && (
               Object.entries(clientTrendData).map(([client, trend]) => {
@@ -593,54 +603,99 @@ const Reports = ({ reviewers }) => {
       {/* Feedback Report Section */}
       {tabValue === 1 && (
         <Box sx={{ mt: 3 }}>
-          {Object.keys(clientComments).length === 0 && Object.keys(qaComments).length === 0 ? (
-            <Typography variant="body1">
-              No feedback report generated. Click "Generate Report" to view data.
-            </Typography>
-          ) : selectedFeedbackType === 'client' ? (
-            // For Client feedback: group by client type with copy buttons.
+          {selectedFeedbackType === 'client' ? (
+            // Group client feedback by client then by reviewer.
             <Box>
-              {Object.entries(clientComments).map(([client, texts]) => (
-                <Box key={client} sx={{ mb: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                      {client}:
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => {
-                        const textToCopy = texts.join('\n');
-                        navigator.clipboard.writeText(textToCopy);
-                      }}
-                    >
-                      Copy
-                    </Button>
+              {Object.entries(clientComments).map(([client, reviewersObj]) => {
+                // For copying: concatenate only the feedback texts (ignoring caseID).
+                const copyText = Object.values(reviewersObj)
+                  .flat()
+                  .map(feedback => feedback.text)
+                  .join('\n');
+                return (
+                  <Box key={client} sx={{ mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: '#f0f0f0', p: 1, borderRadius: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                        {client}:
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => navigator.clipboard.writeText(copyText)}
+                      >
+                        Copy
+                      </Button>
+                    </Box>
+                    {Object.keys(reviewersObj).sort().map(reviewer => {
+                      const feedbackArray = Array.isArray(reviewersObj[reviewer])
+                        ? reviewersObj[reviewer]
+                        : [];
+                      return (
+                        <Box key={reviewer} sx={{ ml: 2, mt: 1, mb: 1, p: 1, borderLeft: '2px solid #ccc' }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                            {reviewer}:
+                          </Typography>
+                          <List dense>
+                            {feedbackArray.map((feedback, i) => (
+                              <ListItem key={i} disablePadding>
+                                <ListItemText primary={`Case ID: ${feedback.caseID} – ${feedback.text}`} />
+                              </ListItem>
+                            ))}
+                          </List>
+                        </Box>
+                      );
+                    })}
                   </Box>
-                  <List dense>
-                    {texts.map((text, i) => (
-                      <ListItem key={i} disablePadding>
-                        <ListItemText primary={text} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              ))}
+                );
+              })}
             </Box>
           ) : (
-            // For Internal feedback: simply list feedback.
+            // Internal feedback: group by reviewer.
             <Box>
-              {qaComments["Internal Feedback"] && qaComments["Internal Feedback"].length > 0 ? (
-                <List dense>
-                  {qaComments["Internal Feedback"].map((text, i) => (
-                    <ListItem key={i} disablePadding>
-                      <ListItemText primary={text} />
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Typography>No internal feedback found.</Typography>
-              )}
+              <Typography variant="h6" gutterBottom>
+                Internal Feedback Grouped by Reviewer
+              </Typography>
+              <Table sx={{ border: '1px solid #ddd' }}>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Reviewer</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Feedback Details</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Copy Feedback</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Object.keys(groupedQaFeedback).sort().map(reviewer => {
+                    const items = groupedQaFeedback[reviewer];
+                    // For display: include full details.
+                    const aggregatedDisplayText = items.map(item => (
+                      `Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nQA Member: ${item.qaMember}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`
+                    )).join('\n\n');
+                    // For copying, only feedback texts.
+                    const aggregatedCopyText = items.map(item => item.text).join('\n');
+                    return (
+                      <TableRow key={reviewer}>
+                        <TableCell sx={{ verticalAlign: 'top' }}>{reviewer}</TableCell>
+                        <TableCell>
+                          <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fafafa' }}>
+                            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                              {aggregatedDisplayText}
+                            </Typography>
+                          </Paper>
+                        </TableCell>
+                        <TableCell sx={{ verticalAlign: 'top' }}>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => navigator.clipboard.writeText(aggregatedCopyText)}
+                          >
+                            Copy
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </Box>
           )}
         </Box>
