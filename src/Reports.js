@@ -19,8 +19,10 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  Grid
 } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -45,6 +47,13 @@ import {
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
+
+// Create a theme that uses Open Sans.
+const openSansTheme = createTheme({
+  typography: {
+    fontFamily: 'Open Sans, sans-serif',
+  },
+});
 
 // Get unique clients from FLData.
 const getUniqueClients = () => {
@@ -104,7 +113,7 @@ const Reports = ({ reviewers }) => {
   const [selectedFeedbackType, setSelectedFeedbackType] = useState('client');
   // For client feedback: Group by client then by reviewer.
   const [clientComments, setClientComments] = useState({});
-  // For internal feedback: group by reviewer.
+  // For internal feedback: Group by reviewer.
   const [groupedQaFeedback, setGroupedQaFeedback] = useState({});
   // For Cases/Revisions report.
   const [reportResult, setReportResult] = useState(null);
@@ -283,7 +292,7 @@ const Reports = ({ reviewers }) => {
     }
   };
 
-  // Export functions remain unchanged.
+  // Export Report as CSV.
   const exportReportCSV = () => {
     if (reportResult && Object.keys(clientBreakdown).length > 0) {
       let csvContent = "data:text/csv;charset=utf-8,";
@@ -296,9 +305,7 @@ const Reports = ({ reviewers }) => {
       csvContent += `Average Late %,${lateTrend.length > 0 ? lateTrend[0].latePercentage.toFixed(1) : "N/A"}%\n\n`;
       csvContent += "Client,Estimated Cases,Estimated Revisions,Revision Rate (%)\n";
       for (const [client, totals] of Object.entries(clientBreakdown)) {
-        const rate = totals.totalCases > 0
-          ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
-          : "0.00";
+        const rate = totals.totalCases > 0 ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2) : "0.00";
         csvContent += `${client},${Math.round(totals.totalCases)},${Math.round(totals.totalRevisions)},${rate}\n`;
       }
       const encodedUri = encodeURI(csvContent);
@@ -311,6 +318,7 @@ const Reports = ({ reviewers }) => {
     }
   };
 
+  // Export Report as PDF.
   const exportReportPDF = async () => {
     if (reportResult && Object.keys(clientBreakdown).length > 0) {
       const doc = new jsPDF();
@@ -373,334 +381,370 @@ const Reports = ({ reviewers }) => {
   };
 
   return (
-    <Box sx={{ p: 3, border: '1px solid #ddd', borderRadius: 2, mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Reports
-      </Typography>
-
-      {/* Reviewer Dropdown */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Reviewer</InputLabel>
-        <Select
-          value={selectedReviewer}
-          onChange={(e) => setSelectedReviewer(e.target.value)}
-          label="Reviewer"
+    <ThemeProvider theme={openSansTheme}>
+      <Box sx={{ mt: 4, mb: 4 }}>
+        {/* Top Section: Paper Container */}
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            mb: 3,
+          }}
         >
-          <MenuItem value="All Reviewers">All Reviewers</MenuItem>
-          {reviewers.map((reviewer) => (
-            <MenuItem key={reviewer} value={reviewer}>
-              {reviewer}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {/* Client Dropdown */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Client</InputLabel>
-        <Select
-          value={selectedClient}
-          onChange={(e) => setSelectedClient(e.target.value)}
-          label="Client"
-        >
-          {uniqueClients.map((client) => (
-            <MenuItem key={client} value={client}>
-              {client}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {/* Date Range Pickers */}
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-          <DatePicker
-            label="Start Date"
-            value={startDate}
-            onChange={setStartDate}
-            slotProps={{ textField: { fullWidth: true } }}
-          />
-          <DatePicker
-            label="End Date"
-            value={endDate}
-            onChange={setEndDate}
-            slotProps={{ textField: { fullWidth: true } }}
-          />
-        </Box>
-      </LocalizationProvider>
-
-      {/* Report Type Tabs */}
-      <Tabs
-        value={tabValue}
-        onChange={(e, newValue) => setTabValue(newValue)}
-        sx={{ mb: 2 }}
-      >
-        <Tab label="Cases / Revisions" />
-        <Tab label="Feedback" />
-      </Tabs>
-
-      {/* Feedback Type Dropdown */}
-      {tabValue === 1 && (
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Feedback Type</InputLabel>
-          <Select
-            value={selectedFeedbackType}
-            onChange={(e) => setSelectedFeedbackType(e.target.value)}
-            label="Feedback Type"
-          >
-            <MenuItem value="client">Client</MenuItem>
-            <MenuItem value="qa">Internal</MenuItem>
-          </Select>
-        </FormControl>
-      )}
-
-      {/* Generate Report Button */}
-      <Button variant="contained" color="primary" fullWidth onClick={handleGenerateReport} sx={{ mb: 2 }}>
-        Generate Report
-      </Button>
-
-      {/* Cases / Revisions Report Section */}
-      {tabValue === 0 && reportResult && (
-        <Box sx={{ mt: 3, p: 2, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
-          <Typography variant="h6">Report Results</Typography>
-          <Typography>
-            Total Estimated Cases (over {reportResult.periodDays} days): {Math.round(reportResult.totalCases)}
+          <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+            Reports
           </Typography>
-          <Typography>
-            Total Revision Requests: {Math.round(reportResult.revisionRequests)}{' '}
-            <span title={`Revision Rate: ${reportResult.revisionPercentage}%`}>
-              (Revision Rate: {reportResult.revisionPercentage}%)
-            </span>
-          </Typography>
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1">Breakdown by Client:</Typography>
-            <List>
-              {Object.entries(clientBreakdown).map(([client, totals]) => {
-                const rate = totals.totalCases > 0
-                  ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
-                  : "0.00";
-                return (
-                  <ListItem key={client} disablePadding>
-                    <ListItemText primary={`${client}: ${Math.round(totals.totalCases)} cases, ${Math.round(totals.totalRevisions)} revisions (Rate: ${rate}%)`} />
-                  </ListItem>
-                );
-              })}
-            </List>
+
+          {/* Grid layout for inputs */}
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth>
+                <InputLabel>Reviewer</InputLabel>
+                <Select
+                  value={selectedReviewer}
+                  onChange={(e) => setSelectedReviewer(e.target.value)}
+                  label="Reviewer"
+                >
+                  <MenuItem value="All Reviewers">All Reviewers</MenuItem>
+                  {reviewers.map((reviewer) => (
+                    <MenuItem key={reviewer} value={reviewer}>
+                      {reviewer}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth>
+                <InputLabel>Client</InputLabel>
+                <Select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  label="Client"
+                >
+                  {uniqueClients.map((client) => (
+                    <MenuItem key={client} value={client}>
+                      {client}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Start Date"
+                  value={startDate}
+                  onChange={setStartDate}
+                  slotProps={{ textField: { fullWidth: true } }}
+                />
+              </LocalizationProvider>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="End Date"
+                  value={endDate}
+                  onChange={setEndDate}
+                  slotProps={{ textField: { fullWidth: true } }}
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Grid>
+
+          {/* Tabs for Cases/Revisions and Feedback */}
+          <Box sx={{ mt: 3 }}>
+            <Tabs
+              value={tabValue}
+              onChange={(e, newValue) => setTabValue(newValue)}
+              indicatorColor="primary"
+              textColor="primary"
+            >
+              <Tab label="Cases / Revisions" />
+              <Tab label="Feedback" />
+            </Tabs>
           </Box>
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-              Overall Quality Score:{" "}
-              {Math.round(
-                (FLData.filter(item =>
-                  (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
-                  (selectedClient === 'All Clients' ||
-                    item.clients.split(",").map(c => c.trim()).includes(selectedClient)
-                  )
-                ).map(item => item.qualityScore).reduce((a, b) => a + b, 0) /
-                  FLData.filter(item =>
+
+          {/* Feedback Type Dropdown */}
+          {tabValue === 1 && (
+            <Box sx={{ mt: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>Feedback Type</InputLabel>
+                <Select
+                  value={selectedFeedbackType}
+                  onChange={(e) => setSelectedFeedbackType(e.target.value)}
+                  label="Feedback Type"
+                >
+                  <MenuItem value="client">Client</MenuItem>
+                  <MenuItem value="qa">Internal</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          )}
+
+          {/* Generate Report Button */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleGenerateReport}
+            sx={{
+              mt: 3,
+              py: 1.2,
+              fontWeight: 'bold',
+              fontSize: '1rem',
+            }}
+          >
+            Generate Report
+          </Button>
+        </Paper>
+
+        {/* Cases / Revisions Report Section */}
+        {tabValue === 0 && reportResult && (
+          <Box sx={{ mt: 3, p: 2, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
+            <Typography variant="h6">Report Results</Typography>
+            <Typography>
+              Total Estimated Cases (over {reportResult.periodDays} days): {Math.round(reportResult.totalCases)}
+            </Typography>
+            <Typography>
+              Total Revision Requests: {Math.round(reportResult.revisionRequests)}{' '}
+              <span title={`Revision Rate: ${reportResult.revisionPercentage}%`}>
+                (Revision Rate: {reportResult.revisionPercentage}%)
+              </span>
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1">Breakdown by Client:</Typography>
+              <List>
+                {Object.entries(clientBreakdown).map(([client, totals]) => {
+                  const rate = totals.totalCases > 0
+                    ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
+                    : "0.00";
+                  return (
+                    <ListItem key={client} disablePadding>
+                      <ListItemText primary={`${client}: ${Math.round(totals.totalCases)} cases, ${Math.round(totals.totalRevisions)} revisions (Rate: ${rate}%)`} />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                Overall Quality Score:{" "}
+                {Math.round(
+                  (FLData.filter(item =>
                     (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
                     (selectedClient === 'All Clients' ||
                       item.clients.split(",").map(c => c.trim()).includes(selectedClient)
                     )
-                  ).length) || 0
-              )}
-            </Typography>
-          </Box>
-          {qualityTrend.length > 0 && (
-            <Box sx={{ mt: 2, height: 300 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                Quality Score Trend
+                  ).map(item => item.qualityScore).reduce((a, b) => a + b, 0) /
+                    FLData.filter(item =>
+                      (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
+                      (selectedClient === 'All Clients' ||
+                        item.clients.split(",").map(c => c.trim()).includes(selectedClient)
+                      )
+                    ).length) || 0
+                )}
               </Typography>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={qualityTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
-                  <YAxis label={{ value: "Quality Score", angle: -90, position: 'insideLeft', offset: -10 }} />
-                  <RechartsTooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="qualityScore" stroke="#00C49F" name="Quality Score" />
-                </LineChart>
-              </ResponsiveContainer>
             </Box>
-          )}
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-              Average Late %: {lateTrend.length > 0 ? lateTrend[0].latePercentage.toFixed(1) : "N/A"}%
-            </Typography>
-          </Box>
-          {lateTrend.length > 0 && (
-            <Box sx={{ mt: 2, height: 300 }}>
-              {(() => {
-                const slopeLate = computeLateSlope(lateTrend);
-                const lateIndicator = getLateSlopeIndicator(slopeLate);
-                const lateSlopePercent = computeLateSlopePercent(lateTrend);
-                return (
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                    Late % Trend{" "}
-                    <Tooltip title={`Change: ${lateSlopePercent}`} arrow>
-                      <span style={{ color: slopeLate < 0 ? 'green' : slopeLate > 0 ? 'red' : 'gray', cursor: 'default' }}>
-                        {lateIndicator}
-                      </span>
-                    </Tooltip>
-                  </Typography>
-                );
-              })()}
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lateTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
-                  <YAxis label={{ value: "Late %", angle: -90, position: 'insideLeft', offset: -10 }} />
-                  <RechartsTooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="latePercentage" stroke="#FFB74D" name="Late %" />
-                </LineChart>
-              </ResponsiveContainer>
+            {qualityTrend.length > 0 && (
+              <Box sx={{ mt: 2, height: 300 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                  Quality Score Trend
+                </Typography>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={qualityTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
+                    <YAxis label={{ value: "Quality Score", angle: -90, position: 'insideLeft', offset: -10 }} />
+                    <RechartsTooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="qualityScore" stroke="#00C49F" name="Quality Score" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
+            )}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                Average Late %: {lateTrend.length > 0 ? lateTrend[0].latePercentage.toFixed(1) : "N/A"}%
+              </Typography>
             </Box>
-          )}
-          <Box ref={chartsRef}>
-            {Object.keys(clientTrendData).length > 0 && (
-              Object.entries(clientTrendData).map(([client, trend]) => {
-                const slope = computeRevisionsSlope(trend);
-                const indicator = getSlopeIndicator(slope);
-                const slopePercent = computeRevisionsSlopePercent(trend);
-                return (
-                  <Box key={client} sx={{ mt: 3, height: 300 }}>
+            {lateTrend.length > 0 && (
+              <Box sx={{ mt: 2, height: 300 }}>
+                {(() => {
+                  const slopeLate = computeLateSlope(lateTrend);
+                  const lateIndicator = getLateSlopeIndicator(slopeLate);
+                  const lateSlopePercent = computeLateSlopePercent(lateTrend);
+                  return (
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                      {client} Trend{" "}
-                      <Tooltip title={`Change: ${slopePercent}`} arrow>
-                        <span style={{ color: slope < 0 ? 'green' : slope > 0 ? 'red' : 'gray', cursor: 'default' }}>
-                          {indicator}
+                      Late % Trend{" "}
+                      <Tooltip title={`Change: ${lateSlopePercent}`} arrow>
+                        <span style={{ color: slopeLate < 0 ? 'green' : slopeLate > 0 ? 'red' : 'gray', cursor: 'default' }}>
+                          {lateIndicator}
                         </span>
                       </Tooltip>
                     </Typography>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
-                        <YAxis label={{ value: "Cumulative Total", angle: -90, position: 'insideLeft', offset: -10 }} />
-                        <RechartsTooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="cumulativeCases" stroke="#1E73BE" name="Cumulative Cases" />
-                        <Line type="monotone" dataKey="cumulativeRevisions" stroke="#FF8042" name="Cumulative Revisions" />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </Box>
-                );
-              })
+                  );
+                })()}
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={lateTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
+                    <YAxis label={{ value: "Late %", angle: -90, position: 'insideLeft', offset: -10 }} />
+                    <RechartsTooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="latePercentage" stroke="#FFB74D" name="Late %" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
             )}
-          </Box>
-          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-            <Button variant="outlined" color="secondary" onClick={exportReportCSV}>
-              Export as CSV
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={exportReportPDF}>
-              Export as PDF
-            </Button>
-          </Box>
-        </Box>
-      )}
-
-      {/* Feedback Report Section */}
-      {tabValue === 1 && (
-        <Box sx={{ mt: 3 }}>
-          {selectedFeedbackType === 'client' ? (
-            // Group client feedback by client then by reviewer.
-            <Box>
-              {Object.entries(clientComments).map(([client, reviewersObj]) => {
-                // For copying: concatenate only the feedback texts (ignoring caseID).
-                const copyText = Object.values(reviewersObj)
-                  .flat()
-                  .map(feedback => feedback.text)
-                  .join('\n');
-                return (
-                  <Box key={client} sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: '#f0f0f0', p: 1, borderRadius: 1 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                        {client}:
+            <Box ref={chartsRef}>
+              {Object.keys(clientTrendData).length > 0 && (
+                Object.entries(clientTrendData).map(([client, trend]) => {
+                  const slope = computeRevisionsSlope(trend);
+                  const indicator = getSlopeIndicator(slope);
+                  const slopePercent = computeRevisionsSlopePercent(trend);
+                  return (
+                    <Box key={client} sx={{ mt: 3, height: 300 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                        {client} Trend{" "}
+                        <Tooltip title={`Change: ${slopePercent}`} arrow>
+                          <span style={{ color: slope < 0 ? 'green' : slope > 0 ? 'red' : 'gray', cursor: 'default' }}>
+                            {indicator}
+                          </span>
+                        </Tooltip>
                       </Typography>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => navigator.clipboard.writeText(copyText)}
-                      >
-                        Copy
-                      </Button>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={trend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
+                          <YAxis label={{ value: "Cumulative Total", angle: -90, position: 'insideLeft', offset: -10 }} />
+                          <RechartsTooltip />
+                          <Legend />
+                          <Line type="monotone" dataKey="cumulativeCases" stroke="#1E73BE" name="Cumulative Cases" />
+                          <Line type="monotone" dataKey="cumulativeRevisions" stroke="#FF8042" name="Cumulative Revisions" />
+                        </LineChart>
+                      </ResponsiveContainer>
                     </Box>
-                    {Object.keys(reviewersObj).sort().map(reviewer => {
-                      const feedbackArray = Array.isArray(reviewersObj[reviewer])
-                        ? reviewersObj[reviewer]
-                        : [];
+                  );
+                })
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+              <Button variant="outlined" color="secondary" onClick={exportReportCSV}>
+                Export as CSV
+              </Button>
+              <Button variant="outlined" color="secondary" onClick={exportReportPDF}>
+                Export as PDF
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        {/* Feedback Report Section */}
+        {tabValue === 1 && (
+          <Box sx={{ mt: 3 }}>
+            {selectedFeedbackType === 'client' ? (
+              // Group client feedback by client then by reviewer.
+              <Box>
+                {Object.entries(clientComments).map(([client, reviewersObj]) => {
+                  // For copying: concatenate only the feedback texts (ignoring caseID).
+                  const copyText = Object.values(reviewersObj)
+                    .flat()
+                    .map(feedback => feedback.text)
+                    .join('\n');
+                  return (
+                    <Box key={client} sx={{ mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: '#f0f0f0', p: 1, borderRadius: 1 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                          {client}:
+                        </Typography>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => navigator.clipboard.writeText(copyText)}
+                        >
+                          Copy
+                        </Button>
+                      </Box>
+                      {Object.keys(reviewersObj).sort().map(reviewer => {
+                        const feedbackArray = Array.isArray(reviewersObj[reviewer])
+                          ? reviewersObj[reviewer]
+                          : [];
+                        return (
+                          <Box key={reviewer} sx={{ ml: 2, mt: 1, mb: 1, p: 1, borderLeft: '2px solid #ccc' }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                              {reviewer}:
+                            </Typography>
+                            <List dense>
+                              {feedbackArray.map((feedback, i) => (
+                                <ListItem key={i} disablePadding>
+                                  <ListItemText primary={`Case ID: ${feedback.caseID} – ${feedback.text}`} />
+                                </ListItem>
+                              ))}
+                            </List>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  );
+                })}
+              </Box>
+            ) : (
+              // Internal feedback: group by reviewer.
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Internal Feedback Grouped by Reviewer
+                </Typography>
+                <Table sx={{ border: '1px solid #ddd' }}>
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Reviewer</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Feedback Details</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Copy Feedback</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.keys(groupedQaFeedback).sort().map(reviewer => {
+                      const items = groupedQaFeedback[reviewer];
+                      // For display: include full details.
+                      const aggregatedDisplayText = items.map(item => (
+                        `Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nQA Member: ${item.qaMember}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`
+                      )).join('\n\n');
+                      // For copying, only feedback texts.
+                      const aggregatedCopyText = items.map(item => item.text).join('\n');
                       return (
-                        <Box key={reviewer} sx={{ ml: 2, mt: 1, mb: 1, p: 1, borderLeft: '2px solid #ccc' }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                            {reviewer}:
-                          </Typography>
-                          <List dense>
-                            {feedbackArray.map((feedback, i) => (
-                              <ListItem key={i} disablePadding>
-                                <ListItemText primary={`Case ID: ${feedback.caseID} – ${feedback.text}`} />
-                              </ListItem>
-                            ))}
-                          </List>
-                        </Box>
+                        <TableRow key={reviewer}>
+                          <TableCell sx={{ verticalAlign: 'top' }}>{reviewer}</TableCell>
+                          <TableCell>
+                            <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fafafa' }}>
+                              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                                {aggregatedDisplayText}
+                              </Typography>
+                            </Paper>
+                          </TableCell>
+                          <TableCell sx={{ verticalAlign: 'top' }}>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() => navigator.clipboard.writeText(aggregatedCopyText)}
+                            >
+                              Copy
+                            </Button>
+                          </TableCell>
+                        </TableRow>
                       );
                     })}
-                  </Box>
-                );
-              })}
-            </Box>
-          ) : (
-            // Internal feedback: group by reviewer.
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                Internal Feedback Grouped by Reviewer
-              </Typography>
-              <Table sx={{ border: '1px solid #ddd' }}>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Reviewer</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Feedback Details</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Copy Feedback</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Object.keys(groupedQaFeedback).sort().map(reviewer => {
-                    const items = groupedQaFeedback[reviewer];
-                    // For display: include full details.
-                    const aggregatedDisplayText = items.map(item => (
-                      `Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nQA Member: ${item.qaMember}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`
-                    )).join('\n\n');
-                    // For copying, only feedback texts.
-                    const aggregatedCopyText = items.map(item => item.text).join('\n');
-                    return (
-                      <TableRow key={reviewer}>
-                        <TableCell sx={{ verticalAlign: 'top' }}>{reviewer}</TableCell>
-                        <TableCell>
-                          <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fafafa' }}>
-                            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                              {aggregatedDisplayText}
-                            </Typography>
-                          </Paper>
-                        </TableCell>
-                        <TableCell sx={{ verticalAlign: 'top' }}>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => navigator.clipboard.writeText(aggregatedCopyText)}
-                          >
-                            Copy
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </Box>
-          )}
-        </Box>
-      )}
-    </Box>
+                  </TableBody>
+                </Table>
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
+    </ThemeProvider>
   );
 };
 
