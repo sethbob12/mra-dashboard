@@ -1,3 +1,4 @@
+// src/Navbar.js
 import React from "react";
 import { AppBar, Toolbar, Button, Box, Typography } from "@mui/material";
 import { NavLink } from "react-router-dom";
@@ -38,7 +39,8 @@ const Navbar = () => {
             { label: "Data Table", path: "/table" },
             { label: "Visualizations", path: "/chart" },
             { label: "Email Generator", path: "/emails" },
-            { label: "Reports & Insights", path: "/reports" },
+            { label: "MRA Reports", path: "/reports" },
+            { label: "QA Metrics", path: "/qa-metrics" },
           ].map((item) => (
             <Button
               key={item.label}

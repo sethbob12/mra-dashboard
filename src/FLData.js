@@ -30,13 +30,13 @@ const FLData = [
     "clientRevisionsWeek": 6,
     "clientRevisionsMonth": 24,
     "clientRevisionsPast60": 50,
-    "lateCasePercentage": 50,
+    "lateCasePercentage": 25,
     "avgCasesPerDay": 4.05,
     "revisionRate": 29.63,
-    "timelinessScore": 50,
+    "timelinessScore": 75,
     "efficiencyScore": 90.25,
     "accuracyScore": 70.37,
-    "qualityScore": 70.27
+    "qualityScore": 75.27
   },
   {
     "mra_id": 3,

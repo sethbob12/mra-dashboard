@@ -174,10 +174,24 @@ const FLTable = ({ data }) => {
         Reviewer Table
       </Typography>
       <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-        <Button variant="contained" onClick={handleExportCSV}>
+        <Button
+          variant="contained"
+          onClick={handleExportCSV}
+          sx={{
+            backgroundColor: "#2673b8",
+            "&:hover": { backgroundColor: "#1f5a92" },
+          }}
+        >
           Export as CSV
         </Button>
-        <Button variant="contained" onClick={handleExportPDF}>
+        <Button
+          variant="contained"
+          onClick={handleExportPDF}
+          sx={{
+            backgroundColor: "#2673b8",
+            "&:hover": { backgroundColor: "#1f5a92" },
+          }}
+        >
           Export as PDF
         </Button>
       </Box>

@@ -3,17 +3,18 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Container, CssBaseline } from "@mui/material";
 import Navbar from "./Navbar";
-import Home from "./Home"; // ✅ NEW Home Page
+import Home from "./Home"; // NEW Home Page
 import FLTable from "./FLTable";
 import FLChart from "./FLChart";
 import EmailListGenerator from "./EmailListGenerator";
 import QAFeedbackAggregator from "./QAFeedbackAggregator";
 import ClientFeedbackAggregator from "./ClientFeedbackAggregator";
 import Reports from "./Reports";
+import QAMetrics from "./QAMetrics"; // Import your new QA Metrics component
 import FLData from "./FLData";
 import FeedbackData from "./FeedbackData";
 
-// ✅ Full list of reviewers
+// Full list of reviewers
 const reviewers = [
   "Alyssa Teves", "Beatrice Solon", "Becca Kennedy", "Chukwudi Akubueze", "Chris Ekundare",
   "Dilay Ackan", "Ebenezer Arisa", "Emmanuel Uduigwome", "Eliza Gomez", "Erika Sucgang",
@@ -38,13 +39,15 @@ function App() {
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Routes>
-          <Route path="/" element={<Home />} /> {/* ✅ Home Page */}
-          <Route path="/table" element={<FLTable data={FLData} />} /> {/* ✅ Table Now at /table */}
+          <Route path="/" element={<Home />} /> {/* Home Page */}
+          <Route path="/table" element={<FLTable data={FLData} />} /> {/* Table at /table */}
           <Route path="/chart" element={<FLChart data={FLData} />} />
           <Route path="/emails" element={<EmailListGenerator data={FLData} />} />
           <Route path="/qa-feedback" element={<QAFeedbackAggregator feedbackData={FeedbackData} />} />
           <Route path="/client-feedback" element={<ClientFeedbackAggregator feedbackData={FeedbackData} />} />
           <Route path="/reports" element={<Reports reviewers={reviewers} fetchReportData={fetchReportData} />} />
+          {/* New QA Metrics route */}
+          <Route path="/qa-metrics" element={<QAMetrics />} />
         </Routes>
       </Container>
     </>

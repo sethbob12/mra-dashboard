@@ -1,9 +1,9 @@
+// src/FLChart.js
 import React, { useState, useRef } from "react";
 import { 
   Box, 
   Typography, 
   Paper, 
-  Button, 
   Popover, 
   Table, 
   TableBody, 
@@ -11,24 +11,31 @@ import {
   TableContainer, 
   TableHead, 
   TableRow, 
-  TableSortLabel 
+  TableSortLabel,
+  Button
 } from "@mui/material";
 import {
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
-  Tooltip as RechartsTooltip,
-  Legend,
-  ScatterChart,
-  Scatter,
+  Customized,
+  ReferenceArea,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip as ScatterTooltip,
-  Label
+  ScatterChart,
+  Scatter,
+  ComposedChart,
+  Line,
+  Label,
+  Tooltip as RechartsTooltip,
+  Legend,
 } from "recharts";
 import InteractiveStackedBarChart from "./InteractiveStackedBarChart";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import autoTable from "jspdf-autotable"; // Now imported as a function
 
 // Define pie chart colors
 const pieColors = [
@@ -40,7 +47,7 @@ const pieColors = [
   "#36A2EB",
 ];
 
-// Custom tooltip for Revision Rate vs. Cases Past 30 Days scatter chart
+// Custom tooltip for Revision Rate vs. Cases Past 30 Days
 const CustomTooltipRevision = ({ active, payload }) => {
   if (active && payload && payload.length > 0) {
     const { reviewer, x, y } = payload[0].payload;
@@ -55,7 +62,7 @@ const CustomTooltipRevision = ({ active, payload }) => {
   return null;
 };
 
-// Custom tooltip for Accuracy vs. Timeliness scatter chart
+// Custom tooltip for Accuracy vs. Timeliness
 const CustomTooltipPerformance = ({ active, payload }) => {
   if (active && payload && payload.length > 0) {
     const { reviewer, accuracy, timeliness } = payload[0].payload;
@@ -199,15 +206,19 @@ const ClientReviewerGrid = ({ data }) => {
   );
 };
 
-// Main FLChart Component: Integrates all visualizations.
 const FLChart = ({ data }) => {
   const pieData = generatePieData(data);
   const revisionScatterData = generateRevisionRateScatterData(data);
   const performanceScatterData = generatePerformanceScatterData(data);
 
+  // For the popover attached to the PieChart.
   const containerRef = useRef(null);
   const [popoverData, setPopoverData] = useState(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
+
+  // Refs for chart containers (for export)
+  const revisionChartRef = useRef(null);
+  const performanceChartRef = useRef(null);
 
   const handleSliceClick = (entry) => {
     setPopoverData(entry);
@@ -219,12 +230,149 @@ const FLChart = ({ data }) => {
     setPopoverData(null);
   };
 
+  // Local handleCopy for the popover.
   const handleCopy = () => {
     if (popoverData) {
       const textToCopy = popoverData.names.join(", ");
       navigator.clipboard.writeText(textToCopy);
       alert(`Copied: ${textToCopy}`);
     }
+  };
+
+  // Compute min and max x values from revision scatter data.
+  const xValues = revisionScatterData.map((d) => d.x);
+  const minXData = Math.min(...xValues);
+  const maxXData = Math.max(...xValues);
+
+  // Prepare line data for the piecewise revision line:
+  // (minXData, 0) -> (minXData, 20) -> (maxXData, 40)
+  const lineData = [
+    { x: minXData, y: 0 },
+    { x: minXData, y: 20 },
+    { x: maxXData, y: 40 },
+  ];
+
+  // Custom dot renderer for revision chart.
+  const renderCustomDot = (props) => {
+    const { cx, cy, payload } = props;
+    const slope = 20 / (maxXData - minXData);
+    const expectedY = payload.x === minXData 
+      ? 20 
+      : 20 + slope * (payload.x - minXData);
+    const fillColor = payload.y < expectedY ? "green" : "red";
+    return <circle cx={cx} cy={cy} r={5} fill={fillColor} stroke="#fff" strokeWidth={1} />;
+  };
+
+  // Custom dot renderer for performance chart.
+  const renderCustomDotForPerformance = (props) => {
+    const { cx, cy, payload } = props;
+    const isInGreenArea = payload.accuracy >= 75 && payload.timeliness >= 75 && payload.timeliness <= 99;
+    return <circle cx={cx} cy={cy} r={5} fill={isInGreenArea ? "green" : "red"} stroke="#fff" strokeWidth={1} />;
+  };
+
+  // Compute max accuracy from performance scatter data.
+  const accuracyValues = performanceScatterData.map((d) => d.accuracy);
+  const maxAccuracy = Math.max(...accuracyValues);
+
+  // Build lists for revision chart dots.
+  const getRevisionChartDotLists = () => {
+    const green = [];
+    const red = [];
+    const slope = 20 / (maxXData - minXData);
+    revisionScatterData.forEach((d) => {
+      const expectedY = d.x === minXData ? 20 : 20 + slope * (d.x - minXData);
+      if (d.y < expectedY) {
+        green.push(d.reviewer);
+      } else {
+        red.push(d.reviewer);
+      }
+    });
+    return { green, red };
+  };
+
+  // Build lists for performance chart dots.
+  const getPerformanceChartDotLists = () => {
+    const green = [];
+    const red = [];
+    performanceScatterData.forEach((d) => {
+      if (d.accuracy >= 75 && d.timeliness >= 75 && d.timeliness <= 99) {
+        green.push(d.reviewer);
+      } else {
+        red.push(d.reviewer);
+      }
+    });
+    return { green, red };
+  };
+
+  // Export function for Revision Chart.
+  const exportRevisionChartPDF = async () => {
+    if (!revisionChartRef.current) return;
+    const canvas = await html2canvas(revisionChartRef.current);
+    const imgData = canvas.toDataURL("image/png");
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Revision Rate vs. Cases Past 30 Days", 14, 20);
+    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
+    const { green, red } = getRevisionChartDotLists();
+    const maxRows = Math.max(green.length, red.length);
+    const tableBody = [];
+    for (let i = 0; i < maxRows; i++) {
+      tableBody.push([green[i] || "", red[i] || ""]);
+    }
+    autoTable(doc, {
+      head: [["Green Dots", "Red Dots"]],
+      body: tableBody,
+      startY: 140,
+      theme: "grid",
+    });
+    doc.save("revision_chart.pdf");
+  };
+
+  // Export function for Performance Chart.
+  const exportPerformanceChartPDF = async () => {
+    if (!performanceChartRef.current) return;
+    const canvas = await html2canvas(performanceChartRef.current);
+    const imgData = canvas.toDataURL("image/png");
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Accuracy vs. Timeliness", 14, 20);
+    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
+    const { green, red } = getPerformanceChartDotLists();
+    const maxRows = Math.max(green.length, red.length);
+    const tableBody = [];
+    for (let i = 0; i < maxRows; i++) {
+      tableBody.push([green[i] || "", red[i] || ""]);
+    }
+    autoTable(doc, {
+      head: [["Green Dots", "Red Dots"]],
+      body: tableBody,
+      startY: 140,
+      theme: "grid",
+    });
+    doc.save("performance_chart.pdf");
+  };
+
+  // Render a triangle covering the area below the piecewise revision line.
+  // Triangle vertices in data coordinates: A: (minXData, 0), B: (minXData, 20), C: (maxXData, 40), D: (maxXData, 0)
+  const renderTriangleBackground = (props) => {
+    if (!props || !props.viewBox) return null;
+    const { x, y, width, height } = props.viewBox;
+    const minDomain = 30;
+    const maxDomain = maxXData;
+    const mapX = (val) => x + ((val - minDomain) / (maxDomain - minDomain)) * width;
+    const mapY = (val) => y + height - ((val - 0) / 50) * height;
+    const A = { x: mapX(minXData), y: mapY(0) };
+    const B = { x: mapX(minXData), y: mapY(20) };
+    const C = { x: mapX(maxXData), y: mapY(40) };
+    const D = { x: mapX(maxXData), y: mapY(0) };
+    return (
+      <polygon
+        points={`${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y} ${D.x},${D.y}`}
+        fill="rgba(0,255,0,0.5)"
+        stroke="green"
+        strokeWidth={2}
+      />
+    );
   };
 
   return (
@@ -237,7 +385,7 @@ const FLChart = ({ data }) => {
       <InteractiveStackedBarChart data={data} />
 
       {/* Pie Chart: Reviewer Distribution */}
-      <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 3 }}>
+      <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 3 }} ref={containerRef}>
         <Typography variant="h6" sx={{ mb: 2, color: "#1E73BE" }}>
           Reviewer Distribution Across Clients
         </Typography>
@@ -288,28 +436,35 @@ const FLChart = ({ data }) => {
         )}
       </Popover>
 
-      {/* Scatter Plot: Revision Rate vs. Cases Past 30 Days */}
-      <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 3 }}>
+      {/* Revision Chart with Export Button */}
+      <Paper elevation={4} sx={{ p: 3, mb: 2, borderRadius: 2, boxShadow: 3 }} ref={revisionChartRef}>
         <Typography variant="h6" sx={{ mb: 2, color: "#1E73BE" }}>
           Revision Rate vs. Cases Past 30 Days
         </Typography>
         <ResponsiveContainer width="100%" height={400}>
-          <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+          <ComposedChart data={revisionScatterData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" dataKey="x" domain={[30, "dataMax"]}>
+            <XAxis type="number" dataKey="x" domain={[30, maxXData]}>
               <Label value="Cases Past 30 Days" offset={-5} position="insideBottom" />
             </XAxis>
-            <YAxis type="number" dataKey="y" domain={[0, "dataMax"]}>
+            <YAxis type="number" dataKey="y" domain={[0, 50]}>
               <Label value="Revision Rate (%)" angle={-90} position="insideLeft" />
             </YAxis>
-            <ScatterTooltip content={<CustomTooltipRevision />} />
-            <Scatter data={revisionScatterData} fill="#1E73BE" />
-          </ScatterChart>
+            <Customized content={renderTriangleBackground} />
+            <RechartsTooltip content={<CustomTooltipRevision />} />
+            <Scatter data={revisionScatterData} shape={renderCustomDot} />
+            <Line type="linear" data={lineData} dataKey="y" stroke="#000" dot={false} />
+          </ComposedChart>
         </ResponsiveContainer>
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Button variant="contained" color="primary" onClick={exportRevisionChartPDF}>
+            Export Revision Chart to PDF
+          </Button>
+        </Box>
       </Paper>
 
-      {/* Scatter Plot: Accuracy vs. Timeliness */}
-      <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 3 }}>
+      {/* Performance Chart with Export Button */}
+      <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 3 }} ref={performanceChartRef}>
         <Typography variant="h6" sx={{ mb: 2, color: "#1E73BE" }}>
           Accuracy vs. Timeliness (Reviewer Performance)
         </Typography>
@@ -322,10 +477,16 @@ const FLChart = ({ data }) => {
             <YAxis type="number" dataKey="timeliness" domain={[50, "dataMax"]}>
               <Label value="Timeliness (%)" angle={-90} position="insideLeft" />
             </YAxis>
-            <ScatterTooltip content={<CustomTooltipPerformance />} />
-            <Scatter data={performanceScatterData} fill="#FF8042" />
+            <ReferenceArea x1={75} x2={maxAccuracy} y1={75} y2={99} fill="rgba(0,255,0,0.3)" stroke="green" strokeOpacity={0.6} />
+            <RechartsTooltip content={<CustomTooltipPerformance />} />
+            <Scatter data={performanceScatterData} shape={renderCustomDotForPerformance} />
           </ScatterChart>
         </ResponsiveContainer>
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Button variant="contained" color="primary" onClick={exportPerformanceChartPDF}>
+            Export Performance Chart to PDF
+          </Button>
+        </Box>
       </Paper>
 
       {/* Client-Reviewer Grid */}

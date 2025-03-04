@@ -4,13 +4,13 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#007bff', // Example brand color
+      main: '#007bff', // Brand color
     },
     secondary: {
-      main: '#28a745', // Example secondary color
+      main: '#28a745', // Secondary color
     },
     background: {
-      default: '#f8f9fa', // Light gray background
+      default: '#f0f0f0', // A warmer, more subdued light gray
     },
     text: {
       primary: '#333',
@@ -33,6 +33,22 @@ const theme = createTheme({
     button: {
       textTransform: 'none',
       fontWeight: 600,
+    },
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#ffffff', // Keeps Paper white for contrast
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#f0f0f0', // Matches the overall app background
+        },
+      },
     },
   },
 });
