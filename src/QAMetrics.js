@@ -36,6 +36,7 @@ import {
   LabelList,
   LineChart,
   Line,
+  Tooltip as LineTooltip,
 } from 'recharts';
 
 dayjs.extend(isSameOrAfter);
@@ -64,7 +65,7 @@ const getWorkdays = (start, end) => {
 // Define base colors.
 const baseColors = ["#1E73BE", "#FF8042", "#FFBB28", "#00C49F", "#FF6384", "#36A2EB", "#8A2BE2"];
 // We'll use these for both bar charts and trend lines.
-const barColors = baseColors; // Added to fix the "barColors is not defined" error.
+const barColors = baseColors;
 
 const QAMetrics = () => {
   // Filters for individual QA Metrics section.
@@ -82,10 +83,12 @@ const QAMetrics = () => {
     return initial;
   });
 
-  // Build unique QA Member options from QAData.
+  // Build unique QA Member IDs from QAData.
   const uniqueQAMemberIDs = useMemo(() => {
     return Array.from(new Set(QAData.map(item => item.qaMember)));
   }, []);
+
+  // Build dropdown options: "All" + each "qaMember - name"
   const uniqueQAMembers = ['All', ...QAData.map(item => `${item.qaMember} - ${item.name}`)];
 
   // Create color mapping for unique QA members.
@@ -171,20 +174,19 @@ const QAMetrics = () => {
 
   // Combined Trend Data for All QA Members over the past 30 days.
   const combinedTrendData = useMemo(() => {
-    // Compute a fixed drift per QA member.
     const drifts = {};
     uniqueQAMemberIDs.forEach(qaMember => {
-      const member = QAData.find(m => m.qaMember === qaMember);
-      drifts[qaMember] = Math.random() * 1 - 0.5; // drift between -0.5 and 0.5
+      // Larger drift range so lines differ more.
+      drifts[qaMember] = Math.random() * 3 - 1.5; // drift between -1.5 and +1.5
     });
     const data = [];
     for (let i = 0; i < 30; i++) {
       const date = dayjs().subtract(29 - i, 'day').format('MMM D');
       const point = { date };
       uniqueQAMemberIDs.forEach(qaMember => {
-        const member = QAData.find(m => m.qaMember === qaMember);
+        const memberObj = QAData.find(x => x.qaMember === qaMember);
         const drift = drifts[qaMember];
-        const initial = member.avgCasesDay - drift * 29; // so that on day 29 value equals member.avgCasesDay
+        const initial = memberObj.avgCasesDay - drift * 29;
         const value = initial + drift * i;
         point[`qa_${qaMember}`] = Number(value.toFixed(1));
       });
@@ -203,7 +205,7 @@ const QAMetrics = () => {
         if (val > max) max = val;
       });
     });
-    return { minDomain: min - 10, maxDomain: max + 10 };
+    return { minDomain: Math.floor(min - 10), maxDomain: Math.ceil(max + 10) };
   }, [combinedTrendData, uniqueQAMemberIDs]);
 
   // Handler to toggle line opacity in the combined chart via the legend.
@@ -217,7 +219,7 @@ const QAMetrics = () => {
         {/* Individual QA Metrics Section */}
         <Paper sx={{ p: 3, borderRadius: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
-            QA Metrics
+            QA Metrics Report
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4}>
@@ -265,6 +267,7 @@ const QAMetrics = () => {
           >
             Generate QA Metrics Report
           </Button>
+
           {report && (
             <Box sx={{ mt: 3 }}>
               {report.map(member => (
@@ -298,23 +301,31 @@ const QAMetrics = () => {
                     </Grid>
                     {/* Right: Bar Chart for Cases by Client */}
                     <Grid item xs={12} sm={6}>
-                      <Box sx={{ height: 150, width: 300, mx: 'auto' }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1, textAlign: 'center' }}>
-                          Cases by Client
-                        </Typography>
-                        <ResponsiveContainer width="100%" height="100%">
+                      <Box sx={{
+                        height: 380,
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'left',
+                        alignItems: 'center'
+                      }}>
+                        <ResponsiveContainer width="90%" height="80%">
                           <BarChart
                             data={Object.entries(member.breakdownByClient).map(([client, count]) => ({ client, count }))}
                             margin={{ left: 10, right: 10, top: 20, bottom: 10 }}
+                            barCategoryGap="20%"
+                            barGap={4}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="client" />
                             <YAxis allowDecimals={false} />
                             <RechartsTooltip />
-                            <Bar dataKey="count" barSize={20}>
+                            <Bar dataKey="count" barSize={30}>
                               <LabelList dataKey="count" position="top" />
-                              {Object.entries(member.breakdownByClient).map(([client, count], index) => (
-                                <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+                              {Object.entries(member.breakdownByClient).map(([client, c], index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={barColors[index % barColors.length]}
+                                />
                               ))}
                             </Bar>
                           </BarChart>
@@ -324,6 +335,7 @@ const QAMetrics = () => {
                   </Grid>
                 </Paper>
               ))}
+
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Button variant="contained" color="secondary" onClick={exportReportToPDF}>
                   Export QA Metrics to PDF
@@ -365,20 +377,23 @@ const QAMetrics = () => {
                 </Box>
               ))}
             </Box>
-            <ResponsiveContainer width="100%" height={600}>
+
+            <ResponsiveContainer width="100%" height={500}>
               <LineChart data={combinedTrendData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis domain={[minDomain, maxDomain]} />
-                <RechartsTooltip />
+                <LineTooltip cursor={{ strokeDasharray: '3 3', strokeWidth: 1 }} />
                 {uniqueQAMemberIDs.map(qaMember => (
                   <Line
                     key={qaMember}
                     type="monotone"
                     dataKey={`qa_${qaMember}`}
                     stroke={qaColors[qaMember]}
+                    strokeWidth={3}
                     strokeOpacity={activeQA[qaMember] ? 1 : 0.3}
-                    dot={{ r: 3 }}
+                    dot={{ r: 1 }}
+                    isAnimationActive={false}
                   />
                 ))}
               </LineChart>

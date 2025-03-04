@@ -2,6 +2,7 @@
 
 const QAData = [
   {
+    qaMember:1,
     name: "QA Member 1",
     totalCasesSubmitted: 1500,
     breakdownByClient: {
@@ -68,6 +69,7 @@ const QAData = [
     ],
   },
   {
+    qaMember: 2,
     name: "QA Member 2",
     totalCasesSubmitted: 1400,
     breakdownByClient: {
@@ -134,6 +136,7 @@ const QAData = [
     ],
   },
   {
+    qaMember: 3,
     name: "QA Member 3",
     totalCasesSubmitted: 1600,
     breakdownByClient: {
@@ -200,6 +203,7 @@ const QAData = [
     ],
   },
   {
+    qaMember: 4,
     name: "QA Member 4",
     totalCasesSubmitted: 1550,
     breakdownByClient: {
@@ -266,6 +270,7 @@ const QAData = [
     ],
   },
   {
+    qaMember: 5,
     name: "QA Member 5",
     totalCasesSubmitted: 1450,
     breakdownByClient: {

@@ -7,6 +7,7 @@ import TableChartIcon from "@mui/icons-material/TableChart";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import EmailIcon from "@mui/icons-material/Email";
 import ReportIcon from "@mui/icons-material/Assessment";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
 // Define motion variants for the card animation
 const cardVariants = {
@@ -17,11 +18,33 @@ const cardVariants = {
 const Home = () => {
   const navigate = useNavigate();
 
+  // Updated modules array:
   const modules = [
-    { label: "Data Table", icon: <TableChartIcon fontSize="large" sx={{ color: "#1E73BE" }} />, path: "/table" },
-    { label: "Visualizations", icon: <BarChartIcon fontSize="large" sx={{ color: "#1E73BE" }} />, path: "/chart" },
-    { label: "Email Generator", icon: <EmailIcon fontSize="large" sx={{ color: "#1E73BE" }} />, path: "/emails" },
-    { label: "Reports & Insights", icon: <ReportIcon fontSize="large" sx={{ color: "#1E73BE" }} />, path: "/reports" },
+    {
+      label: "Data Table",
+      icon: <TableChartIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      path: "/table",
+    },
+    {
+      label: "Visualizations",
+      icon: <BarChartIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      path: "/chart",
+    },
+    {
+      label: "Email Generator",
+      icon: <EmailIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      path: "/emails",
+    },
+    {
+      label: "MRA Reports",
+      icon: <ReportIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      path: "/reports",
+    },
+    {
+      label: "QA Metrics",
+      icon: <ManageAccountsIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      path: "/qa-metrics",
+    },
   ];
 
   return (
@@ -53,7 +76,7 @@ const Home = () => {
       {/* Modules Grid with animation */}
       <Grid container spacing={4} justifyContent="center">
         {modules.map((module, index) => (
-          <Grid item key={module.label} xs={12} sm={6} md={3}>
+          <Grid item key={module.label} xs={12} sm={6} md={4} lg={3}>
             <motion.div
               variants={cardVariants}
               initial="hidden"
