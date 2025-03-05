@@ -82,16 +82,20 @@ const EmailListGenerator = ({ data }) => {
   // Function to compose email using the addresses from the last copied category.
   // Defaults to "All" if nothing was copied.
   // Subject: "[client] Update -" if a specific client was copied; otherwise "Update -".
-  const handleComposeEmail = () => {
-    const clientForEmail = copiedClient || "All";
-    const addresses = emailCategories[clientForEmail].join(", ");
-    const subject =
-      clientForEmail === "All" ? "Update -" : `[${clientForEmail}] Update -`;
-    const mailtoLink = `mailto:?bcc=${encodeURIComponent(
-      addresses
-    )}&subject=${encodeURIComponent(subject)}`;
+  // Function to compose email using the addresses from the last copied category.
+// If no category has been copied, it opens the email client with an empty Bcc field.
+const handleComposeEmail = () => {
+  if (copiedClient) {
+    const addresses = emailCategories[copiedClient].join(", ");
+    const subject = `[${copiedClient}] Update -`;
+    const mailtoLink = `mailto:?bcc=${encodeURIComponent(addresses)}&subject=${encodeURIComponent(subject)}`;
     window.location.href = mailtoLink;
-  };
+  } else {
+    // Open mail client without Bcc if nothing was copied
+    const mailtoLink = `mailto:?subject=${encodeURIComponent("Update -")}`;
+    window.location.href = mailtoLink;
+  }
+};
 
   // Function to export all emails from the "All" category as a CSV file.
   const handleExportEmails = () => {
