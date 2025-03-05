@@ -755,10 +755,8 @@ const FeedbackData = [
     date: "2024-11-30T11:50:00Z",
     caseID: "5-3000084"
   },
-
-  // Reviewer 22: Miray Kaptan (clients: "PFR, Lincoln, Hartford")
   {
-    name: "Miray Kaptan",
+    name: "Maja Loja",
     feedbackType: "client",
     client: "Lincoln",
     text: "Ensure that the case report accurately reflects all recent clinical observations.",
@@ -766,7 +764,7 @@ const FeedbackData = [
     caseID: "5-3000085"
   },
   {
-    name: "Miray Kaptan",
+    name: "Maja Loja",
     feedbackType: "client",
     client: "Hartford",
     text: "Update the report with comprehensive details from the latest diagnostic evaluations.",
@@ -774,7 +772,7 @@ const FeedbackData = [
     caseID: "5-3000086"
   },
   {
-    name: "Miray Kaptan",
+    name: "Maja Loja",
     feedbackType: "internal",
     client: "PFR",
     qaMember: 1,
@@ -783,7 +781,7 @@ const FeedbackData = [
     caseID: "5-3000087"
   },
   {
-    name: "Miray Kaptan",
+    name: "Maja Loja",
     feedbackType: "internal",
     client: "Lincoln",
     qaMember: 2,
@@ -792,7 +790,7 @@ const FeedbackData = [
     caseID: "5-3000088"
   },
 
-  // Reviewer 23: Oluseye Oluremi (clients: "PFR, Lincoln, Hartford, Standard")
+  // Reviewer 22: Oluseye Oluremi (clients: "PFR, Lincoln, Hartford, Standard")
   {
     name: "Oluseye Oluremi",
     feedbackType: "client",
@@ -828,7 +826,7 @@ const FeedbackData = [
     caseID: "5-3000092"
   },
 
-  // Reviewer 24: Oluwadamilola Ogunsemowo (clients: "PFR, Lincoln, Hartford, Standard")
+  // Reviewer 23: Oluwadamilola Ogunsemowo (clients: "PFR, Lincoln, Hartford, Standard")
   {
     name: "Oluwadamilola Ogunsemowo",
     feedbackType: "client",
@@ -864,7 +862,7 @@ const FeedbackData = [
     caseID: "5-3000096"
   },
 
-  // Reviewer 25: Thomas Oyinlola (clients: "PFR, Lincoln, Hartford, Peer Review, Standard")
+  // Reviewer 24: Thomas Oyinlola (clients: "PFR, Lincoln, Hartford, Peer Review, Standard")
   {
     name: "Thomas Oyinlola",
     feedbackType: "client",
@@ -900,7 +898,7 @@ const FeedbackData = [
     caseID: "5-3000100"
     },
   
-    // 26. Ravit Haleva
+    // 25. Ravit Haleva
     {
       name: "Ravit Haleva",
     feedbackType: "client",
@@ -936,7 +934,7 @@ const FeedbackData = [
     caseID: "5-2000104"
   },
 
-  // Reviewer 27: Sarah Watkins (clients: "Standard")
+  // Reviewer 26: Sarah Watkins (clients: "Standard")
   {
     name: "Sarah Watkins",
     feedbackType: "client",
@@ -972,7 +970,7 @@ const FeedbackData = [
     caseID: "5-2000108"
   },
 
-  // Reviewer 28: Shaila Maramara (clients: "PFR, Lincoln, Hartford, Standard")
+  // Reviewer 27: Shaila Maramara (clients: "PFR, Lincoln, Hartford, Standard")
   {
     name: "Shaila Maramara",
     feedbackType: "client",
@@ -1008,7 +1006,7 @@ const FeedbackData = [
     caseID: "5-2000112"
   },
 
-  // Reviewer 29: Vincent Medicielo (clients: "PFR, NYL")
+  // Reviewer 28: Vincent Medicielo (clients: "PFR, NYL")
   {
     name: "Vincent Medicielo",
     feedbackType: "client",
@@ -1044,7 +1042,7 @@ const FeedbackData = [
     caseID: "5-2000116"
   },
 
-  // Reviewer 30: Will Smith (clients: "PFR, Lincoln, Hartford, Peer Review, Telco, NYL, Standard")
+  // Reviewer 29: Will Smith (clients: "PFR, Lincoln, Hartford, Peer Review, Telco, NYL, Standard")
   {
     name: "Will Smith",
     feedbackType: "client",
@@ -1080,7 +1078,7 @@ const FeedbackData = [
     caseID: "5-2000120"
   },
 
-  // Reviewer 31: Yllana Saavedra (clients: "PFR")
+  // Reviewer 30: Yllana Saavedra (clients: "PFR")
   {
     name: "Yllana Saavedra",
     feedbackType: "client",
@@ -1116,7 +1114,7 @@ const FeedbackData = [
     caseID: "5-2000124"
   },
 
-  // Reviewer 32: Temilola Edu (clients: "PFR")
+  // Reviewer 31: Temilola Edu (clients: "PFR")
   {
     name: "Temilola Edu",
     feedbackType: "client",
@@ -1152,7 +1150,7 @@ const FeedbackData = [
     caseID: "5-2000128"
   },
 
-  // Reviewer 33: Toluwani Merari (clients: "PFR, Lincoln")
+  // Reviewer 32: Toluwani Merari (clients: "PFR, Lincoln")
   {
     name: "Toluwani Merari",
     feedbackType: "client",
@@ -1188,7 +1186,7 @@ const FeedbackData = [
     caseID: "5-2000132"
   },
 
-  // Reviewer 34: Oluwapelumi Gabriel (clients: "PFR, Lincoln")
+  // Reviewer 33: Oluwapelumi Gabriel (clients: "PFR, Lincoln")
   {
     name: "Oluwapelumi Gabriel",
     feedbackType: "client",
@@ -1224,7 +1222,7 @@ const FeedbackData = [
     caseID: "5-2000136"
   },
 
-  // Reviewer 35: Tolulope Ajayi (clients: "PFR, Lincoln")
+  // Reviewer 34: Tolulope Ajayi (clients: "PFR, Lincoln")
   {
     name: "Tolulope Ajayi",
     feedbackType: "client",
@@ -1260,7 +1258,7 @@ const FeedbackData = [
     caseID: "5-2000140"
   },
 
-  // Reviewer 36: Addison Marimberga (clients: "PFR, Lincoln, Hartford, Peer Review, Telco, NYL, Standard")
+  // Reviewer 35: Addison Marimberga (clients: "PFR, Lincoln, Hartford, Peer Review, Telco, NYL, Standard")
   {
     name: "Addison Marimberga",
     feedbackType: "client",
@@ -1296,7 +1294,7 @@ const FeedbackData = [
     caseID: "5-2000144"
   },
 
-  // Reviewer 37: Goodluck Odii (clients: "Lincoln")
+  // Reviewer 36: Goodluck Odii (clients: "Lincoln")
   {
     name: "Goodluck Odii",
     feedbackType: "client",
@@ -1332,7 +1330,7 @@ const FeedbackData = [
     caseID: "5-2000148"
   },
 
-  // Reviewer 38: Fiyinfoluwa Yemi-Lebi (clients: "Lincoln, Hartford")
+  // Reviewer 37: Fiyinfoluwa Yemi-Lebi (clients: "Lincoln, Hartford")
   {
     name: "Fiyinfoluwa Yemi-Lebi",
     feedbackType: "client",
@@ -1368,7 +1366,7 @@ const FeedbackData = [
     caseID: "5-2000152"
   },
 
-  // Reviewer 39: Elizabeth Adeyanju (clients: "Lincoln, Standard")
+  // Reviewer 38: Elizabeth Adeyanju (clients: "Lincoln, Standard")
   {
     name: "Elizabeth Adeyanju",
     feedbackType: "client",
@@ -1404,7 +1402,7 @@ const FeedbackData = [
     caseID: "5-2000156"
   },
 
-  // Reviewer 40: Opemipo Ade-Akingboye (clients: "Lincoln")
+  // Reviewer 39: Opemipo Ade-Akingboye (clients: "Lincoln")
   {
     name: "Opemipo Ade-Akingboye",
     feedbackType: "client",
@@ -1440,7 +1438,7 @@ const FeedbackData = [
     caseID: "5-2000160"
     },
   
-    // 41. Lebari Damgbor
+    // 40. Lebari Damgbor
     {
       name: "Lebari Damgbor",
     feedbackType: "client",
@@ -1476,7 +1474,7 @@ const FeedbackData = [
     caseID: "5-2000164"
   },
 
-  // Reviewer 42: Uchechukwu Ejike (clients: "Lincoln, Hartford")
+  // Reviewer 41: Uchechukwu Ejike (clients: "Lincoln, Hartford")
   {
     name: "Uchechukwu Ejike",
     feedbackType: "client",
@@ -1512,7 +1510,7 @@ const FeedbackData = [
     caseID: "5-2000168"
   },
 
-  // Reviewer 43: Oluwaseyi Adare (clients: "Lincoln, Hartford")
+  // Reviewer 42: Oluwaseyi Adare (clients: "Lincoln, Hartford")
   {
     name: "Oluwaseyi Adare",
     feedbackType: "client",
@@ -1548,7 +1546,7 @@ const FeedbackData = [
     caseID: "5-2000172"
   },
 
-  // Reviewer 44: Mariam Akubo (clients: "Lincoln, Hartford")
+  // Reviewer 43: Mariam Akubo (clients: "Lincoln, Hartford")
   {
     name: "Mariam Akubo",
     feedbackType: "client",
@@ -1584,7 +1582,7 @@ const FeedbackData = [
     caseID: "5-2000176"
   },
 
-  // Reviewer 45: Jamiu Olurunnisola (clients: "Lincoln")
+  // Reviewer 44: Jamiu Olurunnisola (clients: "Lincoln")
   {
     name: "Jamiu Olurunnisola",
     feedbackType: "client",
@@ -1620,7 +1618,7 @@ const FeedbackData = [
     caseID: "5-2000180"
   },
 
-  // Reviewer 46: Al Ameen Kalejaiye (clients: "Lincoln")
+  // Reviewer 45: Al Ameen Kalejaiye (clients: "Lincoln")
   {
     name: "Al Ameen Kalejaiye",
     feedbackType: "client",
@@ -1656,7 +1654,7 @@ const FeedbackData = [
     caseID: "5-2000184"
   },
 
-  // Reviewer 47: Solomon Bailey (clients: "Lincoln, NYL")
+  // Reviewer 46: Solomon Bailey (clients: "Lincoln, NYL")
   {
     name: "Solomon Bailey",
     feedbackType: "client",
@@ -1692,7 +1690,7 @@ const FeedbackData = [
     caseID: "5-2000188"
   },
 
-  // Reviewer 48: Oluwafemi Durojaiye (clients: "Lincoln")
+  // Reviewer 47: Oluwafemi Durojaiye (clients: "Lincoln")
   {
     name: "Oluwafemi Durojaiye",
     feedbackType: "client",

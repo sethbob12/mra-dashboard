@@ -92,7 +92,7 @@ const InteractiveStackedBarChart = ({ data }) => {
   return (
     <Paper elevation={4} style={{ padding: 16, marginTop: 16, overflowY: "auto" }}>
       <Typography variant="h6" style={{ marginBottom: 16, color: "#1E73BE" }}>
-        Reviewer Performance Stacked Bar Chart
+      
       </Typography>
       <FormControl style={{ marginBottom: 16, minWidth: 200 }}>
         <InputLabel id="client-select-label">Filter by Client</InputLabel>

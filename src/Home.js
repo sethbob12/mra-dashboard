@@ -9,7 +9,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import ReportIcon from "@mui/icons-material/Assessment";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
-// Define motion variants for the card animation
+// Motion variants for the module cards
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -18,7 +18,6 @@ const cardVariants = {
 const Home = () => {
   const navigate = useNavigate();
 
-  // Updated modules array:
   const modules = [
     {
       label: "Data Table",
@@ -51,29 +50,41 @@ const Home = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#f9f9f9",
-        fontFamily: "Open Sans, sans-serif",
-        py: 6,
+        // Subtle diagonal stripe pattern overlay
+        background: `
+          linear-gradient(
+            135deg,
+            rgba(245,248,250,0.3) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(245,248,250,0.3) 50%,
+            rgba(245,248,250,0.3) 75%,
+            transparent 75%,
+            transparent
+          ),
+          #f5f8fa
+        `,
+        backgroundSize: "40px 40px",
+        py: 8,
         px: { xs: 2, sm: 4, md: 8 },
         textAlign: "center",
       }}
     >
-      {/* Page Title */}
       <Typography
         variant="h4"
         sx={{
           fontWeight: "bold",
           color: "#1E73BE",
           mb: 1,
+          fontFamily: "Open Sans, sans-serif",
         }}
       >
         MRA Dashboard
       </Typography>
-      <Typography variant="subtitle1" sx={{ color: "#555", mb: 4 }}>
-        A modern, sleek dashboard for data insights
+      <Typography variant="subtitle1" sx={{ color: "#555", mb: 4, fontFamily: "Open Sans, sans-serif" }}>
+        Manage your reviews, reports, and emails all in one place.
       </Typography>
 
-      {/* Modules Grid with animation */}
       <Grid container spacing={4} justifyContent="center">
         {modules.map((module, index) => (
           <Grid item key={module.label} xs={12} sm={6} md={4} lg={3}>
@@ -81,7 +92,7 @@ const Home = () => {
               variants={cardVariants}
               initial="hidden"
               animate="visible"
-              transition={{ delay: index * 0.2 }}
+              transition={{ delay: index * 0.15 }}
             >
               <Paper
                 elevation={4}
@@ -117,9 +128,8 @@ const Home = () => {
         ))}
       </Grid>
 
-      {/* Footer (optional) */}
-      <Box sx={{ mt: 6, color: "#888" }}>
-        <Typography variant="caption">
+      <Box sx={{ mt: 8, color: "#888" }}>
+        <Typography variant="caption" sx={{ fontFamily: "Open Sans, sans-serif" }}>
           © {new Date().getFullYear()} MRA Dashboard. All rights reserved.
         </Typography>
       </Box>

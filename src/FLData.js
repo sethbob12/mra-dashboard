@@ -401,9 +401,9 @@ const FLData = [
   },
   {
     "mra_id": 22,
-    "name": "Miray Kaptan",
+    "name": "Next Reviewer",
     "clients": "PFR, Lincoln, Hartford",
-    "email": "mrykptn@gmail.com",
+    "email": "test@gmail.com",
     "totalCases": 575,
     "casesPast30Days": 64,
     "casesPast60Days": 106,

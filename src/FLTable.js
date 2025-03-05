@@ -13,10 +13,14 @@ import {
   TableFooter,
   Typography,
   Tooltip,
-  Button,
+  IconButton,
 } from "@mui/material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
+// Import your custom icons
+import csvIcon from "./assets/csvIcon.png";
+import pdfIcon from "./assets/pdfIcon.png";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
@@ -40,13 +44,6 @@ function stableSort(array, comparator) {
   return stabilizedArray.map((el) => el[0]);
 }
 
-// Returns a background color based on the quality score.
-const getQualityColor = (score) => {
-  if (score >= 90) return "#A5D6A7"; // light green
-  else if (score >= 80) return "#FFF59D"; // light yellow
-  else return "#EF9A9A"; // light red
-};
-
 const FLTable = ({ data }) => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("mra_id");
@@ -57,6 +54,7 @@ const FLTable = ({ data }) => {
     setOrderBy(property);
   };
 
+  // Sort the data
   const sortedData = stableSort(data, getComparator(order, orderBy));
 
   // Calculate summary (average) values
@@ -78,7 +76,7 @@ const FLTable = ({ data }) => {
       sortedData.length,
   };
 
-  // Define columns in the desired order
+  // Table columns
   const columns = [
     { id: "mra_id", label: "ID" },
     { id: "name", label: "Name", align: "left" },
@@ -90,7 +88,7 @@ const FLTable = ({ data }) => {
     { id: "qualityScore", label: "Quality Score" },
   ];
 
-  // Function to export table data as CSV.
+  // Export as CSV
   const handleExportCSV = () => {
     const csvHeaders = columns.map((col) => col.label);
     const csvRows = sortedData.map((row) =>
@@ -117,11 +115,11 @@ const FLTable = ({ data }) => {
     document.body.removeChild(link);
   };
 
-  // Function to export table data as PDF.
+  // Export as PDF
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text("Reviewer Table", 14, 20);
-    // Prepare table headers and rows.
+
     const tableColumn = columns.map((col) => col.label);
     const tableRows = sortedData.map((row) => [
       row.mra_id,
@@ -133,7 +131,7 @@ const FLTable = ({ data }) => {
       row.clientRevisionsMonth,
       `${row.qualityScore}%`,
     ]);
-    // Add table with autoTable.
+
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
@@ -142,7 +140,7 @@ const FLTable = ({ data }) => {
       startY: 30,
       theme: "striped",
     });
-    // Add a summary row below the table.
+
     const finalY = doc.lastAutoTable.finalY || 30;
     doc.setFont("helvetica", "bold");
     doc.text(
@@ -158,13 +156,9 @@ const FLTable = ({ data }) => {
       14,
       finalY + 10
     );
-    // Add a tooltip-like note for quality score trend.
+
     doc.setFontSize(10);
-    doc.text(
-      "Hover for Quality Trend: Overall Trend: Stable",
-      14,
-      finalY + 16
-    );
+    doc.text("Hover for Quality Trend: Overall Trend: Stable", 14, finalY + 16);
     doc.save("reviewers_table.pdf");
   };
 
@@ -174,27 +168,31 @@ const FLTable = ({ data }) => {
         Reviewer Table
       </Typography>
       <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-        <Button
-          variant="contained"
-          onClick={handleExportCSV}
-          sx={{
-            backgroundColor: "#2673b8",
-            "&:hover": { backgroundColor: "#1f5a92" },
-          }}
-        >
-          Export as CSV
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleExportPDF}
-          sx={{
-            backgroundColor: "#2673b8",
-            "&:hover": { backgroundColor: "#1f5a92" },
-          }}
-        >
-          Export as PDF
-        </Button>
+        {/* CSV icon button with no background color */}
+        <Tooltip title="Export as CSV">
+          <IconButton onClick={handleExportCSV}>
+            <Box
+              component="img"
+              src={csvIcon}
+              alt="CSV Icon"
+              sx={{ width: 40, height: 40 }}
+            />
+          </IconButton>
+        </Tooltip>
+
+        {/* PDF icon button with no background color */}
+        <Tooltip title="Export as PDF">
+          <IconButton onClick={handleExportPDF}>
+            <Box
+              component="img"
+              src={pdfIcon}
+              alt="PDF Icon"
+              sx={{ width: 40, height: 40 }}
+            />
+          </IconButton>
+        </Tooltip>
       </Box>
+
       <TableContainer
         component={Paper}
         sx={{
@@ -212,7 +210,7 @@ const FLTable = ({ data }) => {
                   sx={{
                     fontWeight: "bold",
                     color: "white",
-                    textAlign: "center", // Force headers to be centered.
+                    textAlign: "center",
                     borderRight: "1px solid #ddd",
                     backgroundColor: "#1E73BE",
                     position: "sticky",
@@ -263,7 +261,12 @@ const FLTable = ({ data }) => {
                 <TableCell
                   sx={{
                     textAlign: "center",
-                    backgroundColor: getQualityColor(row.qualityScore),
+                    backgroundColor:
+                      row.qualityScore >= 90
+                        ? "#A5D6A7"
+                        : row.qualityScore >= 80
+                        ? "#FFF59D"
+                        : "#EF9A9A",
                   }}
                 >
                   <Tooltip
@@ -285,9 +288,11 @@ const FLTable = ({ data }) => {
           </TableBody>
           <TableFooter>
             <TableRow sx={{ backgroundColor: "#e0e0e0" }}>
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>Avg</TableCell>
-              <TableCell sx={{ textAlign: "left", fontWeight: "bold" }}></TableCell>
-              <TableCell sx={{ textAlign: "left", fontWeight: "bold" }}></TableCell>
+              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
+                Avg
+              </TableCell>
+              <TableCell sx={{ textAlign: "left", fontWeight: "bold" }} />
+              <TableCell sx={{ textAlign: "left", fontWeight: "bold" }} />
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
                 {summary.avgCasesPerDay.toFixed(1)}
               </TableCell>
@@ -301,9 +306,7 @@ const FLTable = ({ data }) => {
                 {summary.clientRevisionsMonth.toFixed(1)}
               </TableCell>
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
-                <Tooltip title="Overall Trend: Stable" arrow>
-                  <span>{summary.qualityScore.toFixed(1)}%</span>
-                </Tooltip>
+                {summary.qualityScore.toFixed(1)}%
               </TableCell>
             </TableRow>
           </TableFooter>

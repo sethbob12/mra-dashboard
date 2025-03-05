@@ -22,7 +22,7 @@ const reviewers = [
   "Dilay Ackan", "Ebenezer Arisa", "Emmanuel Uduigwome", "Eliza Gomez", "Erika Sucgang",
   "Geni Payales", "Ieva Puidoke", "Ileri Lawal", "Iyanuoluwa Oni", "Joshua Arisa",
   "Joan Ajayi", "Khwaish Vasnani", "Lina Gutierrez", "Mary Goyenechea", "Mary Galos",
-  "Maja Loja", "Miray Kaptan", "Oluseye Oluremi", "Oluwadamilola Ogunsemowo", "Thomas Oyinlola",
+  "Maja Loja", "Oluseye Oluremi", "Oluwadamilola Ogunsemowo", "Thomas Oyinlola",
   "Ravit Haleva", "Sarah Watkins", "Shaila Maramara", "Vincent Medicielo", "Will Smith",
   "Yllana Saavedra", "Temilola Edu", "Toluwani Merari", "Oluwapelumi Gabriel", "Tolulope Ajayi",
   "Addison Marimberga", "Goodluck Odii", "Fiyinfoluwa Yemi-Lebi", "Elizabeth Adeyanju", "Opemipo Ade-Akingboye",
