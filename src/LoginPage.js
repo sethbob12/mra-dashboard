@@ -13,6 +13,25 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import BackgroundAnimation from "./BackgroundAnimation";
 
+// Container variants for staggering the ripple effect on hover.
+const containerVariants = {
+  initial: {},
+  hover: {
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+// Ripple variants for each cell. Updated to bold red.
+const cellVariants = {
+  initial: { borderColor: "transparent" },
+  hover: {
+    borderColor: ["transparent", "rgba(255, 0, 0, 0.8)", "transparent"],
+    transition: { duration: 0.8, ease: "easeInOut" },
+  },
+};
+
 export default function LoginPage() {
   const [code, setCode] = useState(new Array(5).fill(""));
   const [error, setError] = useState("");
@@ -41,7 +60,7 @@ export default function LoginPage() {
       setReaction((prev) => prev + 1);
     }
 
-    // Move focus to the next input if not the last one
+    // Move focus to next input if not the last one
     if (element.value && index < 4) {
       inputRefs.current[index + 1].focus();
     }
@@ -70,98 +89,43 @@ export default function LoginPage() {
   };
 
   return (
-    <Box sx={{ display: "flex", width: "100%", height: "100vh" }}>
-      {/* LEFT PANEL: Full-height image with gradient overlay */}
+    <Box
+      sx={{
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      {/* Background animation layer */}
       <Box
         sx={{
-          flex: 1,
-          position: "relative",
-          // A background image from Unsplash. Replace with your own if desired.
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1616401785185-6f465ad2e604?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 0,
         }}
       >
-        {/* Optional gradient overlay for better text contrast */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background:
-              "linear-gradient(135deg, rgba(30, 115, 190, 0.6) 0%, rgba(12, 59, 112, 0.6) 100%)",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            px: 3,
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{
-              color: "#fff",
-              mb: 2,
-              fontWeight: 700,
-              textAlign: "center",
-            }}
-          >
-            MRA Dashboard
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: "#fff",
-              maxWidth: 400,
-              textAlign: "center",
-            }}
-          >
-            Welcome to the place where data meets insight.
-          </Typography>
-        </Box>
+        <BackgroundAnimation reaction={reaction} />
       </Box>
 
-      {/* RIGHT PANEL: background animation & login card */}
+      {/* Foreground content (login card) */}
       <Box
         sx={{
-          flex: 1,
           position: "relative",
+          zIndex: 1,
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
-          overflow: "hidden",
-          backgroundColor: "#f5f5f5",
-          p: 2,
+          alignItems: "flex-start",
+          pt: "10vh",
+          height: "100%",
         }}
       >
-        {/* Background animation behind the login card */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 0,
-          }}
-        >
-          <BackgroundAnimation reaction={reaction} />
-        </Box>
-
-        {/* Login Card with rounded corners */}
-        <Card
-          sx={{
-            width: 320,
-            boxShadow: 4,
-            borderRadius: "16px", // more pronounced rounded corners
-            zIndex: 1, // ensure card is above the animation
-            py: 3,     // extra vertical padding to reduce empty space
-          }}
-        >
-          <CardContent>
+        <Card sx={{ width: 320, boxShadow: 3, borderRadius: 2 }}>
+          <CardContent sx={{ p: 2 }}>
             <Typography variant="h5" align="center" gutterBottom>
               Welcome
             </Typography>
@@ -173,41 +137,51 @@ export default function LoginPage() {
                 {error}
               </Alert>
             )}
-            <Box
-              component={motion.div}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              sx={{
+            {/* Container for input cells with hover-triggered ripple effect */}
+            <motion.div
+              variants={containerVariants}
+              initial="initial"
+              whileHover="hover"
+              style={{
                 display: "flex",
                 justifyContent: "center",
-                gap: 1,
-                mt: 2,
+                gap: "0.5rem",
+                marginTop: "1rem",
               }}
             >
               {code.map((value, index) => (
-                <TextField
+                <motion.div
                   key={index}
-                  variant="outlined"
-                  value={value}
-                  onChange={(e) => handleChange(e.target, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  inputProps={{
-                    maxLength: 1,
-                    style: {
-                      textAlign: "center",
-                      fontSize: "1.5rem",
-                      padding: "0.5rem",
-                    },
+                  variants={cellVariants}
+                  style={{
+                    display: "inline-block",
+                    borderRadius: "8px",
+                    border: "2px solid transparent",
                   }}
-                  sx={{
-                    width: "3rem",
-                    "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-                  }}
-                  inputRef={(el) => (inputRefs.current[index] = el)}
-                />
+                >
+                  <TextField
+                    variant="outlined"
+                    value={value}
+                    onChange={(e) => handleChange(e.target, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    inputProps={{
+                      maxLength: 1,
+                      style: {
+                        textAlign: "center",
+                        fontSize: "1.5rem",
+                        padding: "0.5rem",
+                      },
+                    }}
+                    sx={{
+                      width: "3rem",
+                      backgroundColor: "transparent",
+                      "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                    }}
+                    inputRef={(el) => (inputRefs.current[index] = el)}
+                  />
+                </motion.div>
               ))}
-            </Box>
+            </motion.div>
             <Button
               variant="contained"
               fullWidth
