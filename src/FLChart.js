@@ -1,10 +1,10 @@
 // src/FLChart.js
 import React, { useState, useRef } from "react";
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Tooltip, 
+import {
+  Box,
+  Typography,
+  Paper,
+  Tooltip,
   IconButton,
   TableContainer,
   Table,
@@ -15,7 +15,9 @@ import {
   TableBody,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Button,
+  Popover
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
@@ -55,9 +57,7 @@ const pieColors = [
 ];
 
 // Dummy implementation for renderTriangleBackground to fix the error.
-const renderTriangleBackground = (props) => {
-  return null;
-};
+const renderTriangleBackground = (props) => null;
 
 // Custom tooltip for Revision Rate vs. Cases Past 30 Days
 const CustomTooltipRevision = ({ active, payload }) => {
@@ -121,9 +121,10 @@ const generateRevisionRateScatterData = (data) => {
 
 // Helper: Generate scatter data for Accuracy vs. Timeliness.
 const generatePerformanceScatterData = (data) => {
-  return data.filter((reviewer) =>
-    typeof reviewer.accuracyScore === "number" &&
-    typeof reviewer.timelinessScore === "number"
+  return data.filter(
+    (reviewer) =>
+      typeof reviewer.accuracyScore === "number" &&
+      typeof reviewer.timelinessScore === "number"
   ).map((reviewer) => ({
     accuracy: reviewer.accuracyScore || 50,
     timeliness: reviewer.timelinessScore || 50,
@@ -133,12 +134,22 @@ const generatePerformanceScatterData = (data) => {
 
 // Component: ClientReviewerGrid (Sortable Table)
 const ClientReviewerGrid = ({ data }) => {
-  const clientOrder = ["PFR", "Lincoln", "Hartford", "Peer Review", "NYL", "Standard", "Telco", "LTC", "Muckleshoot"];
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("Reviewer");
+  const clientOrder = [
+    "PFR",
+    "Lincoln",
+    "Hartford",
+    "Peer Review",
+    "NYL",
+    "Standard",
+    "Telco",
+    "LTC",
+    "Muckleshoot",
+  ];
 
   const rows = data.map((reviewer) => {
-    const reviewerClients = reviewer.clients.split(",").map(c => c.trim());
+    const reviewerClients = reviewer.clients.split(",").map((c) => c.trim());
     let row = { Reviewer: reviewer.name };
     clientOrder.forEach((client) => {
       row[client] = reviewerClients.includes(client) ? "X" : "";
@@ -177,7 +188,14 @@ const ClientReviewerGrid = ({ data }) => {
       <Table sx={{ borderCollapse: "collapse" }}>
         <TableHead>
           <TableRow sx={{ backgroundColor: "#1976d2" }}>
-            <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center", border: "1px solid #ccc" }}>
+            <TableCell
+              sx={{
+                color: "white",
+                fontWeight: "bold",
+                textAlign: "center",
+                border: "1px solid #ccc",
+              }}
+            >
               <TableSortLabel
                 active={orderBy === "Reviewer"}
                 direction={orderBy === "Reviewer" ? order : "asc"}
@@ -187,7 +205,11 @@ const ClientReviewerGrid = ({ data }) => {
               </TableSortLabel>
             </TableCell>
             {clientOrder.map((client) => (
-              <TableCell key={client} align="center" sx={{ color: "white", fontWeight: "bold", border: "1px solid #ccc" }}>
+              <TableCell
+                key={client}
+                align="center"
+                sx={{ color: "white", fontWeight: "bold", border: "1px solid #ccc" }}
+              >
                 <TableSortLabel
                   active={orderBy === client}
                   direction={orderBy === client ? order : "asc"}
@@ -201,8 +223,20 @@ const ClientReviewerGrid = ({ data }) => {
         </TableHead>
         <TableBody>
           {sortedRows.map((row, index) => (
-            <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f5f5f5", border: "1px solid #ccc" }}>
-              <TableCell sx={{ fontWeight: "bold", backgroundColor: "#bbdefb", border: "1px solid #ccc" }}>
+            <TableRow
+              key={index}
+              sx={{
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f5f5f5",
+                border: "1px solid #ccc",
+              }}
+            >
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  backgroundColor: "#bbdefb",
+                  border: "1px solid #ccc",
+                }}
+              >
                 {row["Reviewer"]}
               </TableCell>
               {clientOrder.map((client) => (
@@ -219,27 +253,47 @@ const ClientReviewerGrid = ({ data }) => {
 };
 
 const FLChart = ({ data }) => {
-  // Data transformations
+  // Generate chart data
   const pieData = generatePieData(data);
   const revisionScatterData = generateRevisionRateScatterData(data);
   const performanceScatterData = generatePerformanceScatterData(data);
 
-  // Refs for various sections
+  // For the popover attached to the PieChart
   const containerRef = useRef(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [popoverData, setPopoverData] = useState(null);
+
+  // Refs for chart containers (for export)
   const revisionChartRef = useRef(null);
   const performanceChartRef = useRef(null);
 
-  // Simple slice click handler for the Pie Chart
+  // Pie slice click => show popover
   const handleSliceClick = (payload) => {
-    console.log("Slice clicked:", payload);
+    setPopoverData(payload);
+    setPopoverOpen(true);
   };
 
-  // For the Revision Chart
+  // Close popover
+  const handlePopoverClose = () => {
+    setPopoverOpen(false);
+    setPopoverData(null);
+  };
+
+  // Copy button in the popover
+  const handleCopy = () => {
+    if (popoverData && popoverData.names) {
+      const textToCopy = popoverData.names.join(", ");
+      navigator.clipboard.writeText(textToCopy);
+      alert(`Copied: ${textToCopy}`);
+    }
+  };
+
+  // For the revision chart
   const xValues = revisionScatterData.map((d) => d.x);
   const minXData = Math.min(...xValues);
   const maxXData = Math.max(...xValues);
 
-  // For the piecewise revision line
+  // Piecewise line data
   const lineData = [
     { x: minXData, y: 0 },
     { x: minXData, y: 20 },
@@ -250,9 +304,8 @@ const FLChart = ({ data }) => {
   const renderCustomDot = (props) => {
     const { cx, cy, payload } = props;
     const slope = 20 / (maxXData - minXData);
-    const expectedY = payload.x === minXData 
-      ? 20 
-      : 20 + slope * (payload.x - minXData);
+    const expectedY =
+      payload.x === minXData ? 20 : 20 + slope * (payload.x - minXData);
     const fillColor = payload.y < expectedY ? "green" : "red";
     return <circle cx={cx} cy={cy} r={5} fill={fillColor} stroke="#fff" strokeWidth={1} />;
   };
@@ -260,15 +313,18 @@ const FLChart = ({ data }) => {
   // Dot renderer for performance chart
   const renderCustomDotForPerformance = (props) => {
     const { cx, cy, payload } = props;
-    const isInGreenArea = payload.accuracy >= 75 && payload.timeliness >= 75 && payload.timeliness <= 99;
-    return <circle cx={cx} cy={cy} r={5} fill={isInGreenArea ? "green" : "red"} stroke="#fff" strokeWidth={1} />;
+    const isInGreenArea =
+      payload.accuracy >= 75 && payload.timeliness >= 75 && payload.timeliness <= 99;
+    return (
+      <circle cx={cx} cy={cy} r={5} fill={isInGreenArea ? "green" : "red"} stroke="#fff" strokeWidth={1} />
+    );
   };
 
-  // Find max accuracy for performance chart
+  // Max accuracy for performance chart
   const accuracyValues = performanceScatterData.map((d) => d.accuracy);
   const maxAccuracy = Math.max(...accuracyValues);
 
-  // Revision chart PDF export
+  // For exporting the revision chart
   const getRevisionChartDotLists = () => {
     const green = [];
     const red = [];
@@ -305,7 +361,7 @@ const FLChart = ({ data }) => {
     doc.save("revision_chart.pdf");
   };
 
-  // Performance chart PDF export
+  // For exporting the performance chart
   const getPerformanceChartDotLists = () => {
     const green = [];
     const red = [];
@@ -406,7 +462,11 @@ const FLChart = ({ data }) => {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Paper elevation={4} sx={{ p: 3, borderRadius: 2, boxShadow: 3 }} ref={containerRef}>
+            <Paper
+              elevation={4}
+              sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}
+              ref={containerRef}
+            >
               <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
                   <Pie
@@ -414,13 +474,19 @@ const FLChart = ({ data }) => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
+                    label={({ name, percent }) =>
+                      `${name} (${(percent * 100).toFixed(1)}%)`
+                    }
                     outerRadius={150}
                     dataKey="value"
                     onClick={(e) => handleSliceClick(e.payload)}
                   >
                     {pieData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} style={{ cursor: "pointer" }} />
+                      <Cell
+                        key={entry.name}
+                        fill={entry.color}
+                        style={{ cursor: "pointer" }}
+                      />
                     ))}
                   </Pie>
                   <RechartsTooltip />
@@ -428,6 +494,40 @@ const FLChart = ({ data }) => {
                 </PieChart>
               </ResponsiveContainer>
             </Paper>
+
+            {/* Popover for listing all reviewers in the slice */}
+            <Popover
+              open={popoverOpen}
+              anchorEl={containerRef.current}
+              onClose={handlePopoverClose}
+              anchorOrigin={{ vertical: "center", horizontal: "left" }}
+              transformOrigin={{ vertical: "center", horizontal: "right" }}
+            >
+              {popoverData && (
+                <Box sx={{ p: 2, maxWidth: 300 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                    {popoverData.name} ({popoverData.value} reviewer
+                    {popoverData.value > 1 ? "s" : ""})
+                  </Typography>
+                  <Box
+                    sx={{ m: 0, p: 0, listStyle: "none", fontSize: "0.9em" }}
+                    component="ul"
+                  >
+                    {popoverData.names.map((name, i) => (
+                      <li key={i}>{name}</li>
+                    ))}
+                  </Box>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleCopy}
+                    sx={{ mt: 1 }}
+                  >
+                    Copy Names
+                  </Button>
+                </Box>
+              )}
+            </Popover>
           </AccordionDetails>
         </Accordion>
 
@@ -455,26 +555,52 @@ const FLChart = ({ data }) => {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Paper elevation={4} sx={{ p: 3, mb: 2, borderRadius: 2, boxShadow: 3 }} ref={revisionChartRef}>
+            <Paper
+              elevation={4}
+              sx={{ p: 3, mb: 2, borderRadius: 2, boxShadow: 3 }}
+              ref={revisionChartRef}
+            >
               <ResponsiveContainer width="100%" height={400}>
-                <ComposedChart data={revisionScatterData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <ComposedChart
+                  data={revisionScatterData}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" dataKey="x" domain={[30, maxXData]}>
-                    <Label value="Cases Past 30 Days" offset={-5} position="insideBottom" />
+                    <Label
+                      value="Cases Past 30 Days"
+                      offset={-5}
+                      position="insideBottom"
+                    />
                   </XAxis>
                   <YAxis type="number" dataKey="y" domain={[0, 50]}>
-                    <Label value="Revision Rate (%)" angle={-90} position="insideLeft" />
+                    <Label
+                      value="Revision Rate (%)"
+                      angle={-90}
+                      position="insideLeft"
+                    />
                   </YAxis>
                   <Customized content={renderTriangleBackground} />
                   <RechartsTooltip content={<CustomTooltipRevision />} />
                   <Scatter data={revisionScatterData} shape={renderCustomDot} />
-                  <Line type="linear" data={lineData} dataKey="y" stroke="#000" dot={false} />
+                  <Line
+                    type="linear"
+                    data={lineData}
+                    dataKey="y"
+                    stroke="#000"
+                    dot={false}
+                  />
                 </ComposedChart>
               </ResponsiveContainer>
               <Box sx={{ textAlign: "center", mt: 2 }}>
                 <Tooltip title="Export Revision Chart to PDF">
                   <IconButton onClick={exportRevisionChartPDF}>
-                    <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
+                    <Box
+                      component="img"
+                      src={pdfIcon}
+                      alt="PDF Icon"
+                      sx={{ width: 40, height: 40 }}
+                    />
                   </IconButton>
                 </Tooltip>
               </Box>
@@ -506,25 +632,55 @@ const FLChart = ({ data }) => {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 3 }} ref={performanceChartRef}>
+            <Paper
+              elevation={4}
+              sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 3 }}
+              ref={performanceChartRef}
+            >
               <ResponsiveContainer width="100%" height={400}>
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <ScatterChart
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" dataKey="accuracy" domain={[20, "dataMax"]}>
-                    <Label value="Accuracy (%)" offset={-5} position="insideBottom" />
+                    <Label
+                      value="Accuracy (%)"
+                      offset={-5}
+                      position="insideBottom"
+                    />
                   </XAxis>
                   <YAxis type="number" dataKey="timeliness" domain={[50, "dataMax"]}>
-                    <Label value="Timeliness (%)" angle={-90} position="insideLeft" />
+                    <Label
+                      value="Timeliness (%)"
+                      angle={-90}
+                      position="insideLeft"
+                    />
                   </YAxis>
-                  <ReferenceArea x1={75} x2={maxAccuracy} y1={75} y2={99} fill="rgba(0,255,0,0.3)" stroke="green" strokeOpacity={0.6} />
+                  <ReferenceArea
+                    x1={75}
+                    x2={maxAccuracy}
+                    y1={75}
+                    y2={99}
+                    fill="rgba(0,255,0,0.3)"
+                    stroke="green"
+                    strokeOpacity={0.6}
+                  />
                   <RechartsTooltip content={<CustomTooltipPerformance />} />
-                  <Scatter data={performanceScatterData} shape={renderCustomDotForPerformance} />
+                  <Scatter
+                    data={performanceScatterData}
+                    shape={renderCustomDotForPerformance}
+                  />
                 </ScatterChart>
               </ResponsiveContainer>
               <Box sx={{ textAlign: "center", mt: 2 }}>
                 <Tooltip title="Export Performance Chart to PDF">
                   <IconButton onClick={exportPerformanceChartPDF}>
-                    <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
+                    <Box
+                      component="img"
+                      src={pdfIcon}
+                      alt="PDF Icon"
+                      sx={{ width: 40, height: 40 }}
+                    />
                   </IconButton>
                 </Tooltip>
               </Box>

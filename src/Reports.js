@@ -88,24 +88,6 @@ const getSlopeIndicator = (slope) => {
   return "-";
 };
 
-const computeLateSlope = (trend) => {
-  if (trend.length < 2) return 0;
-  return trend[trend.length - 1].latePercentage - trend[0].latePercentage;
-};
-
-const computeLateSlopePercent = (trend) => {
-  if (trend.length < 2 || trend[0].latePercentage === 0) return "N/A";
-  const slope = computeLateSlope(trend);
-  const percent = (slope / trend[0].latePercentage) * 100;
-  return `${percent.toFixed(1)}%`;
-};
-
-const getLateSlopeIndicator = (slope) => {
-  if (slope < 0) return "↓";
-  if (slope > 0) return "↑";
-  return "-";
-};
-
 // Sorting helpers
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
