@@ -367,7 +367,7 @@ const QAMetrics = () => {
                       width: 16,
                       height: 16,
                       backgroundColor: qaColors[qaMember],
-                      opacity: activeQA[qaMember] ? 1 : 0.3,
+                      opacity: activeQA[qaMember] ? 1 : 0.1,
                       mr: 1,
                     }}
                   />

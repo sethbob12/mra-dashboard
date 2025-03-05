@@ -3,16 +3,18 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Container, CssBaseline } from "@mui/material";
 import Navbar from "./Navbar";
-import Home from "./Home"; // NEW Home Page
+import Home from "./Home"; // Home/Dashboard Page
 import FLTable from "./FLTable";
 import FLChart from "./FLChart";
 import EmailListGenerator from "./EmailListGenerator";
 import QAFeedbackAggregator from "./QAFeedbackAggregator";
 import ClientFeedbackAggregator from "./ClientFeedbackAggregator";
 import Reports from "./Reports";
-import QAMetrics from "./QAMetrics"; // Import your new QA Metrics component
+import QAMetrics from "./QAMetrics";
+import LoginPage from "./LoginPage";
 import FLData from "./FLData";
 import FeedbackData from "./FeedbackData";
+import ProtectedRoute from "./ProtectedRoute";
 
 // Full list of reviewers
 const reviewers = [
@@ -39,15 +41,74 @@ function App() {
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Routes>
-          <Route path="/" element={<Home />} /> {/* Home Page */}
-          <Route path="/table" element={<FLTable data={FLData} />} /> {/* Table at /table */}
-          <Route path="/chart" element={<FLChart data={FLData} />} />
-          <Route path="/emails" element={<EmailListGenerator data={FLData} />} />
-          <Route path="/qa-feedback" element={<QAFeedbackAggregator feedbackData={FeedbackData} />} />
-          <Route path="/client-feedback" element={<ClientFeedbackAggregator feedbackData={FeedbackData} />} />
-          <Route path="/reports" element={<Reports reviewers={reviewers} fetchReportData={fetchReportData} />} />
-          {/* New QA Metrics route */}
-          <Route path="/qa-metrics" element={<QAMetrics />} />
+          {/* Public route for login */}
+          <Route path="/login" element={<LoginPage />} />
+          
+          {/* Protected routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/table"
+            element={
+              <ProtectedRoute>
+                <FLTable data={FLData} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chart"
+            element={
+              <ProtectedRoute>
+                <FLChart data={FLData} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/emails"
+            element={
+              <ProtectedRoute>
+                <EmailListGenerator data={FLData} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/qa-feedback"
+            element={
+              <ProtectedRoute>
+                <QAFeedbackAggregator feedbackData={FeedbackData} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client-feedback"
+            element={
+              <ProtectedRoute>
+                <ClientFeedbackAggregator feedbackData={FeedbackData} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Reports reviewers={reviewers} fetchReportData={fetchReportData} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/qa-metrics"
+            element={
+              <ProtectedRoute>
+                <QAMetrics />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Container>
     </>

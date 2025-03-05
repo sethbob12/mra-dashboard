@@ -393,7 +393,7 @@ const Reports = ({ reviewers }) => {
           }}
         >
           <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
-            Reports
+            MRA Reports
           </Typography>
 
           {/* Grid layout for inputs */}
