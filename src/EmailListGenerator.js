@@ -168,7 +168,7 @@ const EmailListGenerator = ({ data }) => {
               onClick={handleExportEmails}
             >
               <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
-                Export Emails
+                Export Emails (CSV)
               </Typography>
               <Button
                 variant="contained"
