@@ -13,6 +13,7 @@ import {
   IconButton,
   createTheme,
   ThemeProvider,
+  Tooltip
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -188,27 +189,32 @@ const EmailListGenerator = ({ data }) => {
           </Grid>
         </Grid>
 
-        {/* Compose Email Button Below the Grid */}
+        {/* Compose Email Button with Tooltip */}
         <Box sx={{ mt: 4, textAlign: "center" }}>
-          <Button
-            variant="contained"
-            onClick={handleComposeEmail}
-            sx={{
-              textTransform: "none",
-              fontWeight: "bold",
-              fontSize: "1.2rem",
-              px: 4,
-              py: 1.5,
-              background: "linear-gradient(45deg, #66bb6a 30%, #43a047 90%)",
-              color: "#fff",
-              "&:hover": {
-                background: "linear-gradient(45deg, #43a047 30%, #388e3c 90%)",
-              },
-            }}
-            startIcon={<EmailIcon />}
+          <Tooltip
+            title="Click to open your default email client. Copied addresses will be inserted into the Bcc field and a placeholder subject will be added."
+            arrow
           >
-            Compose Email
-          </Button>
+            <Button
+              variant="contained"
+              onClick={handleComposeEmail}
+              sx={{
+                textTransform: "none",
+                fontWeight: "bold",
+                fontSize: "1.2rem",
+                px: 4,
+                py: 1.5,
+                background: "linear-gradient(45deg, #66bb6a 30%, #43a047 90%)",
+                color: "#fff",
+                "&:hover": {
+                  background: "linear-gradient(45deg, #43a047 30%, #388e3c 90%)",
+                },
+              }}
+              startIcon={<EmailIcon />}
+            >
+              Compose Email
+            </Button>
+          </Tooltip>
         </Box>
 
         {/* POPUP MODAL FOR EMAIL LIST */}

@@ -19,8 +19,10 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TableSortLabel,
   Paper,
-  Grid
+  Grid,
+  IconButton
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -44,6 +46,7 @@ import {
   Legend,
   Line,
 } from 'recharts';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -101,6 +104,27 @@ const getLateSlopeIndicator = (slope) => {
   return "-";
 };
 
+// Sorting helpers for feedback tables.
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) return -1;
+  if (b[orderBy] > a[orderBy]) return 1;
+  return 0;
+}
+function getComparator(order, orderBy) {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+function stableSort(array, comparator) {
+  const stabilizedArray = array.map((el, index) => [el, index]);
+  stabilizedArray.sort((a, b) => {
+    const orderResult = comparator(a[0], b[0]);
+    if (orderResult !== 0) return orderResult;
+    return a[1] - b[1];
+  });
+  return stabilizedArray.map((el) => el[0]);
+}
+
 const Reports = ({ reviewers }) => {
   // Dropdown states.
   const [selectedReviewer, setSelectedReviewer] = useState('All Reviewers');
@@ -113,8 +137,8 @@ const Reports = ({ reviewers }) => {
   const [selectedFeedbackType, setSelectedFeedbackType] = useState('client');
   // For client feedback: Group by client then by reviewer.
   const [clientComments, setClientComments] = useState({});
-  // For internal feedback: Group by reviewer.
-  const [groupedQaFeedback, setGroupedQaFeedback] = useState({});
+  // For internal feedback: flat list.
+  const [internalFeedback, setInternalFeedback] = useState([]);
   // For Cases/Revisions report.
   const [reportResult, setReportResult] = useState(null);
   const [clientBreakdown, setClientBreakdown] = useState({});
@@ -122,6 +146,11 @@ const Reports = ({ reviewers }) => {
   const [clientTrendData, setClientTrendData] = useState({});
   const [qualityTrend, setQualityTrend] = useState([]);
   const [lateTrend, setLateTrend] = useState([]);
+
+  // New state for sorting internal feedback.
+  // Default sorting is by Reviewer ("name").
+  const [internalOrder, setInternalOrder] = useState("asc");
+  const [internalOrderBy, setInternalOrderBy] = useState("name");
 
   const uniqueClients = getUniqueClients();
   const chartsRef = useRef(null);
@@ -150,7 +179,6 @@ const Reports = ({ reviewers }) => {
           const client = item.client || "Unknown Client";
           if (!groupedFeedback[client]) groupedFeedback[client] = {};
           if (!groupedFeedback[client][item.name]) groupedFeedback[client][item.name] = [];
-          // Push an object with both text and caseID.
           groupedFeedback[client][item.name].push({
             text: item.text,
             caseID: item.caseID
@@ -166,21 +194,15 @@ const Reports = ({ reviewers }) => {
           });
         });
         setClientComments(sortedGroupedFeedback);
-        setGroupedQaFeedback({});
+        setInternalFeedback([]);
       } else {
-        // Internal feedback: group by reviewer.
-        const grouped = {};
-        reviewerFeedback.filter(item => item.feedbackType === 'internal').forEach(item => {
-          if (!grouped[item.name]) grouped[item.name] = [];
-          grouped[item.name].push(item);
-        });
-        // Sort reviewer keys alphabetically.
-        const sortedGrouped = {};
-        Object.keys(grouped).sort().forEach(key => {
-          sortedGrouped[key] = grouped[key];
-        });
-        setGroupedQaFeedback(sortedGrouped);
+        // Internal feedback: flat list for sorting.
+        const internal = reviewerFeedback.filter(item => item.feedbackType === 'internal');
+        setInternalFeedback(internal);
         setClientComments({});
+        // Reset default sorting to Reviewer.
+        setInternalOrderBy("name");
+        setInternalOrder("asc");
       }
       // Clear other report states.
       setReportResult(null);
@@ -286,9 +308,6 @@ const Reports = ({ reviewers }) => {
         });
       }
       setLateTrend(lateTrendData);
-      // Clear feedback-specific states.
-      setClientComments({});
-      setGroupedQaFeedback({});
     }
   };
 
@@ -632,6 +651,7 @@ const Reports = ({ reviewers }) => {
                 })
               )}
             </Box>
+            {/* Export Report Buttons */}
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button variant="outlined" color="secondary" onClick={exportReportCSV}>
                 Export as CSV
@@ -693,35 +713,91 @@ const Reports = ({ reviewers }) => {
                 })}
               </Box>
             ) : (
-              // Internal feedback: group by reviewer.
+              // Internal feedback: if sorted by QA Member, group by qaMember with a text box showing full case info;
+              // the "Copy All Feedback" button copies only the concatenated feedback texts.
               <Box>
                 <Typography variant="h6" gutterBottom>
-                  Internal Feedback Grouped by Reviewer
+                  Internal Feedback
                 </Typography>
-                <Table sx={{ border: '1px solid #ddd' }}>
-                  <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Reviewer</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Feedback Details</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Copy Feedback</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.keys(groupedQaFeedback).sort().map(reviewer => {
-                      const items = groupedQaFeedback[reviewer];
-                      // For display: include full details.
-                      const aggregatedDisplayText = items.map(item => (
-                        `Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nQA Member: ${item.qaMember}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`
-                      )).join('\n\n');
-                      // For copying, only feedback texts.
-                      const aggregatedCopyText = items.map(item => item.text).join('\n');
-                      return (
-                        <TableRow key={reviewer}>
-                          <TableCell sx={{ verticalAlign: 'top' }}>{reviewer}</TableCell>
+                {internalOrderBy === "qaMember" ? (
+                  Object.keys(
+                    internalFeedback.reduce((acc, item) => {
+                      acc[item.qaMember] = true;
+                      return acc;
+                    }, {})
+                  ).sort().map((qaMember) => {
+                    const group = internalFeedback.filter(item => item.qaMember === qaMember);
+                    // Concatenate only feedback texts for copy.
+                    const allFeedbackTextForCopy = group.map(item => item.text).join("\n");
+                    // Concatenate full case info for display.
+                    const allCaseInfoText = group.map(item => {
+                      return `Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`;
+                    }).join("\n\n");
+                    return (
+                      <Box key={qaMember} sx={{ mb: 2, border: "1px solid #ddd", borderRadius: 1, p: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                            QA Member: {qaMember}
+                          </Typography>
+                          <Button variant="outlined" size="small" onClick={() => navigator.clipboard.writeText(allFeedbackTextForCopy)}>
+                            Copy All Feedback
+                          </Button>
+                        </Box>
+                        <Paper variant="outlined" sx={{ p: 1, bgcolor: '#F5F5F5', mb: 1 }}>
+                          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                            {allCaseInfoText}
+                          </Typography>
+                        </Paper>
+                      </Box>
+                    );
+                  })
+                ) : (
+                  // Default sorting by Reviewer.
+                  <Table sx={{ border: '1px solid #ddd' }}>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                        <TableCell sx={{ fontWeight: 'bold' }}>
+                          <TableSortLabel
+                            active={internalOrderBy === "name"}
+                            direction={internalOrderBy === "name" ? internalOrder : "asc"}
+                            onClick={() => {
+                              const isAsc = internalOrderBy === "name" && internalOrder === "asc";
+                              setInternalOrder(isAsc ? "desc" : "asc");
+                              setInternalOrderBy("name");
+                            }}
+                          >
+                            Reviewer
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>
+                          <TableSortLabel
+                            active={internalOrderBy === "qaMember"}
+                            direction={internalOrderBy === "qaMember" ? internalOrder : "asc"}
+                            onClick={() => {
+                              const isAsc = internalOrderBy === "qaMember" && internalOrder === "asc";
+                              setInternalOrder(isAsc ? "desc" : "asc");
+                              setInternalOrderBy("qaMember");
+                            }}
+                          >
+                            QA Member
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Feedback Details</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Copy Feedback</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {stableSort(
+                        internalFeedback,
+                        getComparator(internalOrder, internalOrderBy)
+                      ).map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell sx={{ verticalAlign: 'top' }}>{item.name}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'top' }}>{item.qaMember}</TableCell>
                           <TableCell>
                             <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fafafa' }}>
                               <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                                {aggregatedDisplayText}
+                                {`Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`}
                               </Typography>
                             </Paper>
                           </TableCell>
@@ -729,16 +805,16 @@ const Reports = ({ reviewers }) => {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => navigator.clipboard.writeText(aggregatedCopyText)}
+                              onClick={() => navigator.clipboard.writeText(item.text)}
                             >
                               Copy
                             </Button>
                           </TableCell>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </Box>
             )}
           </Box>

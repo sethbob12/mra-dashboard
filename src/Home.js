@@ -82,7 +82,7 @@ const Home = () => {
         MRA Dashboard
       </Typography>
       <Typography variant="subtitle1" sx={{ color: "#555", mb: 4, fontFamily: "Open Sans, sans-serif" }}>
-        Manage your reviews, reports, and emails all in one place.
+      Optimize workflow with actionable insights and tracking to drive quality forward
       </Typography>
 
       <Grid container spacing={4} justifyContent="center">
