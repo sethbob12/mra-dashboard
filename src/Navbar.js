@@ -2,7 +2,6 @@
 import React from "react";
 import { AppBar, Toolbar, Button, Box, Typography, IconButton } from "@mui/material";
 import { NavLink, useNavigate } from "react-router-dom";
-// Example icon from Material UI
 import DashboardIcon from "@mui/icons-material/Dashboard";
 
 const Navbar = () => {
@@ -15,9 +14,9 @@ const Navbar = () => {
 
   return (
     <AppBar
-      position="static"
+      position="sticky"
       sx={{
-        // Subtle gradient background
+        top: 0,
         background: "linear-gradient(90deg, #1E73BE 0%, #0C3B70 100%)",
         boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
         py: 1,

@@ -371,7 +371,7 @@ const FLChart = ({ data }) => {
             }}
           >
             <Typography variant="h6" sx={{ color: "#1E73BE", fontWeight: 600 }}>
-              Quality Scores* (Stacked Bar Chart)
+              Quality Scores (Stacked Bar Chart)
             </Typography>
           </AccordionSummary>
           <AccordionDetails>

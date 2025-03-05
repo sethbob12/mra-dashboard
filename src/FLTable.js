@@ -45,14 +45,27 @@ function stableSort(array, comparator) {
 }
 
 const FLTable = ({ data }) => {
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("mra_id");
+  // Default sort by qualityScore descending.
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("qualityScore");
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
+
+  // Rearranged columns: Quality Score first, then the rest, and ID last.
+  const columns = [
+    { id: "qualityScore", label: "Quality Score" },
+    { id: "name", label: "Name", align: "left" },
+    { id: "clients", label: "Clients", align: "left" },
+    { id: "avgCasesPerDay", label: "Avg Cases/Day" },
+    { id: "lateCasePercentage", label: "Late %" },
+    { id: "clientRevisionsWeek", label: "Client Rev (Week)" },
+    { id: "clientRevisionsMonth", label: "Client Rev (Month)" },
+    { id: "mra_id", label: "ID" },
+  ];
 
   // Sort the data
   const sortedData = stableSort(data, getComparator(order, orderBy));
@@ -76,31 +89,19 @@ const FLTable = ({ data }) => {
       sortedData.length,
   };
 
-  // Table columns
-  const columns = [
-    { id: "mra_id", label: "ID" },
-    { id: "name", label: "Name", align: "left" },
-    { id: "clients", label: "Clients", align: "left" },
-    { id: "avgCasesPerDay", label: "Avg Cases/Day" },
-    { id: "lateCasePercentage", label: "Late %" },
-    { id: "clientRevisionsWeek", label: "Client Rev (Week)" },
-    { id: "clientRevisionsMonth", label: "Client Rev (Month)" },
-    { id: "qualityScore", label: "Quality Score" },
-  ];
-
   // Export as CSV
   const handleExportCSV = () => {
     const csvHeaders = columns.map((col) => col.label);
     const csvRows = sortedData.map((row) =>
       [
-        row.mra_id,
+        row.qualityScore,
         `"${row.name}"`,
         `"${row.clients}"`,
         row.avgCasesPerDay,
         row.lateCasePercentage,
         row.clientRevisionsWeek,
         row.clientRevisionsMonth,
-        row.qualityScore,
+        row.mra_id,
       ].join(",")
     );
     const csvString = [csvHeaders.join(","), ...csvRows].join("\n");
@@ -122,14 +123,14 @@ const FLTable = ({ data }) => {
 
     const tableColumn = columns.map((col) => col.label);
     const tableRows = sortedData.map((row) => [
-      row.mra_id,
+      row.qualityScore.toFixed(1),
       row.name,
       row.clients,
       row.avgCasesPerDay.toFixed(1),
       `${row.lateCasePercentage}%`,
       row.clientRevisionsWeek,
       row.clientRevisionsMonth,
-      `${row.qualityScore}%`,
+      row.mra_id,
     ]);
 
     autoTable(doc, {
@@ -163,35 +164,11 @@ const FLTable = ({ data }) => {
   };
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <Typography variant="h5" sx={{ mb: 2, color: "#000000" }}>
+    <Box sx={{ mb: 4, width: "100%" }}>
+      {/* Title centered above the table */}
+      <Typography variant="h5" sx={{ mb: 2, textAlign: "center", color: "#000" }}>
         Reviewer Table
       </Typography>
-      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-        {/* CSV icon button with no background color */}
-        <Tooltip title="Export as CSV">
-          <IconButton onClick={handleExportCSV}>
-            <Box
-              component="img"
-              src={csvIcon}
-              alt="CSV Icon"
-              sx={{ width: 40, height: 40 }}
-            />
-          </IconButton>
-        </Tooltip>
-
-        {/* PDF icon button with no background color */}
-        <Tooltip title="Export as PDF">
-          <IconButton onClick={handleExportPDF}>
-            <Box
-              component="img"
-              src={pdfIcon}
-              alt="PDF Icon"
-              sx={{ width: 40, height: 40 }}
-            />
-          </IconButton>
-        </Tooltip>
-      </Box>
 
       <TableContainer
         component={Paper}
@@ -199,6 +176,8 @@ const FLTable = ({ data }) => {
           maxHeight: "85vh",
           minHeight: "65vh",
           overflowY: "auto",
+          width: "100%",
+          position: "relative",
         }}
       >
         <Table stickyHeader>
@@ -239,25 +218,7 @@ const FLTable = ({ data }) => {
                   "&:hover": { backgroundColor: "#e6f2ff" },
                 }}
               >
-                <TableCell sx={{ textAlign: "center" }}>{row.mra_id}</TableCell>
-                <TableCell sx={{ textAlign: "left" }}>{row.name}</TableCell>
-                <TableCell sx={{ textAlign: "left" }}>{row.clients}</TableCell>
-                <TableCell sx={{ textAlign: "center" }}>
-                  {row.avgCasesPerDay.toFixed(1)}
-                </TableCell>
-                <TableCell sx={{ textAlign: "center" }}>
-                  {row.lateCasePercentage}%
-                </TableCell>
-                <TableCell sx={{ textAlign: "center" }}>
-                  <Tooltip title={`Revision Rate: ${row.revisionRate}%`} arrow>
-                    <span>{row.clientRevisionsWeek}</span>
-                  </Tooltip>
-                </TableCell>
-                <TableCell sx={{ textAlign: "center" }}>
-                  <Tooltip title={`Revision Rate: ${row.revisionRate}%`} arrow>
-                    <span>{row.clientRevisionsMonth}</span>
-                  </Tooltip>
-                </TableCell>
+                {/* Quality Score with color coding */}
                 <TableCell
                   sx={{
                     textAlign: "center",
@@ -282,6 +243,27 @@ const FLTable = ({ data }) => {
                   >
                     <span>{row.qualityScore}%</span>
                   </Tooltip>
+                </TableCell>
+                <TableCell sx={{ textAlign: "left" }}>{row.name}</TableCell>
+                <TableCell sx={{ textAlign: "left" }}>{row.clients}</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  {row.avgCasesPerDay.toFixed(1)}
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  {row.lateCasePercentage}%
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <Tooltip title={`Revision Rate: ${row.revisionRate}%`} arrow>
+                    <span>{row.clientRevisionsWeek}</span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <Tooltip title={`Revision Rate: ${row.revisionRate}%`} arrow>
+                    <span>{row.clientRevisionsMonth}</span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  {row.mra_id}
                 </TableCell>
               </TableRow>
             ))}
@@ -312,6 +294,30 @@ const FLTable = ({ data }) => {
           </TableFooter>
         </Table>
       </TableContainer>
+
+      {/* Export icons below the table */}
+      <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-start" }}>
+        <Tooltip title="Export as CSV">
+          <IconButton onClick={handleExportCSV}>
+            <Box
+              component="img"
+              src={csvIcon}
+              alt="CSV Icon"
+              sx={{ width: 40, height: 40 }}
+            />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Export as PDF">
+          <IconButton onClick={handleExportPDF}>
+            <Box
+              component="img"
+              src={pdfIcon}
+              alt="PDF Icon"
+              sx={{ width: 40, height: 40 }}
+            />
+          </IconButton>
+        </Tooltip>
+      </Box>
     </Box>
   );
 };

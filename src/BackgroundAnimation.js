@@ -5,12 +5,10 @@ import { motion, useMotionValue, animate } from "framer-motion";
 
 // Bubble component – handles its own hooks and animation pulse.
 const Bubble = ({ bubble, reaction }) => {
-  // Create a persistent motion value for scale
   const scale = useMotionValue(1);
 
-  // When reaction changes, trigger a pulse animation.
   React.useEffect(() => {
-    const pulse = animate(scale, 1.2, { duration: 0.25 }).then(() =>
+    const pulse = animate(scale, 1.4, { duration: 0.25 }).then(() =>
       animate(scale, 1, { duration: 0.25 })
     );
     return pulse.stop;
@@ -45,24 +43,48 @@ const Bubble = ({ bubble, reaction }) => {
 };
 
 const BackgroundAnimation = ({ reaction }) => {
-  // Generate bubble data only once using useMemo.
+  const bubbleCount = 15;
+  const columns = 5;
+  const rows = Math.ceil(bubbleCount / columns);
+
+  // Restrict bubble placement to the upper 50% height and 80% width.
+  const gridWidth = 80; // 80% of container width
+  const gridHeight = 50; // 50% of container height
+  const cellWidth = gridWidth / columns; // Each cell's width (in %)
+  const cellHeight = gridHeight / rows;   // Each cell's height (in %)
+  const horizontalOffset = 10; // Center grid horizontally (since 100 - 80 = 20, so 10% each side)
+
+  // Adjust margins inside each cell to bring bubbles closer.
+  const marginFactor = 0.1; 
+  const rangeFactor = 0.8;  
+
+  // Generate bubble data using the grid area.
   const bubbles = React.useMemo(() => {
-    return Array.from({ length: 15 }, (_, i) => ({
-      key: i,
-      topPosition: 1 + Math.random() * 50,      // between 1% and 51%
-      leftPosition: 10 + Math.random() * 70,      // between 10% and 80%
-      delay: Math.random() * 2,
-      drift: Math.random() * 30 - 15,             // horizontal drift between -15 and +15
-      size: Math.random() * 20 + 40,              // size between 40px and 60px
-      color: [
-        "rgba(30, 115, 190, 0.2)",   // bluish
-        "rgba(128, 128, 128, 0.2)",  // gray
-        "rgba(192, 192, 192, 0.2)",  // silver
-        "rgba(100, 149, 237, 0.2)",  // cornflowerblue
-        "rgba(70, 130, 180, 0.2)",   // steelblue
-      ][Math.floor(Math.random() * 5)],
-    }));
-  }, []);
+    return Array.from({ length: bubbleCount }, (_, i) => {
+      const row = Math.floor(i / columns);
+      const col = i % columns;
+      // Randomize position within each cell with a smaller margin.
+      const offsetX = (Math.random() * (cellWidth * rangeFactor)) + (cellWidth * marginFactor);
+      const offsetY = (Math.random() * (cellHeight * rangeFactor)) + (cellHeight * marginFactor);
+      return {
+        key: i,
+        topPosition: row * cellHeight + offsetY,      // within grid height (0 to 50)
+        leftPosition: horizontalOffset + col * cellWidth + offsetX, // grid starts at 10%
+        delay: Math.random() * 2,
+        drift: Math.random() * 30 - 15,             // horizontal drift between -15 and +15
+        // Random sizes between 30px and 70px.
+        size: Math.random() * 40 + 30,
+        // Colors with slightly more transparency (alpha 0.15).
+        color: [
+          "rgba(30, 115, 190, 0.15)",   // bluish
+          "rgba(128, 128, 128, 0.15)",  // gray
+          "rgba(192, 192, 192, 0.15)",  // silver
+          "rgba(219, 185, 166, 0.15)",  // muted tone
+          "rgba(70, 130, 180, 0.15)",   // steelblue
+        ][Math.floor(Math.random() * 5)],
+      };
+    });
+  }, [bubbleCount, columns, cellWidth, cellHeight, horizontalOffset]);
 
   return (
     <Box
