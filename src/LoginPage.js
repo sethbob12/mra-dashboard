@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [code, setCode] = useState(new Array(5).fill(""));
   const [error, setError] = useState("");
   const [reaction, setReaction] = useState(0);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const inputRefs = useRef([]);
 
@@ -81,8 +82,12 @@ export default function LoginPage() {
     const enteredCode = (currentCode || code).join("");
     if (validPasswords.includes(enteredCode)) {
       setError("");
+      setSuccess(true);
       localStorage.setItem("isAuthenticated", "true");
-      navigate("/");
+      // Delay navigation to allow visual success indication
+      setTimeout(() => {
+        navigate("/");
+      }, 200);
     } else {
       setError("Incorrect password. Please try again.");
     }
@@ -188,8 +193,8 @@ export default function LoginPage() {
               onClick={() => handleLogin()}
               sx={{
                 mt: 3,
-                backgroundColor: "#0C3B70",
-                "&:hover": { backgroundColor: "#092a55" },
+                backgroundColor: success ? "green" : "#0C3B70",
+                "&:hover": { backgroundColor: success ? "darkgreen" : "#092a55" },
               }}
             >
               Login

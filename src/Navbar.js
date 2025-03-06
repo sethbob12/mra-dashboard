@@ -1,16 +1,58 @@
 // src/Navbar.js
 import React from "react";
 import { AppBar, Toolbar, Button, Box, Typography, IconButton } from "@mui/material";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import growthChartGif from "./assets/growth-chart.gif";
+import houseChimney from "./assets/house-chimney.png";
+import tableGif from "./assets/table.gif";
+import threeGif from "./assets/3.gif";
+import doveGif from "./assets/dove.gif";
+import reportsGif from "./assets/reports.gif";
+import oneGif from "./assets/1.gif";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
     navigate("/login");
   };
+
+  // Determine which logo to show based on the current path.
+  let logoElement;
+  if (location.pathname === "/login") {
+    logoElement = (
+      <img src={growthChartGif} alt="Growth Chart" style={{ width: "40px", height: "40px" }} />
+    );
+  } else if (location.pathname === "/") {
+    logoElement = (
+      <img src={houseChimney} alt="Home" style={{ width: "40px", height: "40px" }} />
+    );
+  } else if (location.pathname === "/table") {
+    logoElement = (
+      <img src={tableGif} alt="Data Table" style={{ width: "40px", height: "40px" }} />
+    );
+  } else if (location.pathname === "/chart") {
+    logoElement = (
+      <img src={threeGif} alt="Visualizations" style={{ width: "40px", height: "40px" }} />
+    );
+  } else if (location.pathname === "/emails") {
+    logoElement = (
+      <img src={doveGif} alt="Email Generator" style={{ width: "40px", height: "40px" }} />
+    );
+  } else if (location.pathname === "/reports") {
+    logoElement = (
+      <img src={reportsGif} alt="MRA Reports" style={{ width: "40px", height: "40px" }} />
+    );
+  } else if (location.pathname === "/qa-metrics") {
+    logoElement = (
+      <img src={oneGif} alt="QA Metrics" style={{ width: "40px", height: "40px" }} />
+    );
+  } else {
+    logoElement = <DashboardIcon />;
+  }
 
   return (
     <AppBar
@@ -43,14 +85,8 @@ const Navbar = () => {
             "&:hover": { opacity: 0.9 },
           }}
         >
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="dashboard"
-            sx={{ mr: 1 }}
-          >
-            <DashboardIcon />
+          <IconButton size="large" edge="start" color="inherit" aria-label="dashboard" sx={{ mr: 1 }}>
+            {logoElement}
           </IconButton>
           <Typography
             variant="h5"
