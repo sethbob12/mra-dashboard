@@ -139,7 +139,7 @@ const generatePerformanceScatterData = (data) =>
     }));
 
 // Component: ClientReviewerGrid (Sortable Table)
-// Now using a fixed column order.
+// Using a fixed column order.
 const ClientReviewerGrid = ({ data }) => {
   const fixedClientOrder = [
     "PFR",
@@ -388,6 +388,9 @@ const FLChart = ({ data }) => {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <InteractiveStackedBarChart data={data} />
+            <Typography variant="caption" display="block" sx={{ mt: 1, color: "text.secondary" }}>
+              *Methodology: Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (20%)*
+            </Typography>
           </Paper>
         </AccordionDetails>
       </Accordion>
