@@ -341,7 +341,7 @@ const FLChart = ({ data }) => {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h4" sx={{ mb: 2, color: "#333", fontWeight: "bold" }}>
-        Quality Assurance Data Visualizations
+        Data Visualizations
       </Typography>
 
       {/* Expand/Collapse All Buttons */}

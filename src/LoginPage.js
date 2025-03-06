@@ -23,7 +23,7 @@ const containerVariants = {
   },
 };
 
-// Ripple variants for each cell. Updated to bold red.
+// Ripple variants for each cell. 
 const cellVariants = {
   initial: { borderColor: "transparent" },
   hover: {
@@ -87,7 +87,7 @@ export default function LoginPage() {
       // Delay navigation to allow visual success indication
       setTimeout(() => {
         navigate("/");
-      }, 200);
+      }, 250);
     } else {
       setError("Incorrect password. Please try again.");
     }
