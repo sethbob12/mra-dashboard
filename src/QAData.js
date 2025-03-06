@@ -2,7 +2,7 @@
 
 const QAData = [
   {
-    qaMember:1,
+    qaMember: 1,
     name: "QA Member 1",
     totalCasesSubmitted: 1500,
     breakdownByClient: {
@@ -13,9 +13,17 @@ const QAData = [
     casesPast7Days: 80,
     casesPast30Days: 350,
     casesPast60Days: 700,
-    revisionsSentWeek: 25,
+    revisionsSentWeek: 25,  // cases sent back for revision to the reviewer (old metric)
     revisionsSentMonth: 80,
+    clientRevisionsWeek: 20,  // NEW: cases submitted that were sent back by the client
     avgCasesDay: 40,
+    // New previous period data (approximate)
+    prevAvgCasesDay: 38,
+    prevCasesPast7Days: 75,
+    prevCasesPast30Days: 340,
+    prevTotalCases: 75, // For a 7-day period
+    prevRevisionsSentWeek: 27,
+    prevClientRevisionsWeek: 22,  // NEW previous period value
     feedback: [
       {
         content: "Great job on clarifying the report structure.",
@@ -82,7 +90,15 @@ const QAData = [
     casesPast60Days: 680,
     revisionsSentWeek: 20,
     revisionsSentMonth: 70,
+    clientRevisionsWeek: 18,  // NEW
     avgCasesDay: 35,
+    // New previous period data (approximate)
+    prevAvgCasesDay: 39,
+    prevCasesPast7Days: 68,
+    prevCasesPast30Days: 310,
+    prevTotalCases: 68,
+    prevRevisionsSentWeek: 21,
+    prevClientRevisionsWeek: 20,  // NEW
     feedback: [
       {
         content: "Ensure consistency in the case documentation.",
@@ -149,7 +165,15 @@ const QAData = [
     casesPast60Days: 750,
     revisionsSentWeek: 30,
     revisionsSentMonth: 90,
+    clientRevisionsWeek: 28,  // NEW
     avgCasesDay: 60,
+    // New previous period data (approximate)
+    prevAvgCasesDay: 58,
+    prevCasesPast7Days: 70,
+    prevCasesPast30Days: 360,
+    prevTotalCases: 70,
+    prevRevisionsSentWeek: 32,
+    prevClientRevisionsWeek: 30,  // NEW
     feedback: [
       {
         content: "Feedback is concise and well-structured.",
@@ -216,7 +240,15 @@ const QAData = [
     casesPast60Days: 720,
     revisionsSentWeek: 22,
     revisionsSentMonth: 75,
+    clientRevisionsWeek: 20,  // NEW
     avgCasesDay: 50,
+    // New previous period data (approximate)
+    prevAvgCasesDay: 48,
+    prevCasesPast7Days: 65,
+    prevCasesPast30Days: 350,
+    prevTotalCases: 65,
+    prevRevisionsSentWeek: 20,
+    prevClientRevisionsWeek: 18,  // NEW
     feedback: [
       {
         content: "The analysis of restrictions is excellent.",
@@ -283,7 +315,15 @@ const QAData = [
     casesPast60Days: 680,
     revisionsSentWeek: 18,
     revisionsSentMonth: 65,
+    clientRevisionsWeek: 16,  // NEW
     avgCasesDay: 30,
+    // New previous period data (approximate)
+    prevAvgCasesDay: 36,
+    prevCasesPast7Days: 63,
+    prevCasesPast30Days: 330,
+    prevTotalCases: 63,
+    prevRevisionsSentWeek: 19,
+    prevClientRevisionsWeek: 15,  // NEW
     feedback: [
       {
         content: "Ensure accuracy in data extraction and client feedback.",

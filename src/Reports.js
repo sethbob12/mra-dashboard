@@ -806,8 +806,23 @@ const Reports = ({ reviewers }) => {
                               setInternalOrder(isAsc ? "desc" : "asc");
                               setInternalOrderBy("qaMember");
                             }}
+                            sx={{
+                              background: internalOrderBy === "qaMember"
+                                ? "linear-gradient(45deg, #1976D2 30%, #1565C0 90%)"
+                                : "linear-gradient(45deg, #2196F3 30%, #1976D2 90%)",
+                              color: "#fff",
+                              borderRadius: "3px",
+                              px: 1,
+                              py: 0.5,
+                              cursor: "pointer",
+                              transition: "background-color 0.3s, box-shadow 0.3s",
+                              '&:hover': {
+                                background: "linear-gradient(45deg, #1976D2 30%, #1565C0 90%)",
+                                boxShadow: "0px 2px 4px rgba(0,0,0,0.2)"
+                              }
+                            }}
                           >
-                            *Sort by QA Member* (make button)
+                            Sort by QA Member
                           </TableSortLabel>
                         </TableCell>
                         <TableCell sx={{ fontWeight: 'bold' }}>Feedback Details</TableCell>
