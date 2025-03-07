@@ -3,7 +3,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Box, CssBaseline } from "@mui/material";
 import Navbar from "./Navbar";
-import Home from "./Home"; // Home/Dashboard Page
+import Home from "./Home";
 import FLTable from "./FLTable";
 import FLChart from "./FLChart";
 import EmailListGenerator from "./EmailListGenerator";
@@ -24,7 +24,7 @@ const reviewers = [
   "Joan Ajayi", "Khwaish Vasnani", "Lina Gutierrez", "Mary Goyenechea", "Mary Galos",
   "Maja Loja", "Oluseye Oluremi", "Oluwadamilola Ogunsemowo", "Thomas Oyinlola",
   "Ravit Haleva", "Sarah Watkins", "Shaila Maramara", "Vincent Medicielo", "Will Smith",
-  "Yllana Saavedra", "Temilola Edu", "Toluwani Merari", "Oluwapelumi Gabriel", "Tolulope Ajayi",
+  "Yllana Saavedra", "Temilola Edun", "Toluwani Merari", "Oluwapelumi Gabriel", "Tolulope Ajayi",
   "Addison Marimberga", "Goodluck Odii", "Fiyinfoluwa Yemi-Lebi", "Elizabeth Adeyanju", "Opemipo Ade-Akingboye",
   "Lebari Damgbor", "Uchechukwu Ejike", "Oluwaseyi Adare", "Mariam Akubo", "Jamiu Olurunnisola",
   "Al Ameen Kalejaiye", "Solomon Bailey", "Oluwafemi Durojaiye"
@@ -40,12 +40,10 @@ function App() {
       <CssBaseline />
       <Navbar />
 
-      {/* Center the content and allow a wider layout */}
       <Box
         sx={{
           mt: 4,
           margin: "0 auto",
-          // Increase maxWidth so the wide columns fit
           maxWidth: 1600,
           width: "100%",
           px: 2,

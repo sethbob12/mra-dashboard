@@ -17,7 +17,6 @@ const ClientFeedbackAggregator = ({ feedbackData }) => {
   );
 
   const [timeFilter, setTimeFilter] = useState('week');
-  // Set to false so the section is expanded by default
   const [isSectionCollapsed, setIsSectionCollapsed] = useState(false);
 
   const filterFeedback = (data, filter) => {

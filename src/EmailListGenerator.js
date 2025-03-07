@@ -21,7 +21,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import EmailIcon from "@mui/icons-material/Email";
 import DownloadIcon from "@mui/icons-material/Download";
 
-// Create a theme to apply Open Sans
 const openSansTheme = createTheme({
   typography: {
     fontFamily: "Open Sans, sans-serif",
@@ -33,7 +32,6 @@ const EmailListGenerator = ({ data }) => {
   // copiedClient holds the category that was last copied.
   const [copiedClient, setCopiedClient] = useState(null);
 
-  // **Psych Writers (Updated with Correct Emails)**
   const psychWriters = {
     "Becca Kennedy": "becca@peerlinkmedical.com",
     "Eliza Gómez Toro": "elizagomeztoro4545@gmail.com",
@@ -47,7 +45,7 @@ const EmailListGenerator = ({ data }) => {
     "Addison Marimberga": "addison@peerlinkmedical.com",
   };
 
-  // **Group Emails by Client**
+  // Group Emails by Client
   const groupedEmails = data.reduce((acc, item) => {
     const clientsArray = item.clients.split(",").map((client) => client.trim());
     clientsArray.forEach((client) => {
@@ -57,47 +55,32 @@ const EmailListGenerator = ({ data }) => {
     return acc;
   }, {});
 
-  // **Generate "All" Emails List (Unique Emails)**
   const allEmails = [...new Set(data.map((item) => item.email))];
-
-  // **Generate "Psych" Emails List (Using Verified Psych Writers)**
   const psychEmails = Object.values(psychWriters);
-
-  // **Insert "All" and "Psych" Categories at the Top**
   const emailCategories = {
     All: allEmails,
     Psych: psychEmails,
     ...groupedEmails,
   };
 
-  // Function to copy addresses for a given client (comma-separated for Bcc)
   const handleCopy = (client) => {
     const textToCopy = emailCategories[client].join(", ");
     navigator.clipboard.writeText(textToCopy);
     setCopiedClient(client);
-    // Reset after 1 second.
     setTimeout(() => setCopiedClient(null), 1000);
   };
 
-  // Function to compose email using the addresses from the last copied category.
-  // Defaults to "All" if nothing was copied.
-  // Subject: "[client] Update -" if a specific client was copied; otherwise "Update -".
-  // Function to compose email using the addresses from the last copied category.
-// If no category has been copied, it opens the email client with an empty Bcc field.
-const handleComposeEmail = () => {
-  if (copiedClient) {
-    const addresses = emailCategories[copiedClient].join(", ");
-    const subject = `[${copiedClient}] Update -`;
+  const handleComposeEmail = () => {
+    let addresses = "";
+    let subject = "Update -";
+    if (copiedClient && emailCategories[copiedClient]) {
+      addresses = emailCategories[copiedClient].join(", ");
+      subject = `[${copiedClient}] Update -`;
+    }
     const mailtoLink = `mailto:?bcc=${encodeURIComponent(addresses)}&subject=${encodeURIComponent(subject)}`;
     window.location.href = mailtoLink;
-  } else {
-    // Open mail client without Bcc if nothing was copied
-    const mailtoLink = `mailto:?subject=${encodeURIComponent("Update -")}`;
-    window.location.href = mailtoLink;
-  }
-};
+  };
 
-  // Function to export all emails from the "All" category as a CSV file.
   const handleExportEmails = () => {
     const csvContent =
       "data:text/csv;charset=utf-8,Email\n" +
@@ -117,8 +100,6 @@ const handleComposeEmail = () => {
         <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#000" }}>
           Email List Generator
         </Typography>
-
-        {/* Grid of Client/Category Cards */}
         <Grid container spacing={2}>
           {Object.keys(emailCategories).map((client) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={client}>

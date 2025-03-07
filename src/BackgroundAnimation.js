@@ -36,7 +36,7 @@ const Bubble = ({ bubble, reaction }) => {
         height: `${bubble.size}px`,
         borderRadius: "50%",
         backgroundColor: bubble.color,
-        scale, // attach the scale motion value for the pulse
+        scale,
       }}
     />
   );
@@ -46,35 +46,26 @@ const BackgroundAnimation = ({ reaction }) => {
   const bubbleCount = 15;
   const columns = 5;
   const rows = Math.ceil(bubbleCount / columns);
-
-  // Restrict bubble placement to the upper 50% height and 80% width.
-  const gridWidth = 80; // 80% of container width
-  const gridHeight = 50; // 50% of container height
-  const cellWidth = gridWidth / columns; // Each cell's width (in %)
-  const cellHeight = gridHeight / rows;   // Each cell's height (in %)
-  const horizontalOffset = 10; // Center grid horizontally (since 100 - 80 = 20, so 10% each side)
-
-  // Adjust margins inside each cell to bring bubbles closer.
+  const gridWidth = 80;
+  const gridHeight = 50;
+  const cellWidth = gridWidth / columns;
+  const cellHeight = gridHeight / rows;
+  const horizontalOffset = 10;
   const marginFactor = 0.1; 
   const rangeFactor = 0.8;  
-
-  // Generate bubble data using the grid area.
   const bubbles = React.useMemo(() => {
     return Array.from({ length: bubbleCount }, (_, i) => {
       const row = Math.floor(i / columns);
       const col = i % columns;
-      // Randomize position within each cell with a smaller margin.
       const offsetX = (Math.random() * (cellWidth * rangeFactor)) + (cellWidth * marginFactor);
       const offsetY = (Math.random() * (cellHeight * rangeFactor)) + (cellHeight * marginFactor);
       return {
         key: i,
-        topPosition: row * cellHeight + offsetY,      // within grid height (0 to 50)
-        leftPosition: horizontalOffset + col * cellWidth + offsetX, // grid starts at 10%
+        topPosition: row * cellHeight + offsetY,
+        leftPosition: horizontalOffset + col * cellWidth + offsetX,
         delay: Math.random() * 2,
-        drift: Math.random() * 30 - 15,             // horizontal drift between -15 and +15
-        // Random sizes between 30px and 70px.
+        drift: Math.random() * 30 - 15,
         size: Math.random() * 40 + 30,
-        // Colors with slightly more transparency (alpha 0.15).
         color: [
           "rgba(30, 115, 190, 0.15)",   // bluish
           "rgba(128, 128, 128, 0.15)",  // gray
@@ -95,7 +86,7 @@ const BackgroundAnimation = ({ reaction }) => {
         width: "100%",
         height: "100%",
         overflow: "hidden",
-        pointerEvents: "none", // Allow clicks to pass through this layer.
+        pointerEvents: "none",
         zIndex: 0,
       }}
     >
