@@ -17,7 +17,8 @@ const FLData = [
     "timelinessScore": 92,
     "efficiencyScore": 92.75,
     "accuracyScore": 64.84,
-    "qualityScore": 75.85
+    "qualityScore": 75.85,
+    "notes": ""
   },
   {
     "mra_id": 2,
@@ -36,7 +37,8 @@ const FLData = [
     "timelinessScore": 75,
     "efficiencyScore": 90.25,
     "accuracyScore": 70.37,
-    "qualityScore": 75.27
+    "qualityScore": 75.27,
+    "notes": ""
   },
   {
     "mra_id": 3,
@@ -55,7 +57,8 @@ const FLData = [
     "timelinessScore": 88,
     "efficiencyScore": 94.0,
     "accuracyScore": 50.0,
-    "qualityScore": 66.4
+    "qualityScore": 66.4,
+    "notes": ""
   },
   {
     "mra_id": 4,
@@ -74,7 +77,8 @@ const FLData = [
     "timelinessScore": 80,
     "efficiencyScore": 88.75,
     "accuracyScore": 78.67,
-    "qualityScore": 80.95
+    "qualityScore": 80.95,
+    "notes": ""
   },
   {
     "mra_id": 5,
@@ -93,7 +97,8 @@ const FLData = [
     "timelinessScore": 98,
     "efficiencyScore": 98.75,
     "accuracyScore": 89.57,
-    "qualityScore": 93.09
+    "qualityScore": 93.09,
+    "notes": ""
   },
   {
     "mra_id": 6,
@@ -112,7 +117,8 @@ const FLData = [
     "timelinessScore": 90,
     "efficiencyScore": 96.75,
     "accuracyScore": 62.62,
-    "qualityScore": 74.92
+    "qualityScore": 74.92,
+    "notes": ""
   },
   {
     "mra_id": 7,
@@ -131,7 +137,8 @@ const FLData = [
     "timelinessScore": 92,
     "efficiencyScore": 93.75,
     "accuracyScore": 66.32,
-    "qualityScore": 76.94
+    "qualityScore": 76.94,
+    "notes": ""
   },
   {
     "mra_id": 8,
@@ -150,7 +157,8 @@ const FLData = [
     "timelinessScore": 94,
     "efficiencyScore": 97.25,
     "accuracyScore": 81.65,
-    "qualityScore": 87.24
+    "qualityScore": 87.24,
+    "notes": ""
   },
   {
     "mra_id": 9,
@@ -169,7 +177,8 @@ const FLData = [
     "timelinessScore": 85,
     "efficiencyScore": 85.5,
     "accuracyScore": 67.74,
-    "qualityScore": 74.75
+    "qualityScore": 74.75,
+    "notes": ""
   },
   {
     "mra_id": 10,
@@ -188,7 +197,8 @@ const FLData = [
     "timelinessScore": 94,
     "efficiencyScore": 91.0,
     "accuracyScore": 61.9,
-    "qualityScore": 74.14
+    "qualityScore": 74.14,
+    "notes": ""
   },
   {
     "mra_id": 11,
@@ -207,7 +217,8 @@ const FLData = [
     "timelinessScore": 93,
     "efficiencyScore": 90.25,
     "accuracyScore": 90.12,
-    "qualityScore": 90.72
+    "qualityScore": 90.72,
+    "notes": ""
   },
   {
     "mra_id": 12,
@@ -226,7 +237,8 @@ const FLData = [
     "timelinessScore": 92,
     "efficiencyScore": 86.0,
     "accuracyScore": 62.5,
-    "qualityScore": 73.1
+    "qualityScore": 73.1,
+    "notes": ""
   },
   {
     "mra_id": 13,
@@ -245,7 +257,8 @@ const FLData = [
     "timelinessScore": 98,
     "efficiencyScore": 84.25,
     "accuracyScore": 64.91,
-    "qualityScore": 75.4
+    "qualityScore": 75.4,
+    "notes": ""
   },
   {
     "mra_id": 14,
@@ -264,7 +277,8 @@ const FLData = [
     "timelinessScore": 92,
     "efficiencyScore": 82.0,
     "accuracyScore": 66.67,
-    "qualityScore": 74.8
+    "qualityScore": 74.8,
+    "notes": ""
   },
   {
     "mra_id": 15,
@@ -283,7 +297,8 @@ const FLData = [
     "timelinessScore": 95,
     "efficiencyScore": 89.5,
     "accuracyScore": 58.97,
-    "qualityScore": 72.28
+    "qualityScore": 72.28,
+    "notes": ""
   },
   {
     "mra_id": 16,
@@ -302,7 +317,8 @@ const FLData = [
     "timelinessScore": 86,
     "efficiencyScore": 85.75,
     "accuracyScore": 55.56,
-    "qualityScore": 67.68
+    "qualityScore": 67.68,
+    "notes": ""
   },
   {
     "mra_id": 17,
@@ -321,7 +337,8 @@ const FLData = [
     "timelinessScore": 96,
     "efficiencyScore": 97.0,
     "accuracyScore": 81.48,
-    "qualityScore": 87.49
+    "qualityScore": 87.49,
+    "notes": ""
   },
   {
     "mra_id": 18,
@@ -340,7 +357,8 @@ const FLData = [
     "timelinessScore": 90,
     "efficiencyScore": 88.75,
     "accuracyScore": 20.0,
-    "qualityScore": 47.75
+    "qualityScore": 47.75,
+    "notes": ""
   },
   {
     "mra_id": 19,
@@ -359,7 +377,8 @@ const FLData = [
     "timelinessScore": 98,
     "efficiencyScore": 83.0,
     "accuracyScore": 53.85,
-    "qualityScore": 68.51
+    "qualityScore": 68.51,
+    "notes": ""
   },
   {
     "mra_id": 20,
@@ -378,7 +397,8 @@ const FLData = [
     "timelinessScore": 88,
     "efficiencyScore": 93.5,
     "accuracyScore": 78.72,
-    "qualityScore": 83.53
+    "qualityScore": 83.53,
+    "notes": ""
   },
   {
     "mra_id": 21,
@@ -397,7 +417,8 @@ const FLData = [
     "timelinessScore": 95,
     "efficiencyScore": 94.75,
     "accuracyScore": 67.68,
-    "qualityScore": 78.56
+    "qualityScore": 78.56,
+    "notes": ""
   },
   {
     "mra_id": 22,
@@ -416,7 +437,8 @@ const FLData = [
     "timelinessScore": 82,
     "efficiencyScore": 86.0,
     "accuracyScore": 87.5,
-    "qualityScore": 86.1
+    "qualityScore": 86.1,
+    "notes": ""
   },
   {
     "mra_id": 23,
@@ -435,7 +457,8 @@ const FLData = [
     "timelinessScore": 78,
     "efficiencyScore": 86.0,
     "accuracyScore": 75.0,
-    "qualityScore": 77.8
+    "qualityScore": 77.8,
+    "notes": ""
   },
   {
     "mra_id": 24,
@@ -454,7 +477,8 @@ const FLData = [
     "timelinessScore": 83,
     "efficiencyScore": 85.0,
     "accuracyScore": 80.0,
-    "qualityScore": 81.6
+    "qualityScore": 81.6,
+    "notes": ""
   },
   {
     "mra_id": 25,
@@ -473,7 +497,8 @@ const FLData = [
     "timelinessScore": 85,
     "efficiencyScore": 98.75,
     "accuracyScore": 82.61,
-    "qualityScore": 86.32
+    "qualityScore": 86.32,
+    "notes": ""
   },
   {
     "mra_id": 26,
@@ -492,7 +517,8 @@ const FLData = [
     "timelinessScore": 95,
     "efficiencyScore": 94.0,
     "accuracyScore": 83.33,
-    "qualityScore": 87.8
+    "qualityScore": 87.8,
+    "notes": ""
   },
   {
     "mra_id": 27,
@@ -511,7 +537,8 @@ const FLData = [
     "timelinessScore": 76,
     "efficiencyScore": 85.75,
     "accuracyScore": 49.21,
-    "qualityScore": 61.87
+    "qualityScore": 61.87,
+    "notes": ""
   },
   {
     "mra_id": 28,
@@ -530,7 +557,8 @@ const FLData = [
     "timelinessScore": 94,
     "efficiencyScore": 84.0,
     "accuracyScore": 64.29,
-    "qualityScore": 74.17
+    "qualityScore": 74.17,
+    "notes": ""
   },
   {
     "mra_id": 29,
@@ -549,7 +577,8 @@ const FLData = [
     "timelinessScore": 99,
     "efficiencyScore": 93.75,
     "accuracyScore": 83.16,
-    "qualityScore": 88.44
+    "qualityScore": 88.44,
+    "notes": ""
   },
   {
     "mra_id": 30,
@@ -568,7 +597,8 @@ const FLData = [
     "timelinessScore": 85,
     "efficiencyScore": 86.0,
     "accuracyScore": 50.0,
-    "qualityScore": 64.2
+    "qualityScore": 64.2,
+    "notes": ""
   },
   {
     "mra_id": 31,
@@ -587,7 +617,8 @@ const FLData = [
     "timelinessScore": 92,
     "efficiencyScore": 85.75,
     "accuracyScore": 93.65,
-    "qualityScore": 91.74
+    "qualityScore": 91.74,
+    "notes": ""
   },
   {
     "mra_id": 32,
@@ -606,7 +637,8 @@ const FLData = [
     "timelinessScore": 96,
     "efficiencyScore": 88.5,
     "accuracyScore": 94.59,
-    "qualityScore": 93.66
+    "qualityScore": 93.66,
+    "notes": ""
   },
   {
     "mra_id": 33,
@@ -625,7 +657,8 @@ const FLData = [
     "timelinessScore": 97,
     "efficiencyScore": 88.0,
     "accuracyScore": 94.44,
-    "qualityScore": 93.67
+    "qualityScore": 93.67,
+    "notes": ""
   },
   {
     "mra_id": 34,
@@ -640,11 +673,12 @@ const FLData = [
     "clientRevisionsPast60": 7,
     "lateCasePercentage": 3,
     "avgCasesPerDay": 3.45,
-    "revisionRate": 5.80,
+    "revisionRate": 5.8,
     "timelinessScore": 97,
     "efficiencyScore": 87.25,
-    "accuracyScore": 94.20,
-    "qualityScore": 93.37
+    "accuracyScore": 94.2,
+    "qualityScore": 93.37,
+    "notes": ""
   },
   {
     "mra_id": 35,
@@ -663,7 +697,8 @@ const FLData = [
     "timelinessScore": 98,
     "efficiencyScore": 87.5,
     "accuracyScore": 88.57,
-    "qualityScore": 90.24
+    "qualityScore": 90.24,
+    "notes": ""
   },
   {
     "mra_id": 36,
@@ -682,7 +717,8 @@ const FLData = [
     "timelinessScore": 95,
     "efficiencyScore": 95.5,
     "accuracyScore": 84.31,
-    "qualityScore": 88.69
+    "qualityScore": 88.69,
+    "notes": ""
   },
   {
     "mra_id": 37,
@@ -701,7 +737,8 @@ const FLData = [
     "timelinessScore": 96,
     "efficiencyScore": 89.5,
     "accuracyScore": 89.74,
-    "qualityScore": 90.95
+    "qualityScore": 90.95,
+    "notes": ""
   },
   {
     "mra_id": 38,
@@ -720,7 +757,8 @@ const FLData = [
     "timelinessScore": 98,
     "efficiencyScore": 89.25,
     "accuracyScore": 94.81,
-    "qualityScore": 94.33
+    "qualityScore": 94.33,
+    "notes": ""
   },
   {
     "mra_id": 39,
@@ -739,7 +777,8 @@ const FLData = [
     "timelinessScore": 96,
     "efficiencyScore": 82.25,
     "accuracyScore": 91.84,
-    "qualityScore": 90.75
+    "qualityScore": 90.75,
+    "notes": ""
   },
   {
     "mra_id": 40,
@@ -758,7 +797,8 @@ const FLData = [
     "timelinessScore": 97,
     "efficiencyScore": 86.75,
     "accuracyScore": 94.03,
-    "qualityScore": 93.17
+    "qualityScore": 93.17,
+    "notes": ""
   },
   {
     "mra_id": 41,
@@ -777,7 +817,8 @@ const FLData = [
     "timelinessScore": 96,
     "efficiencyScore": 83.75,
     "accuracyScore": 92.73,
-    "qualityScore": 91.59
+    "qualityScore": 91.59,
+    "notes": ""
   },
   {
     "mra_id": 42,
@@ -796,7 +837,8 @@ const FLData = [
     "timelinessScore": 98,
     "efficiencyScore": 93.25,
     "accuracyScore": 95.7,
-    "qualityScore": 95.67
+    "qualityScore": 95.67,
+    "notes": ""
   },
   {
     "mra_id": 43,
@@ -815,7 +857,8 @@ const FLData = [
     "timelinessScore": 97,
     "efficiencyScore": 86.75,
     "accuracyScore": 94.03,
-    "qualityScore": 93.17
+    "qualityScore": 93.17,
+    "notes": ""
   },
   {
     "mra_id": 44,
@@ -834,7 +877,8 @@ const FLData = [
     "timelinessScore": 96,
     "efficiencyScore": 99.0,
     "accuracyScore": 96.55,
-    "qualityScore": 96.93
+    "qualityScore": 96.93,
+    "notes": ""
   },
   {
     "mra_id": 45,
@@ -853,7 +897,8 @@ const FLData = [
     "timelinessScore": 92,
     "efficiencyScore": 90.5,
     "accuracyScore": 95.12,
-    "qualityScore": 93.57
+    "qualityScore": 93.57,
+    "notes": ""
   },
   {
     "mra_id": 46,
@@ -872,7 +917,8 @@ const FLData = [
     "timelinessScore": 94,
     "efficiencyScore": 90.5,
     "accuracyScore": 91.87,
-    "qualityScore": 92.27
+    "qualityScore": 92.27,
+    "notes": ""
   },
   {
     "mra_id": 47,
@@ -891,7 +937,8 @@ const FLData = [
     "timelinessScore": 95,
     "efficiencyScore": 82.0,
     "accuracyScore": 91.67,
-    "qualityScore": 90.4
+    "qualityScore": 90.4,
+    "notes": ""
   },
   {
     "mra_id": 48,
@@ -910,9 +957,9 @@ const FLData = [
     "timelinessScore": 95,
     "efficiencyScore": 96.0,
     "accuracyScore": 96.15,
-    "qualityScore": 95.89
+    "qualityScore": 95.89,
+    "notes": "an empty notes property has been added to objects in data array on FLData.js"
   }
 ];
 
 export default FLData;
-

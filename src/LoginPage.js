@@ -171,6 +171,8 @@ export default function LoginPage() {
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     inputProps={{
                       maxLength: 1,
+                      inputMode: "numeric",
+                      pattern: "[0-9]*",
                       style: {
                         textAlign: "center",
                         fontSize: "1.5rem",

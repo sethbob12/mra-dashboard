@@ -1,7 +1,7 @@
 // src/App.js
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import { Container, CssBaseline } from "@mui/material";
+import { Box, CssBaseline } from "@mui/material";
 import Navbar from "./Navbar";
 import Home from "./Home"; // Home/Dashboard Page
 import FLTable from "./FLTable";
@@ -39,11 +39,22 @@ function App() {
     <>
       <CssBaseline />
       <Navbar />
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+
+      {/* Center the content and allow a wider layout */}
+      <Box
+        sx={{
+          mt: 4,
+          margin: "0 auto",
+          // Increase maxWidth so the wide columns fit
+          maxWidth: 1600,
+          width: "100%",
+          px: 2,
+        }}
+      >
         <Routes>
           {/* Public route for login */}
           <Route path="/login" element={<LoginPage />} />
-          
+
           {/* Protected routes */}
           <Route
             path="/"
@@ -110,7 +121,7 @@ function App() {
             }
           />
         </Routes>
-      </Container>
+      </Box>
     </>
   );
 }

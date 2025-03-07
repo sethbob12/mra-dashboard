@@ -1,5 +1,5 @@
 // src/Reports.js
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -44,6 +44,9 @@ import {
   Tooltip as RechartsTooltip,
   Legend,
   Line,
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts';
 
 dayjs.extend(isSameOrAfter);
@@ -53,6 +56,7 @@ const openSansTheme = createTheme({
   typography: { fontFamily: 'Open Sans, sans-serif' },
 });
 
+// --- Helper Functions ---
 const getUniqueClients = () => {
   const clientSet = new Set();
   FLData.forEach(item => {
@@ -61,34 +65,18 @@ const getUniqueClients = () => {
   return ['All Clients', ...Array.from(clientSet).sort()];
 };
 
-const computeRevisionsSlope = (trend) => {
-  if (trend.length < 2) return 0;
-  return trend[trend.length - 1].cumulativeRevisions - trend[0].cumulativeRevisions;
-};
-
-const computeRevisionsSlopePercent = (trend) => {
-  if (trend.length < 2 || trend[0].cumulativeRevisions === 0) return "N/A";
-  const slope = computeRevisionsSlope(trend);
-  const percent = (slope / trend[0].cumulativeRevisions) * 100;
-  return `${percent.toFixed(1)}%`;
-};
-
-const getSlopeIndicator = (slope) => {
-  if (slope < 0) return "↓";
-  if (slope > 0) return "↑";
-  return "-";
-};
-
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
   return 0;
 }
+
 function getComparator(order, orderBy) {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
+
 function stableSort(array, comparator) {
   const stabilizedArray = array.map((el, idx) => [el, idx]);
   stabilizedArray.sort((a, b) => {
@@ -97,8 +85,21 @@ function stableSort(array, comparator) {
     return a[1] - b[1];
   });
   return stabilizedArray.map((el) => el[0]);
+}
+
+// Custom dot renderer for quality trend graph
+const renderCustomDot = (props) => {
+  const { cx, cy, value } = props;
+  let fillColor = "red";
+  if (value >= 90) {
+    fillColor = "green";
+  } else if (value >= 80) {
+    fillColor = "yellow";
+  }
+  return <circle cx={cx} cy={cy} r={4} fill={fillColor} />;
 };
 
+// --- Export Functions ---
 const exportReportCSV = (reportResult, clientBreakdown, selectedReviewer, lateTrend) => {
   if (reportResult && Object.keys(clientBreakdown).length > 0) {
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -126,14 +127,13 @@ const exportReportCSV = (reportResult, clientBreakdown, selectedReviewer, lateTr
   }
 };
 
-const exportReportPDF = async (reportResult, clientBreakdown, selectedReviewer, startDate, endDate, lateTrend) => {
+const exportReportPDF = (reportResult, clientBreakdown, selectedReviewer, startDate, endDate, lateTrend) => {
   if (reportResult && Object.keys(clientBreakdown).length > 0) {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("Cases / Revisions Report", 14, 20);
     doc.setFontSize(12);
     doc.text(`Period: ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`, 14, 30);
-
     if (selectedReviewer !== 'All Reviewers') {
       doc.text(`Reviewer: ${selectedReviewer}`, 14, 40);
       doc.text(`Total Estimated Cases: ${Math.round(reportResult.totalCases)}`, 14, 50);
@@ -144,13 +144,11 @@ const exportReportPDF = async (reportResult, clientBreakdown, selectedReviewer, 
       doc.text(`Total Revision Requests: ${Math.round(reportResult.revisionRequests)}`, 14, 50);
       doc.text(`Revision Percentage: ${reportResult.revisionPercentage}%`, 14, 60);
     }
-
     doc.text(
       `Average Late %: ${lateTrend.length > 0 ? lateTrend[0].latePercentage.toFixed(1) : "N/A"}%`,
       14,
       80
     );
-
     const tableColumn = ["Client", "Estimated Cases", "Estimated Revisions", "Revision Rate (%)"];
     const tableRows = [];
     for (const [client, totals] of Object.entries(clientBreakdown)) {
@@ -159,13 +157,11 @@ const exportReportPDF = async (reportResult, clientBreakdown, selectedReviewer, 
         : "0.00";
       tableRows.push([client, Math.round(totals.totalCases), Math.round(totals.totalRevisions), rate]);
     }
-
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: selectedReviewer !== 'All Reviewers' ? 90 : 80,
     });
-
     const finalY = doc.lastAutoTable.finalY || 30;
     doc.setFont("helvetica", "bold");
     doc.text(
@@ -173,14 +169,13 @@ const exportReportPDF = async (reportResult, clientBreakdown, selectedReviewer, 
       14,
       finalY + 10
     );
-
     doc.setFontSize(10);
     doc.text("Feedback column not fully represented in PDF export.", 14, finalY + 16);
     doc.save("cases_revisions_report.pdf");
   }
 };
 
-const Reports = ({ reviewers }) => {
+const Reports = ({ reviewers, fetchReportData }) => {
   const location = useLocation();
   const [selectedReviewer, setSelectedReviewer] = useState('All Reviewers');
   const [selectedClient, setSelectedClient] = useState('All Clients');
@@ -192,16 +187,12 @@ const Reports = ({ reviewers }) => {
   const [internalFeedback, setInternalFeedback] = useState([]);
   const [reportResult, setReportResult] = useState(null);
   const [clientBreakdown, setClientBreakdown] = useState({});
-  const [clientTrendData, setClientTrendData] = useState({});
   const [qualityTrend, setQualityTrend] = useState([]);
   const [lateTrend, setLateTrend] = useState([]);
   const [internalOrder, setInternalOrder] = useState("asc");
   const [internalOrderBy, setInternalOrderBy] = useState("name");
-  const uniqueClients = getUniqueClients();
-  const chartsRef = useRef(null);
   const [shouldAutoGenerate, setShouldAutoGenerate] = useState(false);
 
-  // Define handleGenerateReport BEFORE useEffects that reference it.
   const handleGenerateReport = useCallback(() => {
     if (tabValue === 1) {
       // Generate Feedback Report
@@ -245,10 +236,9 @@ const Reports = ({ reviewers }) => {
         setInternalOrderBy("name");
         setInternalOrder("asc");
       }
-      // Clear any Cases/Revisions report data
+      // Clear Cases/Revisions report data
       setReportResult(null);
       setClientBreakdown({});
-      setClientTrendData({});
       setQualityTrend([]);
       setLateTrend([]);
     } else {
@@ -297,28 +287,6 @@ const Reports = ({ reviewers }) => {
           : 0,
       });
       setClientBreakdown(breakdown);
-      const perClientTrendData = {};
-      for (const client of Object.keys(breakdown)) {
-        let sumCases = 0;
-        let sumRevisions = 0;
-        filteredFLData.forEach(item => {
-          if (item.clients.split(",").map(c => c.trim()).includes(client)) {
-            sumCases += item.avgCasesPerDay;
-            sumRevisions += (item.clientRevisionsMonth / 20);
-          }
-        });
-        const trend = [];
-        for (let d = 0; d < periodDays; d++) {
-          const currentDate = dayjs(startDate).add(d, 'day').format('YYYY-MM-DD');
-          trend.push({
-            date: currentDate,
-            cumulativeCases: sumCases * (d + 1),
-            cumulativeRevisions: sumRevisions * (d + 1),
-          });
-        }
-        perClientTrendData[client] = trend;
-      }
-      setClientTrendData(perClientTrendData);
       const qualityScores = filteredFLData
         .map(item => item.qualityScore)
         .filter(score => score != null);
@@ -348,13 +316,14 @@ const Reports = ({ reviewers }) => {
     }
   }, [selectedReviewer, selectedClient, startDate, endDate, selectedFeedbackType, tabValue]);
 
-  // Read URL query parameters on mount.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const reviewerParam = params.get('reviewer');
     const startDateParam = params.get('startDate');
     const endDateParam = params.get('endDate');
     const feedbackTypeParam = params.get('feedbackType');
+    const reportTypeParam = params.get('reportType');
+
     if (reviewerParam && reviewerParam !== "All Reviewers") {
       setSelectedReviewer(reviewerParam);
     }
@@ -369,16 +338,26 @@ const Reports = ({ reviewers }) => {
       setSelectedFeedbackType(feedbackTypeParam === "internal" ? "qa" : feedbackTypeParam);
       setShouldAutoGenerate(true);
     }
+    if (reportTypeParam && reportTypeParam === "Cases/Revisions") {
+      setTabValue(0);
+      setShouldAutoGenerate(true);
+    }
   }, [location.search]);
 
-  // Auto-trigger report generation if URL indicates feedback report.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get('feedbackType') && tabValue === 1 && !reportResult && shouldAutoGenerate) {
+    const reportTypeParam = params.get('reportType');
+    if (reportTypeParam === "Cases/Revisions" && !reportResult && shouldAutoGenerate) {
       handleGenerateReport();
       setShouldAutoGenerate(false);
     }
-  }, [location.search, tabValue, reportResult, shouldAutoGenerate, handleGenerateReport]);
+  }, [location.search, reportResult, shouldAutoGenerate, handleGenerateReport]);
+
+  const chartData = Object.entries(clientBreakdown).map(([client, totals]) => ({
+    name: client,
+    value: Math.round(totals.totalCases)
+  }));
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF4560'];
 
   return (
     <ThemeProvider theme={openSansTheme}>
@@ -413,7 +392,7 @@ const Reports = ({ reviewers }) => {
                   onChange={(e) => setSelectedClient(e.target.value)}
                   label="Client"
                 >
-                  {uniqueClients.map((client) => (
+                  {getUniqueClients().map((client) => (
                     <MenuItem key={client} value={client}>
                       {client}
                     </MenuItem>
@@ -479,7 +458,7 @@ const Reports = ({ reviewers }) => {
         </Paper>
         {tabValue === 0 && reportResult && (
           <Box sx={{ mt: 3, p: 2, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
-            <Typography variant="h6">Report Results</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Report Results</Typography>
             <Typography>
               Total Estimated Cases (over {reportResult.periodDays} days): {Math.round(reportResult.totalCases)}
             </Typography>
@@ -489,23 +468,53 @@ const Reports = ({ reviewers }) => {
                 (Revision Rate: {reportResult.revisionPercentage}%)
               </span>
             </Typography>
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle1">Breakdown by Client:</Typography>
-              <List>
-                {Object.entries(clientBreakdown).map(([client, totals]) => {
-                  const rate = totals.totalCases > 0
-                    ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
-                    : "0.00";
-                  return (
-                    <ListItem key={client} disablePadding>
-                      <ListItemText
-                        primary={`${client}: ${Math.round(totals.totalCases)} cases, ${Math.round(totals.totalRevisions)} revisions (Rate: ${rate}%)`}
-                      />
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </Box>
+            <Grid container spacing={2} sx={{ mt: 2 }}>
+              <Grid item xs={12} md={6}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  Breakdown by Client
+                </Typography>
+                <List>
+                  {Object.entries(clientBreakdown).map(([client, totals]) => {
+                    const rate = totals.totalCases > 0
+                      ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
+                      : "0.00";
+                    return (
+                      <ListItem key={client} disablePadding>
+                        <ListItemText
+                          primary={
+                            <Typography sx={{ fontWeight: 'bold' }}>
+                              {client}: {Math.round(totals.totalCases)} cases, {Math.round(totals.totalRevisions)} revisions (Rate: {rate}%)
+                            </Typography>
+                          }
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      label
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Grid>
+            </Grid>
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                 Overall Quality Score:{" "}
@@ -517,13 +526,12 @@ const Reports = ({ reviewers }) => {
                     )
                   )
                   .map(item => item.qualityScore)
-                  .reduce((a, b) => a + b, 0) /
-                    FLData.filter(item =>
-                      (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
-                      (selectedClient === 'All Clients' ||
-                        item.clients.split(",").map(c => c.trim()).includes(selectedClient)
-                      )
-                    ).length) || 0
+                  .reduce((a, b) => a + b, 0) / FLData.filter(item =>
+                    (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
+                    (selectedClient === 'All Clients' ||
+                      item.clients.split(",").map(c => c.trim()).includes(selectedClient)
+                    )
+                  ).length) || 0
                 )}
               </Typography>
             </Box>
@@ -536,10 +544,16 @@ const Reports = ({ reviewers }) => {
                   <LineChart data={qualityTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
-                    <YAxis label={{ value: "Quality Score", angle: -90, position: 'insideLeft', offset: -10 }} />
+                    <YAxis domain={[0, 100]} label={{ value: "Quality Score", angle: -90, position: 'insideLeft', offset: -10 }} />
                     <RechartsTooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="qualityScore" stroke="#00C49F" name="Quality Score" />
+                    <Line
+                      type="monotone"
+                      dataKey="qualityScore"
+                      name="Quality Score"
+                      dot={renderCustomDot}
+                      stroke="#00C49F"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </Box>
@@ -569,43 +583,19 @@ const Reports = ({ reviewers }) => {
                 </ResponsiveContainer>
               </Box>
             )}
-            <Box ref={chartsRef}>
-              {Object.keys(clientTrendData).length > 0 && (
-                Object.entries(clientTrendData).map(([client, trend]) => {
-                  const slope = computeRevisionsSlope(trend);
-                  const slopeIndicator = getSlopeIndicator(slope);
-                  const slopePercent = computeRevisionsSlopePercent(trend);
-                  return (
-                    <Box key={client} sx={{ mt: 3, height: 300 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                        {client} Trend{" "}
-                        <Tooltip title={`Change: ${slopePercent}`} arrow>
-                          <span style={{ color: slope < 0 ? 'green' : slope > 0 ? 'red' : 'gray', cursor: 'default' }}>
-                            {slopeIndicator}
-                          </span>
-                        </Tooltip>
-                      </Typography>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={trend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
-                          <YAxis label={{ value: "Cumulative Total", angle: -90, position: 'insideLeft', offset: -10 }} />
-                          <RechartsTooltip />
-                          <Legend />
-                          <Line type="monotone" dataKey="cumulativeCases" stroke="#1E73BE" name="Cumulative Cases" />
-                          <Line type="monotone" dataKey="cumulativeRevisions" stroke="#FF8042" name="Cumulative Revisions" />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </Box>
-                  );
-                })
-              )}
-            </Box>
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              <Button variant="outlined" color="secondary" onClick={() => exportReportCSV(reportResult, clientBreakdown, selectedReviewer, lateTrend)}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => exportReportCSV(reportResult, clientBreakdown, selectedReviewer, lateTrend)}
+              >
                 Export as CSV
               </Button>
-              <Button variant="outlined" color="secondary" onClick={() => exportReportPDF(reportResult, clientBreakdown, selectedReviewer, startDate, endDate, lateTrend)}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => exportReportPDF(reportResult, clientBreakdown, selectedReviewer, startDate, endDate, lateTrend)}
+              >
                 Export as PDF
               </Button>
             </Box>
@@ -638,6 +628,11 @@ const Reports = ({ reviewers }) => {
                         <Button
                           variant="outlined"
                           size="small"
+                          sx={{
+                            borderColor: "#9c27b0",
+                            color: "#9c27b0",
+                            '&:hover': { backgroundColor: "#9c27b0", color: "#fff" }
+                          }}
                           onClick={() => navigator.clipboard.writeText(copyText)}
                         >
                           Copy
@@ -705,6 +700,11 @@ const Reports = ({ reviewers }) => {
                             <Button
                               variant="outlined"
                               size="small"
+                              sx={{
+                                borderColor: "#4caf50",
+                                color: "#4caf50",
+                                '&:hover': { backgroundColor: "#4caf50", color: "#fff" }
+                              }}
                               onClick={() => navigator.clipboard.writeText(allFeedbackTextForCopy)}
                             >
                               Copy All Feedback
@@ -789,6 +789,11 @@ const Reports = ({ reviewers }) => {
                               <Button
                                 variant="outlined"
                                 size="small"
+                                sx={{
+                                  borderColor: "#4caf50",
+                                  color: "#4caf50",
+                                  '&:hover': { backgroundColor: "#4caf50", color: "#fff" }
+                                }}
                                 onClick={() => navigator.clipboard.writeText(item.text)}
                               >
                                 Copy

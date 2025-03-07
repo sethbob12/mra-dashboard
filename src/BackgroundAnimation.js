@@ -8,7 +8,7 @@ const Bubble = ({ bubble, reaction }) => {
   const scale = useMotionValue(1);
 
   React.useEffect(() => {
-    const pulse = animate(scale, 1.4, { duration: 0.25 }).then(() =>
+    const pulse = animate(scale, 1.5, { duration: 0.25 }).then(() =>
       animate(scale, 1, { duration: 0.25 })
     );
     return pulse.stop;
@@ -16,7 +16,7 @@ const Bubble = ({ bubble, reaction }) => {
 
   return (
     <motion.div
-      initial={{ x: 0, y: 0, opacity: 0.3 }}
+      initial={{ x: 0, y: 0, opacity: 0.2 }}
       animate={{
         x: [0, bubble.drift, 0],
         y: [0, -20, 0],

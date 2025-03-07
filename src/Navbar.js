@@ -20,35 +20,42 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  // Define a common style for icon images with slight rounding.
+  const iconStyle = {
+    width: "40px",
+    height: "40px",
+    borderRadius: "8px",
+  };
+
   // Determine which logo to show based on the current path.
   let logoElement;
   if (location.pathname === "/login") {
     logoElement = (
-      <img src={growthChartGif} alt="Growth Chart" style={{ width: "40px", height: "40px" }} />
+      <img src={growthChartGif} alt="Growth Chart" style={iconStyle} />
     );
   } else if (location.pathname === "/") {
     logoElement = (
-      <img src={houseChimney} alt="Home" style={{ width: "40px", height: "40px" }} />
+      <img src={houseChimney} alt="Home" style={iconStyle} />
     );
   } else if (location.pathname === "/table") {
     logoElement = (
-      <img src={tableGif} alt="Data Table" style={{ width: "40px", height: "40px" }} />
+      <img src={tableGif} alt="Data Table" style={iconStyle} />
     );
   } else if (location.pathname === "/chart") {
     logoElement = (
-      <img src={threeGif} alt="Visualizations" style={{ width: "40px", height: "40px" }} />
+      <img src={threeGif} alt="Visualizations" style={iconStyle} />
     );
   } else if (location.pathname === "/emails") {
     logoElement = (
-      <img src={doveGif} alt="Email Generator" style={{ width: "40px", height: "40px" }} />
+      <img src={doveGif} alt="Email Generator" style={iconStyle} />
     );
   } else if (location.pathname === "/reports") {
     logoElement = (
-      <img src={reportsGif} alt="MRA Reports" style={{ width: "40px", height: "40px" }} />
+      <img src={reportsGif} alt="MRA Reports" style={iconStyle} />
     );
   } else if (location.pathname === "/qa-metrics") {
     logoElement = (
-      <img src={oneGif} alt="QA Metrics" style={{ width: "40px", height: "40px" }} />
+      <img src={oneGif} alt="QA Metrics" style={iconStyle} />
     );
   } else {
     logoElement = <DashboardIcon />;
