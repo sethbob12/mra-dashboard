@@ -12,8 +12,7 @@ import {
   Stack,
   IconButton,
   createTheme,
-  ThemeProvider,
-  Tooltip
+  ThemeProvider
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -70,15 +69,17 @@ const EmailListGenerator = ({ data }) => {
     setTimeout(() => setCopiedClient(null), 1000);
   };
 
-  const handleComposeEmail = () => {
-    let addresses = "";
-    let subject = "Update -";
-    if (copiedClient && emailCategories[copiedClient]) {
-      addresses = emailCategories[copiedClient].join(", ");
-      subject = `[${copiedClient}] Update -`;
+  const handleEmailGroup = (client) => {
+    if (emailCategories[client]) {
+      const addresses = emailCategories[client].join(", ");
+      const subject = `[${client}] Update -`;
+      const mailtoLink = `mailto:?bcc=${encodeURIComponent(addresses)}&subject=${encodeURIComponent(subject)}`;
+      window.location.href = mailtoLink;
+    } else {
+      // Fallback if something goes wrong
+      const mailtoLink = `mailto:?subject=${encodeURIComponent("Update -")}`;
+      window.location.href = mailtoLink;
     }
-    const mailtoLink = `mailto:?bcc=${encodeURIComponent(addresses)}&subject=${encodeURIComponent(subject)}`;
-    window.location.href = mailtoLink;
   };
 
   const handleExportEmails = () => {
@@ -174,34 +175,6 @@ const EmailListGenerator = ({ data }) => {
           </Grid>
         </Grid>
 
-        {/* Compose Email Button with Tooltip */}
-        <Box sx={{ mt: 4, textAlign: "center" }}>
-          <Tooltip
-            title="Click to open your default email client. Copied addresses will be inserted into the Bcc field and a placeholder subject will be added."
-            arrow
-          >
-            <Button
-              variant="contained"
-              onClick={handleComposeEmail}
-              sx={{
-                textTransform: "none",
-                fontWeight: "bold",
-                fontSize: "1.2rem",
-                px: 4,
-                py: 1.5,
-                background: "linear-gradient(45deg, #66bb6a 30%, #43a047 90%)",
-                color: "#fff",
-                "&:hover": {
-                  background: "linear-gradient(45deg, #43a047 30%, #388e3c 90%)",
-                },
-              }}
-              startIcon={<EmailIcon />}
-            >
-              Compose Email
-            </Button>
-          </Tooltip>
-        </Box>
-
         {/* POPUP MODAL FOR EMAIL LIST */}
         <Modal
           open={Boolean(selectedClient)}
@@ -247,22 +220,38 @@ const EmailListGenerator = ({ data }) => {
                 </Typography>
               </Box>
 
-              {/* Copy Button */}
-              <Button
-                variant="outlined"
-                onClick={() => handleCopy(selectedClient)}
-                fullWidth
-                sx={{ mt: 2 }}
-                startIcon={
-                  copiedClient === selectedClient ? (
-                    <CheckCircleIcon color="success" />
-                  ) : (
-                    <ContentCopyIcon />
-                  )
-                }
-              >
-                {copiedClient === selectedClient ? "Copied!" : "Copy Addresses"}
-              </Button>
+              {/* Two Buttons: Copy Addresses & Email Group */}
+              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleCopy(selectedClient)}
+                  fullWidth
+                  startIcon={
+                    copiedClient === selectedClient ? (
+                      <CheckCircleIcon color="success" />
+                    ) : (
+                      <ContentCopyIcon />
+                    )
+                  }
+                >
+                  {copiedClient === selectedClient ? "Copied!" : "Copy Addresses"}
+                </Button>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={() => handleEmailGroup(selectedClient)}
+                  startIcon={<EmailIcon />}
+                  sx={{
+                    background: "linear-gradient(45deg, #66bb6a 30%, #43a047 90%)",
+                    color: "#fff",
+                    "&:hover": {
+                      background: "linear-gradient(45deg, #43a047 30%, #388e3c 90%)",
+                    },
+                  }}
+                >
+                  Email Group
+                </Button>
+              </Stack>
             </Box>
           </Fade>
         </Modal>
