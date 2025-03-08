@@ -310,23 +310,35 @@ const FLChart = ({ data }) => {
   const revisionScatterData = generateRevisionRateScatterData(data);
   const performanceScatterData = generatePerformanceScatterData(data);
 
+  // ---------- Update boundary line for Revisions vs. Case Volume chart ----------
   const xValues = revisionScatterData.map((d) => d.x);
   const minXData = Math.min(...xValues);
   const maxXData = Math.max(...xValues);
-  const lineData = [
-    { x: minXData, y: 0 },
-    { x: minXData, y: 20 },
-    { x: maxXData, y: 40 }
-  ];
+  let lineData = [];
+  if (maxXData > 90) {
+    lineData = [
+      { x: minXData, y: 0 },
+      { x: minXData, y: 20 },
+      { x: 90, y: 30 },
+      { x: maxXData, y: 30 }
+    ];
+  } else {
+    const slope = (30 - 20) / (90 - minXData);
+    lineData = [
+      { x: minXData, y: 0 },
+      { x: minXData, y: 20 },
+      { x: maxXData, y: 20 + slope * (maxXData - minXData) }
+    ];
+  }
   const renderCustomDot = (props) => {
     const { cx, cy, payload } = props;
     let expectedY;
     if (payload.x <= minXData) {
-      expectedY = 0;
-    } else if (payload.x >= maxXData) {
-      expectedY = 40;
+      expectedY = 20;
+    } else if (payload.x >= 90) {
+      expectedY = 30;
     } else {
-      const slope = (40 - 20) / (maxXData - minXData);
+      const slope = (30 - 20) / (90 - minXData);
       expectedY = 20 + slope * (payload.x - minXData);
     }
     const fillColor = payload.y < expectedY ? "green" : "red";
