@@ -1,6 +1,5 @@
 // src/FLTable.js
-/* eslint-disable no-unused-vars */  
-// (Keep autoTable import if you plan to use it in the future)
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import {
   Box,
@@ -203,6 +202,8 @@ function FLTable({ data }) {
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("qualityScore");
   const [funnelOpen, setFunnelOpen] = useState(false);
+  // Added missing declaration for selectedRowForFunnel
+  const [selectedRowForFunnel, setSelectedRowForFunnel] = useState(null);
 
   // Define handleFeedbackClick to navigate to a feedback page
   const handleFeedbackClick = (row, feedbackType) => {
@@ -438,7 +439,7 @@ function FLTable({ data }) {
                     {row.name}
                   </TableCell>
 
-                  {/* Workflow (moved right after Name) */}
+                  {/* Workflow (placed immediately after Name) */}
                   <TableCell sx={{ textAlign: "center" }}>
                     <Box
                       onClick={() =>
@@ -611,6 +612,7 @@ function FLTable({ data }) {
       <FullFunnelModal
         open={funnelOpen}
         onClose={() => setFunnelOpen(false)}
+        rowData={selectedRowForFunnel}
       />
     </Box>
   );
