@@ -14,6 +14,9 @@ import {
   Typography,
   Tooltip,
   Button,
+  Modal,
+  Fade,
+  Backdrop
 } from "@mui/material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -25,12 +28,11 @@ import brightnessIcon from "./assets/brightness.png";
 import nightModeIcon from "./assets/night-mode.png";
 import csvIcon from "./assets/csvIcon.png";
 import pdfIcon from "./assets/pdfIcon.png";
+import Chart from "react-apexcharts";
 
-// Extend dayjs
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-// Map IANA zone -> country
 const countryMap = {
   "Asia/Manila": "Philippines",
   "Africa/Lagos": "Nigeria",
@@ -38,9 +40,10 @@ const countryMap = {
   "America/Bogota": "Colombia",
   "Europe/Istanbul": "Turkey",
   "Europe/Vilnius": "Lithuania",
-  "America/New_York": "USA (Eastern)",
+  "America/New_York": "USA (Eastern)"
 };
 
+// -------- Sorting Helpers --------
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
@@ -61,9 +64,145 @@ function stableSort(array, comparator) {
   return stabilizedArray.map((el) => el[0]);
 }
 
-const FLTable = ({ data }) => {
+// -------- getFunnelData --------
+// Computes funnel data from a row's metrics.
+function getFunnelData(row) {
+  const total = row.casesPast30Days || 0;
+  const late = Math.round(((row.lateCasePercentage || 0) * total) / 100);
+  const revised = Math.round(((row.revisionRate || 0) * total) / 100);
+  const completed = Math.max(0, total - late - revised);
+  return [
+    { name: "Received", value: total },
+    { name: "Late", value: late },
+    { name: "Revised", value: revised },
+    { name: "Completed", value: completed }
+  ];
+}
+
+// -------- DynamicMiniFunnel Component --------
+// Renders a small inline funnel as an SVG for the "Workflow" column.
+function DynamicMiniFunnel({ row, onClick }) {
+  const funnelData = getFunnelData(row);
+  const total = funnelData[0].value || 1;
+  const late = funnelData[1].value;
+  const revised = funnelData[2].value;
+  const receivedWidth = 100;
+  const inReviewWidth = ((total - late) / total) * 100;
+  const completedWidth = ((total - late - revised) / total) * 100;
+  const getXOffset = (width) => (100 - width) / 2;
+  return (
+    <Box onClick={onClick} sx={{ cursor: "pointer" }}>
+      <svg width="100" height="20">
+        <rect x={getXOffset(receivedWidth)} y="0" width={receivedWidth} height="20" fill="#1E73BE" />
+        <rect x={getXOffset(inReviewWidth)} y="0" width={inReviewWidth} height="20" fill="rgba(255,183,77,0.8)" />
+        <rect x={getXOffset(completedWidth)} y="0" width={completedWidth} height="20" fill="rgba(102,187,106,0.8)" />
+      </svg>
+    </Box>
+  );
+}
+
+// -------- FullFunnelModal Component --------
+// Displays the full funnel chart using ApexCharts in a modal.
+// We use the onEntered callback on Modal to trigger chart rendering.
+function FullFunnelModal({ open, onClose, rowData }) {
+  const [renderChart, setRenderChart] = useState(false);
+
+  const handleEntered = () => {
+    setRenderChart(true);
+    window.dispatchEvent(new Event("resize"));
+    // Debug log: show computed funnel data
+    const funnelData = getFunnelData(rowData);
+    let series = funnelData.map(stage => stage.value || 0);
+    console.log("FullFunnelModal - onEntered: Funnel Data:", funnelData, "Series:", series);
+  };
+
+  const handleExited = () => {
+    setRenderChart(false);
+  };
+
+  if (!open || !rowData) return null;
+
+  const funnelData = getFunnelData(rowData);
+  let series = funnelData.map(stage => stage.value || 0);
+  const labels = funnelData.map(stage => stage.name);
+  if (series.every(val => val === 0)) {
+    series = [1, 0, 0, 0];
+  }
+
+  const chartOptions = {
+    chart: {
+      id: "funnelChart",
+      type: "funnel",
+      height: 300,
+      redrawOnWindowResize: true,
+      animations: { enabled: false },
+      parentHeightOffset: 0
+    },
+    plotOptions: {
+      funnel: { horizontal: false }
+    },
+    labels: labels,
+    dataLabels: { enabled: true, style: { colors: ["#000"] } },
+    legend: { position: "bottom" },
+    colors: ["#1E73BE", "#FF8042", "#FFBB28", "#66BB6A"],
+    noData: {
+      text: "No data available",
+      style: { color: "#000", fontSize: "14px" }
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      onEntered={handleEntered}
+      onExited={handleExited}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{ timeout: 300 }}
+    >
+      <Fade in={open}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 600,
+            height: 350,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+            Workflow Funnel for {rowData.name}
+          </Typography>
+          <Box sx={{ width: 550, height: 300 }}>
+            {renderChart && (
+              <Chart
+                key={`${rowData.mra_id}-funnel`}
+                options={chartOptions}
+                series={series}
+                type="funnel"
+                width={550}
+                height={300}
+              />
+            )}
+          </Box>
+        </Box>
+      </Fade>
+    </Modal>
+  );
+}
+
+// -------- FLTable Component --------
+function FLTable({ data }) {
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("qualityScore");
+  const [funnelOpen, setFunnelOpen] = useState(false);
+  const [selectedRowForFunnel, setSelectedRowForFunnel] = useState(null);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -71,7 +210,6 @@ const FLTable = ({ data }) => {
     setOrderBy(property);
   };
 
-  // Define columns with specified widths
   const columns = [
     { id: "qualityScore", label: "Quality Score", align: "center" },
     { id: "name", label: "Name", align: "left", width: 250 },
@@ -79,16 +217,21 @@ const FLTable = ({ data }) => {
     { id: "avgCasesPerDay", label: "Avg Cases/Day", align: "center" },
     { id: "lateCasePercentage", label: "Late %", align: "center" },
     { id: "revisionRate", label: "Rev Rate %", align: "center" },
+    { id: "workflow", label: "Workflow", align: "center", width: 150 },
     { id: "feedback", label: "Feedback", align: "center" },
     { id: "status", label: "Status", align: "center" },
-    { id: "localTime", label: "Local Time", align: "center", width: 300 },
-    { id: "notes", label: "Notes", align: "left", width: 600 },
+    { id: "localTime", label: "Local Time", align: "center", minWidth: "120px" },
+    {
+      id: "notes",
+      label: "Notes",
+      align: "left",
+      width: 600,
+      sx: { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+    }
   ];
 
   const processedData = data.map((row) => {
-    const statusForSort =
-      row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
-
+    const statusForSort = row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
     let clientList = [];
     if (row.clients) {
       if (typeof row.clients === "string") {
@@ -97,21 +240,13 @@ const FLTable = ({ data }) => {
         clientList = row.clients;
       }
     }
-
     const tzID = tzMap[row.email] || "America/New_York";
     const localTimeObj = dayjs().tz(tzID);
     const localTime = localTimeObj.format("h:mm A");
     const localHour = localTimeObj.hour();
     const isDay = localHour >= 6 && localHour < 18;
     const country = countryMap[tzID] || "Unknown";
-    return {
-      ...row,
-      statusForSort,
-      localTime,
-      isDay,
-      country,
-      clientList,
-    };
+    return { ...row, statusForSort, localTime, isDay, country, clientList };
   });
 
   const sortKey = orderBy === "status" ? "statusForSort" : orderBy;
@@ -129,15 +264,13 @@ const FLTable = ({ data }) => {
       (sortedData.length || 1),
     qualityScore:
       sortedData.reduce((sum, row) => sum + (row.qualityScore || 0), 0) /
-      (sortedData.length || 1),
+      (sortedData.length || 1)
   };
 
-  // Export CSV function
   const handleExportCSV = () => {
     const csvHeaders = columns.map((col) => col.label);
     const csvRows = sortedData.map((row) => {
-      const status =
-        row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
+      const status = row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
       const clientNames = row.clientList ? row.clientList.join(", ") : "";
       return [
         `${row.qualityScore?.toFixed(1) || 0}%`,
@@ -146,10 +279,11 @@ const FLTable = ({ data }) => {
         row.avgCasesPerDay?.toFixed(1) || 0,
         `${row.lateCasePercentage?.toFixed(1) || 0}%`,
         `${row.revisionRate?.toFixed(1) || 0}%`,
+        "", // Workflow column empty for CSV
         `"QA / Client"`,
         status === "available" ? "Available" : "Off",
         row.localTime,
-        `"${row.notes || ""}"`,
+        `"${row.notes || ""}"`
       ].join(",");
     });
     const csvString = [csvHeaders.join(","), ...csvRows].join("\n");
@@ -164,14 +298,12 @@ const FLTable = ({ data }) => {
     document.body.removeChild(link);
   };
 
-  // Export PDF function
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text("Reviewer Table", 14, 20);
     const tableColumn = columns.map((col) => col.label);
     const tableRows = sortedData.map((row) => {
-      const status =
-        row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
+      const status = row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
       const clientNames = row.clientList ? row.clientList.join(", ") : "";
       return [
         `${row.qualityScore?.toFixed(1) || 0}%`,
@@ -180,10 +312,11 @@ const FLTable = ({ data }) => {
         row.avgCasesPerDay?.toFixed(1) || 0,
         `${row.lateCasePercentage?.toFixed(1) || 0}%`,
         `${row.revisionRate?.toFixed(1) || 0}%`,
+        "", // Workflow column empty for PDF
         "QA / Client",
         status === "available" ? "Available" : "Off",
         row.localTime,
-        row.notes || "",
+        row.notes || ""
       ];
     });
     autoTable(doc, {
@@ -192,7 +325,7 @@ const FLTable = ({ data }) => {
       styles: { halign: "left" },
       headStyles: { fillColor: "#1E73BE", textColor: "white", halign: "center" },
       startY: 30,
-      theme: "striped",
+      theme: "striped"
     });
     const finalY = doc.lastAutoTable.finalY || 30;
     doc.setFont("helvetica", "bold");
@@ -218,7 +351,7 @@ const FLTable = ({ data }) => {
       reviewer: row.name,
       startDate: pastYear.format("YYYY-MM-DD"),
       endDate: now.format("YYYY-MM-DD"),
-      feedbackType: feedbackType === "qa" ? "internal" : "client",
+      feedbackType: feedbackType === "qa" ? "internal" : "client"
     });
     window.location.href = `${baseUrl}?${queryParams.toString()}`;
   };
@@ -228,22 +361,17 @@ const FLTable = ({ data }) => {
       <Typography variant="h5" sx={{ mt: 4, mb: 2, textAlign: "center", color: "#000" }}>
         Reviewer Table
       </Typography>
+
       <TableContainer
         component={Paper}
         sx={{
           minHeight: "80vh",
           maxHeight: "95vh",
           overflowY: "auto",
-          width: "100%",
+          width: "100%"
         }}
       >
-        <Table
-          stickyHeader
-          size="small"
-          sx={{
-            "& .MuiTableRow-root": { height: "40px" },
-          }}
-        >
+        <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
               {columns.map((column) => (
@@ -260,13 +388,14 @@ const FLTable = ({ data }) => {
                     top: 0,
                     zIndex: 1000,
                     width: column.width || "auto",
+                    minWidth: column.minWidth || "auto",
                     textAlign: column.align || "center",
-                    whiteSpace: "nowrap",
+                    whiteSpace: column.id === "notes" ? "nowrap" : "normal"
                   }}
                 >
                   <TableSortLabel
                     active={orderBy === column.id}
-                    direction={orderBy === column.id ? order : "asc"}
+                    direction={orderBy === column.id ? "desc" : "asc"}
                     onClick={(e) => handleRequestSort(e, column.id)}
                     sx={{ color: "white", "&:hover": { color: "#f0f0f0" } }}
                   >
@@ -276,6 +405,7 @@ const FLTable = ({ data }) => {
               ))}
             </TableRow>
           </TableHead>
+
           <TableBody>
             {sortedData.map((row, index) => {
               const qualityBg =
@@ -285,24 +415,21 @@ const FLTable = ({ data }) => {
                   ? "#FFF59D"
                   : "#EF9A9A";
               const status =
-                row.name === "Next Reviewer"
-                  ? "unavailable"
-                  : row.status || "available";
-              const clientNames = row.clientList?.join(", ") || "";
-              const clientCount = row.clientList?.length || 0;
+                row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
               return (
                 <TableRow
                   key={row.mra_id}
                   sx={{
                     backgroundColor: index % 2 ? "#f9f9f9" : "inherit",
-                    "&:hover": { backgroundColor: "#e6f2ff" },
+                    "&:hover": { backgroundColor: "#e6f2ff" }
                   }}
                 >
+                  {/* Quality Score */}
                   <TableCell
                     sx={{
                       textAlign: "center",
                       backgroundColor: qualityBg,
-                      fontWeight: "bold",
+                      fontWeight: "bold"
                     }}
                   >
                     <Tooltip
@@ -319,6 +446,8 @@ const FLTable = ({ data }) => {
                       <span>{(row.qualityScore || 0).toFixed(1)}%</span>
                     </Tooltip>
                   </TableCell>
+
+                  {/* Name */}
                   <TableCell
                     sx={{
                       textAlign: "left",
@@ -328,30 +457,61 @@ const FLTable = ({ data }) => {
                       textOverflow: "ellipsis",
                       cursor: "pointer",
                       color: "black",
-                      textDecoration: "underline",
+                      textDecoration: "underline"
                     }}
                     onClick={() =>
-                      window.location.href = `/reports?reviewer=${encodeURIComponent(
+                      (window.location.href = `/reports?reviewer=${encodeURIComponent(
                         row.name
-                      )}&clients=all&startDate=${dayjs().subtract(180, "day").format("YYYY-MM-DD")}&endDate=${dayjs().format("YYYY-MM-DD")}&reportType=Cases/Revisions`
+                      )}&clients=all&startDate=${dayjs().subtract(180, "day").format("YYYY-MM-DD")}&endDate=${dayjs().format("YYYY-MM-DD")}&reportType=Cases/Revisions`)
                     }
                   >
                     {row.name}
                   </TableCell>
+
+                  {/* Clients */}
                   <TableCell sx={{ textAlign: "center" }}>
-                    <Tooltip title={clientNames} arrow>
-                      <span>{clientCount}</span>
+                    <Tooltip title={row.clientList?.join(", ")} arrow>
+                      <span>{row.clientList?.length || 0}</span>
                     </Tooltip>
                   </TableCell>
+
+                  {/* Avg Cases/Day */}
                   <TableCell sx={{ textAlign: "center" }}>
                     {row.avgCasesPerDay?.toFixed(1) || 0}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center", color: row.lateCasePercentage <= 5.0 ? "green" : "red" }}>
+
+                  {/* Late % */}
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: row.lateCasePercentage <= 5.0 ? "green" : "red"
+                    }}
+                  >
                     {(row.lateCasePercentage || 0).toFixed(1)}%
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center", color: row.revisionRate <= 10.0 ? "green" : "red" }}>
+
+                  {/* Rev Rate % */}
+                  <TableCell
+                    sx={{
+                      textAlign: "center",
+                      color: row.revisionRate <= 10.0 ? "green" : "red"
+                    }}
+                  >
                     {(row.revisionRate || 0).toFixed(1)}%
                   </TableCell>
+
+                  {/* Workflow: Inline Mini Funnel */}
+                  <TableCell sx={{ textAlign: "center" }}>
+                    <DynamicMiniFunnel
+                      row={row}
+                      onClick={() => {
+                        setSelectedRowForFunnel(row);
+                        setFunnelOpen(true);
+                      }}
+                    />
+                  </TableCell>
+
+                  {/* Feedback */}
                   <TableCell sx={{ textAlign: "center" }}>
                     <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
                       <Button
@@ -361,7 +521,7 @@ const FLTable = ({ data }) => {
                           opacity: 0.9,
                           bgcolor: "#4caf50",
                           color: "black",
-                          "&:hover": { opacity: 1, bgcolor: "#4caf50" },
+                          "&:hover": { opacity: 1, bgcolor: "#4caf50" }
                         }}
                         onClick={() => handleFeedbackClick(row, "qa")}
                       >
@@ -374,7 +534,7 @@ const FLTable = ({ data }) => {
                           opacity: 0.9,
                           bgcolor: "#9c27b0",
                           color: "black",
-                          "&:hover": { opacity: 1, bgcolor: "#9c27b0" },
+                          "&:hover": { opacity: 1, bgcolor: "#9c27b0" }
                         }}
                         onClick={() => handleFeedbackClick(row, "client")}
                       >
@@ -382,6 +542,8 @@ const FLTable = ({ data }) => {
                       </Button>
                     </Box>
                   </TableCell>
+
+                  {/* Status */}
                   <TableCell sx={{ textAlign: "center" }}>
                     <Tooltip title="Status pending API access for calendar integration" arrow>
                       {status === "available" ? (
@@ -391,7 +553,9 @@ const FLTable = ({ data }) => {
                       )}
                     </Tooltip>
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+
+                  {/* Local Time */}
+                  <TableCell sx={{ textAlign: "center", minWidth: "120px" }}>
                     <Tooltip title={`Country: ${row.country}`} arrow>
                       <Box
                         sx={{
@@ -405,7 +569,7 @@ const FLTable = ({ data }) => {
                           textAlign: "center",
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
+                          justifyContent: "center"
                         }}
                       >
                         <Box
@@ -418,13 +582,15 @@ const FLTable = ({ data }) => {
                       </Box>
                     </Tooltip>
                   </TableCell>
+
+                  {/* Notes */}
                   <TableCell
                     sx={{
                       textAlign: "left",
                       maxWidth: 600,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      textOverflow: "ellipsis"
                     }}
                   >
                     {row.notes || ""}
@@ -433,6 +599,7 @@ const FLTable = ({ data }) => {
               );
             })}
           </TableBody>
+
           <TableFooter>
             <TableRow sx={{ backgroundColor: "#e0e0e0" }}>
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
@@ -452,42 +619,31 @@ const FLTable = ({ data }) => {
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
+              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
               <TableCell sx={{ textAlign: "left", fontWeight: "bold" }} />
             </TableRow>
           </TableFooter>
         </Table>
       </TableContainer>
-      {/* Export Buttons with icons at the bottom and extra space below */}
-      <Box sx={{ mt: 2, mb: 4, display: "flex", gap: 2, justifyContent: "center" }}>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleExportCSV}
-          sx={{ p: 1 }}
-        >
-          <Box
-            component="img"
-            src={csvIcon}
-            alt="CSV Icon"
-            sx={{ width: 40, height: 40 }}
-          />
+
+      {/* Export Buttons */}
+      <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
+        <Button variant="outlined" onClick={handleExportCSV}>
+          <Box component="img" src={csvIcon} alt="CSV Icon" sx={{ width: 40, height: 40 }} />
         </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleExportPDF}
-          sx={{ p: 1 }}
-        >
-          <Box
-            component="img"
-            src={pdfIcon}
-            alt="PDF Icon"
-            sx={{ width: 40, height: 40 }}
-          />
+        <Button variant="outlined" onClick={handleExportPDF}>
+          <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
         </Button>
       </Box>
+
+      {/* Funnel Modal Popup */}
+      <FullFunnelModal
+        open={funnelOpen}
+        onClose={() => setFunnelOpen(false)}
+        rowData={selectedRowForFunnel}
+      />
     </Box>
   );
-};
+}
 
 export default FLTable;

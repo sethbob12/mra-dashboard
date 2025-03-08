@@ -4,21 +4,25 @@ import {
   Box,
   Typography,
   Paper,
-  Tooltip,
+  Tooltip as MuiTooltip,
   IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Button,
+  Popover,
+  Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   TableContainer,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableSortLabel,
-  TableBody,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Button,
-  Popover,
-  Divider
+  TableBody
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -26,6 +30,7 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import GridViewIcon from "@mui/icons-material/GridView";
+
 import {
   ResponsiveContainer,
   PieChart,
@@ -42,25 +47,24 @@ import {
   Line,
   Label,
   Tooltip as RechartsTooltip,
-  Legend
+  Legend,
+  Sankey
 } from "recharts";
-import InteractiveStackedBarChart from "./InteractiveStackedBarChart"; // Adjust or remove if not used
-import jsPDF from "jspdf";
+import InteractiveStackedBarChart from "./InteractiveStackedBarChart";
+import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-// Removed autoTable import as it's not used
-// import autoTable from "jspdf-autotable";
 
 // Icons and assets
 import pdfIcon from "./assets/pdfIcon.png";
 
-// Define chart colors
+// ----- Chart Colors / Helpers -----
 const pieColors = [
   "#1E73BE",
   "#FF8042",
   "#FFBB28",
   "#00C49F",
   "#FF6384",
-  "#36A2EB",
+  "#36A2EB"
 ];
 
 const renderTriangleBackground = () => null;
@@ -112,7 +116,7 @@ const generatePieData = (data) => {
     name: client,
     value: clientData[client].count,
     names: clientData[client].names,
-    color: pieColors[index % pieColors.length],
+    color: pieColors[index % pieColors.length]
   }));
 };
 
@@ -121,7 +125,7 @@ const generateRevisionRateScatterData = (data) =>
   data.map((reviewer) => ({
     x: reviewer.casesPast30Days || 0,
     y: reviewer.revisionRate || 0,
-    reviewer: reviewer.name,
+    reviewer: reviewer.name
   }));
 
 // Helper: Generate scatter data for Accuracy vs. Timeliness.
@@ -135,11 +139,47 @@ const generatePerformanceScatterData = (data) =>
     .map((reviewer) => ({
       accuracy: reviewer.accuracyScore || 50,
       timeliness: reviewer.timelinessScore || 50,
-      reviewer: reviewer.name,
+      reviewer: reviewer.name
     }));
 
-// Component: ClientReviewerGrid (Sortable Table)
-// Using a fixed column order.
+// ----- Custom Node Renderer for Sankey Diagram with MUI Tooltip -----
+const CustomSankeyNode = (props) => {
+  const { x, y, width, height, payload } = props;
+  let infoText = "";
+  if (payload.name === "Received" || payload.name === "Completed") {
+    infoText = `${payload.value || 0}`;
+  } else {
+    infoText = `${payload.percent ? payload.percent.toFixed(1) : 0}%`;
+  }
+  return (
+    <MuiTooltip title={`${payload.name}: ${infoText}`} arrow enterDelay={100} leaveDelay={100}>
+      <g>
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={payload.color || "#8884d8"}
+          stroke="#fff"
+          strokeWidth={2}
+        />
+        <text
+          x={x + width / 2}
+          y={y + height / 2}
+          textAnchor="middle"
+          fill="#000"
+          fontSize={12}
+          fontWeight="bold"
+          dy={4}
+        >
+          {payload.name}
+        </text>
+      </g>
+    </MuiTooltip>
+  );
+};
+
+// ----- Component: ClientReviewerGrid (Sortable Table) -----
 const ClientReviewerGrid = ({ data }) => {
   const fixedClientOrder = [
     "PFR",
@@ -236,27 +276,28 @@ const ClientReviewerGrid = ({ data }) => {
   );
 };
 
+// ----- Main FLChart Component -----
 const FLChart = ({ data }) => {
-  // Generate chart data
-  const pieData = generatePieData(data);
-  const revisionScatterData = generateRevisionRateScatterData(data);
-  const performanceScatterData = generatePerformanceScatterData(data);
+  // Expand/Collapse state for Accordions
+  const [expandedPanels, setExpandedPanels] = useState([]);
+  const handleChange = (panel) => {
+    setExpandedPanels((prev) =>
+      prev.includes(panel) ? prev.filter((p) => p !== panel) : [...prev, panel]
+    );
+  };
 
-  // Popover for the pie slices
+  // ---------- For existing sections (Panels 1-5) ----------
   const containerRef = useRef(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [popoverData, setPopoverData] = useState(null);
-
   const handleSliceClick = (payload) => {
     setPopoverData(payload);
     setPopoverOpen(true);
   };
-
   const handlePopoverClose = () => {
     setPopoverOpen(false);
     setPopoverData(null);
   };
-
   const handleCopy = () => {
     if (popoverData && popoverData.names) {
       const textToCopy = popoverData.names.join(", ");
@@ -265,21 +306,18 @@ const FLChart = ({ data }) => {
     }
   };
 
-  // Refs for exporting the revision and performance charts
-  const revisionChartRef = useRef(null);
-  const performanceChartRef = useRef(null);
+  const pieData = generatePieData(data);
+  const revisionScatterData = generateRevisionRateScatterData(data);
+  const performanceScatterData = generatePerformanceScatterData(data);
 
-  // For Revision Chart
   const xValues = revisionScatterData.map((d) => d.x);
   const minXData = Math.min(...xValues);
   const maxXData = Math.max(...xValues);
-  // Updated lineData: start at (minXData, 0), vertical to (minXData, 20), then horizontal to (maxXData, 40)
   const lineData = [
     { x: minXData, y: 0 },
     { x: minXData, y: 20 },
     { x: maxXData, y: 40 }
   ];
-
   const renderCustomDot = (props) => {
     const { cx, cy, payload } = props;
     let expectedY;
@@ -294,48 +332,47 @@ const FLChart = ({ data }) => {
     const fillColor = payload.y < expectedY ? "green" : "red";
     return <circle cx={cx} cy={cy} r={5} fill={fillColor} stroke="#fff" strokeWidth={1} />;
   };
-
-  const exportRevisionChartPDF = async () => {
-    if (!revisionChartRef.current) return;
-    const canvas = await html2canvas(revisionChartRef.current);
-    const imgData = canvas.toDataURL("image/png");
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Revision Rate vs. Cases Past 30 Days", 14, 20);
-    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
-    doc.save("revision_chart.pdf");
-  };
-
-  // For Performance Chart
   const renderCustomDotForPerformance = (props) => {
     const { cx, cy, payload } = props;
     const isGreen = payload.accuracy >= 75 && payload.timeliness >= 75;
     return <circle cx={cx} cy={cy} r={5} fill={isGreen ? "green" : "red"} stroke="#fff" strokeWidth={1} />;
   };
 
-  const exportPerformanceChartPDF = async () => {
-    if (!performanceChartRef.current) return;
-    const canvas = await html2canvas(performanceChartRef.current);
-    const imgData = canvas.toDataURL("image/png");
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Accuracy vs. Timeliness", 14, 20);
-    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
-    doc.save("performance_chart.pdf");
-  };
-
-  // Expand/Collapse All logic for Accordions
-  const [expandedPanels, setExpandedPanels] = useState([]);
-  const handleChange = (panel) => {
-    setExpandedPanels((prev) =>
-      prev.includes(panel) ? prev.filter((p) => p !== panel) : [...prev, panel]
-    );
-  };
-  const handleExpandAll = () => {
-    setExpandedPanels(["panel1", "panel2", "panel3", "panel4", "panel5"]);
-  };
-  const handleCollapseAll = () => {
-    setExpandedPanels([]);
+  // ---------- 7) Workflow Sankey Section ----------
+  const [selectedReviewer, setSelectedReviewer] = useState("");
+  const [sankeyData, setSankeyData] = useState(null);
+  const handleGenerateSankey = () => {
+    if (!selectedReviewer) return;
+    const row = data.find((r) => r.name === selectedReviewer);
+    if (!row) {
+      alert("Reviewer not found in data.");
+      return;
+    }
+    const total = row.casesPast30Days || 0;
+    const revised = Math.round(((row.revisionRate || 0) * total) / 100);
+    const late = Math.round(((row.lateCasePercentage || 0) * total) / 100);
+    const directCompleted = Math.max(0, total - revised - late);
+    const percentDirect = total ? (directCompleted / total) * 100 : 0;
+    const percentRevised = total ? (revised / total) * 100 : 0;
+    const percentLate = total ? (late / total) * 100 : 0;
+    const sankey = {
+      nodes: [
+        { name: "Received", color: "#1E73BE", value: total },
+        { name: "Direct Completed", color: "#66BB6A", value: directCompleted, percent: percentDirect },
+        { name: "Revised", color: "#FFBB28", value: revised, percent: percentRevised },
+        { name: "Late", color: "#FF8042", value: late, percent: percentLate },
+        { name: "Completed", color: "#9C27B0", value: total }
+      ],
+      links: [
+        { source: 0, target: 1, value: directCompleted },
+        { source: 0, target: 2, value: revised },
+        { source: 0, target: 3, value: late },
+        { source: 1, target: 4, value: directCompleted },
+        { source: 2, target: 4, value: revised },
+        { source: 3, target: 4, value: late }
+      ]
+    };
+    setSankeyData(sankey);
   };
 
   return (
@@ -344,26 +381,11 @@ const FLChart = ({ data }) => {
         Data Visualizations
       </Typography>
 
-      {/* Expand/Collapse All Buttons */}
-      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-        <Button variant="outlined" onClick={handleExpandAll}>
-          Expand All
-        </Button>
-        <Button variant="outlined" onClick={handleCollapseAll}>
-          Collapse All
-        </Button>
-      </Box>
-
-      {/* 1) Quality Scores (Stacked Bar Chart) */}
+      {/* Panel 1: Quality Scores (Stacked Bar Chart) */}
       <Accordion
         expanded={expandedPanels.includes("panel1")}
         onChange={() => handleChange("panel1")}
-        sx={{
-          mb: 2,
-          borderRadius: 2,
-          backgroundColor: "#fafafa",
-          "&:before": { display: "none" },
-        }}
+        sx={{ mb: 2, borderRadius: 2, backgroundColor: "#fafafa", "&:before": { display: "none" } }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon sx={{ color: "#1E73BE" }} />}
@@ -371,7 +393,7 @@ const FLChart = ({ data }) => {
             background: "linear-gradient(90deg, #0C3B70 0%, #1E73BE 100%)",
             color: "#fff",
             "&:hover": { opacity: 0.95 },
-            borderRadius: 2,
+            borderRadius: 2
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
@@ -395,16 +417,11 @@ const FLChart = ({ data }) => {
         </AccordionDetails>
       </Accordion>
 
-      {/* 2) Reviewer Distribution (Pie Chart) */}
+      {/* Panel 2: Reviewer Distribution (Pie Chart) */}
       <Accordion
         expanded={expandedPanels.includes("panel2")}
         onChange={() => handleChange("panel2")}
-        sx={{
-          mb: 2,
-          borderRadius: 2,
-          backgroundColor: "#fafafa",
-          "&:before": { display: "none" },
-        }}
+        sx={{ mb: 2, borderRadius: 2, backgroundColor: "#fafafa", "&:before": { display: "none" } }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon sx={{ color: "#1E73BE" }} />}
@@ -412,7 +429,7 @@ const FLChart = ({ data }) => {
             background: "linear-gradient(90deg, #0C3B70 0%, #1E73BE 100%)",
             color: "#fff",
             "&:hover": { opacity: 0.95 },
-            borderRadius: 2,
+            borderRadius: 2
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
@@ -475,16 +492,11 @@ const FLChart = ({ data }) => {
         </AccordionDetails>
       </Accordion>
 
-      {/* 3) Revisions vs. Case Volume Chart */}
+      {/* Panel 3: Revisions vs. Case Volume Chart */}
       <Accordion
         expanded={expandedPanels.includes("panel3")}
         onChange={() => handleChange("panel3")}
-        sx={{
-          mb: 2,
-          borderRadius: 2,
-          backgroundColor: "#fafafa",
-          "&:before": { display: "none" },
-        }}
+        sx={{ mb: 2, borderRadius: 2, backgroundColor: "#fafafa", "&:before": { display: "none" } }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon sx={{ color: "#1E73BE" }} />}
@@ -492,7 +504,7 @@ const FLChart = ({ data }) => {
             background: "linear-gradient(90deg, #0C3B70 0%, #1E73BE 100%)",
             color: "#fff",
             "&:hover": { opacity: 0.95 },
-            borderRadius: 2,
+            borderRadius: 2
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
@@ -503,7 +515,7 @@ const FLChart = ({ data }) => {
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          <Paper elevation={4} sx={{ p: 3, mb: 2, borderRadius: 2 }} ref={revisionChartRef}>
+          <Paper elevation={4} sx={{ p: 3, mb: 2, borderRadius: 2 }} id="revisionChartRef">
             <Typography variant="h6" sx={{ mb: 1 }}>
               This chart compares the number of cases each reviewer handled (past 30 days) to their revision rate.
             </Typography>
@@ -524,26 +536,33 @@ const FLChart = ({ data }) => {
               </ComposedChart>
             </ResponsiveContainer>
             <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Tooltip title="Export Revision Chart to PDF">
-                <IconButton onClick={exportRevisionChartPDF}>
+              <MuiTooltip title="Export Revision Chart to PDF">
+                <IconButton
+                  onClick={async () => {
+                    const ref = document.getElementById("revisionChartRef");
+                    if (!ref) return;
+                    const canvas = await html2canvas(ref);
+                    const imgData = canvas.toDataURL("image/png");
+                    const doc = new jsPDF();
+                    doc.setFontSize(16);
+                    doc.text("Revision Rate vs. Cases Past 30 Days", 14, 20);
+                    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
+                    doc.save("revision_chart.pdf");
+                  }}
+                >
                   <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
                 </IconButton>
-              </Tooltip>
+              </MuiTooltip>
             </Box>
           </Paper>
         </AccordionDetails>
       </Accordion>
 
-      {/* 4) Timeliness vs. Accuracy Chart */}
+      {/* Panel 4: Timeliness vs. Accuracy Chart */}
       <Accordion
         expanded={expandedPanels.includes("panel4")}
         onChange={() => handleChange("panel4")}
-        sx={{
-          mb: 2,
-          borderRadius: 2,
-          backgroundColor: "#fafafa",
-          "&:before": { display: "none" },
-        }}
+        sx={{ mb: 2, borderRadius: 2, backgroundColor: "#fafafa", "&:before": { display: "none" } }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon sx={{ color: "#1E73BE" }} />}
@@ -551,7 +570,7 @@ const FLChart = ({ data }) => {
             background: "linear-gradient(90deg, #0C3B70 0%, #1E73BE 100%)",
             color: "#fff",
             "&:hover": { opacity: 0.95 },
-            borderRadius: 2,
+            borderRadius: 2
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
@@ -562,7 +581,7 @@ const FLChart = ({ data }) => {
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2 }} ref={performanceChartRef}>
+          <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2 }} id="performanceChartRef">
             <Typography variant="h6" sx={{ mb: 1 }}>
               This chart plots each reviewer’s timeliness and accuracy. Green dots indicate strong performance.
             </Typography>
@@ -582,26 +601,33 @@ const FLChart = ({ data }) => {
               </ScatterChart>
             </ResponsiveContainer>
             <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Tooltip title="Export Performance Chart to PDF">
-                <IconButton onClick={exportPerformanceChartPDF}>
+              <MuiTooltip title="Export Performance Chart to PDF">
+                <IconButton
+                  onClick={async () => {
+                    const ref = document.getElementById("performanceChartRef");
+                    if (!ref) return;
+                    const canvas = await html2canvas(ref);
+                    const imgData = canvas.toDataURL("image/png");
+                    const doc = new jsPDF();
+                    doc.setFontSize(16);
+                    doc.text("Accuracy vs. Timeliness", 14, 20);
+                    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
+                    doc.save("performance_chart.pdf");
+                  }}
+                >
                   <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
                 </IconButton>
-              </Tooltip>
+              </MuiTooltip>
             </Box>
           </Paper>
         </AccordionDetails>
       </Accordion>
 
-      {/* 5) Clients Per Reviewer - Grid */}
+      {/* Panel 5: Clients Per Reviewer - Grid */}
       <Accordion
         expanded={expandedPanels.includes("panel5")}
         onChange={() => handleChange("panel5")}
-        sx={{
-          mb: 2,
-          borderRadius: 2,
-          backgroundColor: "#fafafa",
-          "&:before": { display: "none" },
-        }}
+        sx={{ mb: 2, borderRadius: 2, backgroundColor: "#fafafa", "&:before": { display: "none" } }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon sx={{ color: "#1E73BE" }} />}
@@ -609,7 +635,7 @@ const FLChart = ({ data }) => {
             background: "linear-gradient(90deg, #0C3B70 0%, #1E73BE 100%)",
             color: "#fff",
             "&:hover": { opacity: 0.95 },
-            borderRadius: 2,
+            borderRadius: 2
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
@@ -626,6 +652,70 @@ const FLChart = ({ data }) => {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <ClientReviewerGrid data={data} />
+          </Paper>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* Panel 7: Workflow Sankey */}
+      <Accordion
+        expanded={expandedPanels.includes("panel7")}
+        onChange={() => handleChange("panel7")}
+        sx={{ mb: 2, borderRadius: 2, backgroundColor: "#fafafa", "&:before": { display: "none" } }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon sx={{ color: "#1E73BE" }} />}
+          sx={{
+            background: "linear-gradient(90deg, #0C3B70 0%, #1E73BE 100%)",
+            color: "#fff",
+            "&:hover": { opacity: 0.95 },
+            borderRadius: 2
+          }}
+        >
+          <Box display="flex" alignItems="center" gap={1}>
+            <AssessmentIcon />
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              Workflow Sankey
+            </Typography>
+          </Box>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Paper elevation={2} sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Generate a workflow Sankey diagram for a selected reviewer.
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Reviewer</InputLabel>
+              <Select
+                value={selectedReviewer}
+                label="Reviewer"
+                onChange={(e) => setSelectedReviewer(e.target.value)}
+              >
+                <MenuItem value="">(None)</MenuItem>
+                {data.map((rev) => (
+                  <MenuItem key={rev.name} value={rev.name}>
+                    {rev.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button variant="contained" color="primary" onClick={handleGenerateSankey} sx={{ mb: 2 }}>
+              Generate Workflow Sankey
+            </Button>
+            {sankeyData && (
+              <Box sx={{ mt: 2 }}>
+                <ResponsiveContainer width="90%" height={350}>
+                  <Sankey
+                    data={sankeyData}
+                    nodeWidth={20}
+                    nodePadding={5}
+                    margin={{ top: 20, bottom: 20, left: 50, right: 50 }}
+                    link={{ stroke: "#8884d8", strokeWidth: 4 }}
+                    node={<CustomSankeyNode />}
+                  />
+                </ResponsiveContainer>
+              </Box>
+            )}
           </Paper>
         </AccordionDetails>
       </Accordion>
