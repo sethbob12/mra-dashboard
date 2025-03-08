@@ -1,4 +1,6 @@
 // src/FLTable.js
+/* eslint-disable no-unused-vars */  
+// (Keep autoTable import if you plan to use it in the future)
 import React, { useState } from "react";
 import {
   Box,
@@ -29,6 +31,7 @@ import nightModeIcon from "./assets/night-mode.png";
 import csvIcon from "./assets/csvIcon.png";
 import pdfIcon from "./assets/pdfIcon.png";
 import Chart from "react-apexcharts";
+import html2canvas from "html2canvas";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -103,14 +106,12 @@ function DynamicMiniFunnel({ row, onClick }) {
 
 // -------- FullFunnelModal Component --------
 // Displays the full funnel chart using ApexCharts in a modal.
-// We use the onEntered callback on Modal to trigger chart rendering.
 function FullFunnelModal({ open, onClose, rowData }) {
   const [renderChart, setRenderChart] = useState(false);
 
   const handleEntered = () => {
     setRenderChart(true);
     window.dispatchEvent(new Event("resize"));
-    // Debug log: show computed funnel data
     const funnelData = getFunnelData(rowData);
     let series = funnelData.map(stage => stage.value || 0);
     console.log("FullFunnelModal - onEntered: Funnel Data:", funnelData, "Series:", series);
@@ -202,7 +203,20 @@ function FLTable({ data }) {
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("qualityScore");
   const [funnelOpen, setFunnelOpen] = useState(false);
-  const [selectedRowForFunnel, setSelectedRowForFunnel] = useState(null);
+
+  // Define handleFeedbackClick to navigate to a feedback page
+  const handleFeedbackClick = (row, feedbackType) => {
+    const baseUrl = "/reports";
+    const now = dayjs();
+    const pastYear = now.subtract(365, "day");
+    const queryParams = new URLSearchParams({
+      reviewer: row.name,
+      startDate: pastYear.format("YYYY-MM-DD"),
+      endDate: now.format("YYYY-MM-DD"),
+      feedbackType: feedbackType === "qa" ? "internal" : "client"
+    });
+    window.location.href = `${baseUrl}?${queryParams.toString()}`;
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -210,17 +224,18 @@ function FLTable({ data }) {
     setOrderBy(property);
   };
 
+  // Reorder columns: Quality Score, Name, Workflow, Clients, Avg Cases/Day, Late %, Rev Rate %, Feedback, Status, Local Time, Notes.
   const columns = [
     { id: "qualityScore", label: "Quality Score", align: "center" },
     { id: "name", label: "Name", align: "left", width: 250 },
+    { id: "workflow", label: "Workflow", align: "center", width: 150 },
     { id: "clients", label: "Clients", align: "center" },
     { id: "avgCasesPerDay", label: "Avg Cases/Day", align: "center" },
     { id: "lateCasePercentage", label: "Late %", align: "center" },
     { id: "revisionRate", label: "Rev Rate %", align: "center" },
-    { id: "workflow", label: "Workflow", align: "center", width: 150 },
     { id: "feedback", label: "Feedback", align: "center" },
     { id: "status", label: "Status", align: "center" },
-    { id: "localTime", label: "Local Time", align: "center", minWidth: "120px" },
+    { id: "localTime", label: "Local Time", align: "center", minWidth: "150px" },
     {
       id: "notes",
       label: "Notes",
@@ -275,11 +290,11 @@ function FLTable({ data }) {
       return [
         `${row.qualityScore?.toFixed(1) || 0}%`,
         `"${row.name}"`,
+        // Workflow column not exported
         `"${clientNames}"`,
         row.avgCasesPerDay?.toFixed(1) || 0,
         `${row.lateCasePercentage?.toFixed(1) || 0}%`,
         `${row.revisionRate?.toFixed(1) || 0}%`,
-        "", // Workflow column empty for CSV
         `"QA / Client"`,
         status === "available" ? "Available" : "Off",
         row.localTime,
@@ -298,62 +313,17 @@ function FLTable({ data }) {
     document.body.removeChild(link);
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async (elementId, title, event) => {
+    event.stopPropagation();
+    const ref = document.getElementById(elementId);
+    if (!ref) return;
+    const canvas = await html2canvas(ref);
+    const imgData = canvas.toDataURL("image/png");
     const doc = new jsPDF();
-    doc.text("Reviewer Table", 14, 20);
-    const tableColumn = columns.map((col) => col.label);
-    const tableRows = sortedData.map((row) => {
-      const status = row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
-      const clientNames = row.clientList ? row.clientList.join(", ") : "";
-      return [
-        `${row.qualityScore?.toFixed(1) || 0}%`,
-        row.name,
-        clientNames,
-        row.avgCasesPerDay?.toFixed(1) || 0,
-        `${row.lateCasePercentage?.toFixed(1) || 0}%`,
-        `${row.revisionRate?.toFixed(1) || 0}%`,
-        "", // Workflow column empty for PDF
-        "QA / Client",
-        status === "available" ? "Available" : "Off",
-        row.localTime,
-        row.notes || ""
-      ];
-    });
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      styles: { halign: "left" },
-      headStyles: { fillColor: "#1E73BE", textColor: "white", halign: "center" },
-      startY: 30,
-      theme: "striped"
-    });
-    const finalY = doc.lastAutoTable.finalY || 30;
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      `Summary: Avg Cases/Day: ${summary.avgCasesPerDay.toFixed(1)}, Late %: ${summary.lateCasePercentage.toFixed(
-        1
-      )}%, Rev Rate: ${summary.revisionRate.toFixed(1)}%, Quality Score: ${summary.qualityScore.toFixed(
-        1
-      )}%`,
-      14,
-      finalY + 10
-    );
-    doc.setFontSize(10);
-    doc.text("Hover for Quality Trend: Overall Trend: Stable", 14, finalY + 16);
-    doc.save("reviewers_table.pdf");
-  };
-
-  const handleFeedbackClick = (row, feedbackType) => {
-    const baseUrl = "/reports";
-    const now = dayjs();
-    const pastYear = now.subtract(365, "day");
-    const queryParams = new URLSearchParams({
-      reviewer: row.name,
-      startDate: pastYear.format("YYYY-MM-DD"),
-      endDate: now.format("YYYY-MM-DD"),
-      feedbackType: feedbackType === "qa" ? "internal" : "client"
-    });
-    window.location.href = `${baseUrl}?${queryParams.toString()}`;
+    doc.setFontSize(16);
+    doc.text(title, 14, 20);
+    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
+    doc.save(`${title.replace(/\s+/g, "_").toLowerCase()}.pdf`);
   };
 
   return (
@@ -468,6 +438,18 @@ function FLTable({ data }) {
                     {row.name}
                   </TableCell>
 
+                  {/* Workflow (moved right after Name) */}
+                  <TableCell sx={{ textAlign: "center" }}>
+                    <Box
+                      onClick={() =>
+                        (window.location.href = `/chart?reviewer=${encodeURIComponent(row.name)}`)
+                      }
+                      sx={{ cursor: "pointer" }}
+                    >
+                      <DynamicMiniFunnel row={row} />
+                    </Box>
+                  </TableCell>
+
                   {/* Clients */}
                   <TableCell sx={{ textAlign: "center" }}>
                     <Tooltip title={row.clientList?.join(", ")} arrow>
@@ -498,17 +480,6 @@ function FLTable({ data }) {
                     }}
                   >
                     {(row.revisionRate || 0).toFixed(1)}%
-                  </TableCell>
-
-                  {/* Workflow: Inline Mini Funnel */}
-                  <TableCell sx={{ textAlign: "center" }}>
-                    <DynamicMiniFunnel
-                      row={row}
-                      onClick={() => {
-                        setSelectedRowForFunnel(row);
-                        setFunnelOpen(true);
-                      }}
-                    />
                   </TableCell>
 
                   {/* Feedback */}
@@ -555,7 +526,7 @@ function FLTable({ data }) {
                   </TableCell>
 
                   {/* Local Time */}
-                  <TableCell sx={{ textAlign: "center", minWidth: "120px" }}>
+                  <TableCell sx={{ textAlign: "center", minWidth: "150px" }}>
                     <Tooltip title={`Country: ${row.country}`} arrow>
                       <Box
                         sx={{
@@ -640,7 +611,6 @@ function FLTable({ data }) {
       <FullFunnelModal
         open={funnelOpen}
         onClose={() => setFunnelOpen(false)}
-        rowData={selectedRowForFunnel}
       />
     </Box>
   );

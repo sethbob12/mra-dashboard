@@ -1,5 +1,5 @@
 // src/FLChart.js
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -34,6 +34,7 @@ import TimelineIcon from "@mui/icons-material/Timeline";
 import GridViewIcon from "@mui/icons-material/GridView";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { useSearchParams } from "react-router-dom";
 
 import {
   ResponsiveContainer,
@@ -184,6 +185,24 @@ const CustomSankeyNode = (props) => {
   );
 };
 
+// ---------- MiniImage Component for Previews (20% larger) ----------
+function MiniImage({ src, alt }) {
+  return (
+    <Box
+      sx={{
+        borderRadius: 1,
+        height: 96,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden"
+      }}
+    >
+      <Box component="img" src={src} alt={alt} sx={{ height: "100%", width: "auto" }} />
+    </Box>
+  );
+}
+
 // ---------- Sortable Table: Clients Per Reviewer ----------
 const ClientReviewerGrid = ({ data }) => {
   const fixedClientOrder = [
@@ -310,31 +329,19 @@ const KPIItem = ({ label, value, color }) => (
   </Card>
 );
 
-// ---------- MiniImage Component for Previews (20% larger) ----------
-function MiniImage({ src, alt }) {
-  return (
-    <Box
-      sx={{
-        borderRadius: 1,
-        height: 96, // 20% larger than 80px
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden"
-      }}
-    >
-      <Box
-        component="img"
-        src={src}
-        alt={alt}
-        sx={{
-          height: "100%",
-          width: "auto"
-        }}
-      />
-    </Box>
-  );
-}
+// ---------- handleExportPDF Function ----------
+const handleExportPDF = async (elementId, title, event) => {
+  event.stopPropagation();
+  const ref = document.getElementById(elementId);
+  if (!ref) return;
+  const canvas = await html2canvas(ref);
+  const imgData = canvas.toDataURL("image/png");
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text(title, 14, 20);
+  doc.addImage(imgData, "PNG", 10, 30, 190, 100);
+  doc.save(`${title.replace(/\s+/g, "_").toLowerCase()}.pdf`);
+};
 
 // ---------- Main FLChart Component ----------
 const FLChart = ({ data }) => {
@@ -372,8 +379,8 @@ const FLChart = ({ data }) => {
     }
   };
 
-  // Generate chart data
-  const pieData = generatePieData(data);
+  // Generate chart data (declared once)
+  const pieDataGenerated = generatePieData(data);
   const revisionScatterData = generateRevisionRateScatterData(data);
   const performanceScatterData = generatePerformanceScatterData(data);
 
@@ -500,19 +507,32 @@ const FLChart = ({ data }) => {
     });
   };
 
-  // PDF export helper
-  const handleExportPDF = async (elementId, title, event) => {
-    event.stopPropagation();
-    const ref = document.getElementById(elementId);
-    if (!ref) return;
-    const canvas = await html2canvas(ref);
-    const imgData = canvas.toDataURL("image/png");
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(title, 14, 20);
-    doc.addImage(imgData, "PNG", 10, 30, 190, 100);
-    doc.save(`${title.replace(/\s+/g, "_").toLowerCase()}.pdf`);
-  };
+  // ---------- Query Parameter Handling ----------
+  // Read the "reviewer" parameter from the URL and, if present, auto-select that reviewer and expand panel6.
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const reviewerParam = searchParams.get("reviewer");
+    if (reviewerParam) {
+      setSelectedReviewer(reviewerParam);
+      setExpandedPanels((prev) => ({ ...prev, panel6: true }));
+      // Scroll to the Workflow Sankey panel after a short delay
+      setTimeout(() => {
+        const sankeyElem = document.getElementById("sankeyPaperRef");
+        if (sankeyElem) {
+          sankeyElem.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 300);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // When selectedReviewer and panel6 are set, generate the Sankey chart.
+  useEffect(() => {
+    if (selectedReviewer && expandedPanels["panel6"]) {
+      handleGenerateSankey();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedReviewer, expandedPanels]);
 
   return (
     <Box sx={{ mb: 4, px: 2 }}>
@@ -617,7 +637,7 @@ const FLChart = ({ data }) => {
                   <ResponsiveContainer width="100%" height={400}>
                     <PieChart>
                       <Pie
-                        data={pieData}
+                        data={pieDataGenerated}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
@@ -626,7 +646,7 @@ const FLChart = ({ data }) => {
                         dataKey="value"
                         onClick={(dataObj, index, event) => handleSliceClick(dataObj.payload, event)}
                       >
-                        {pieData.map((entry) => (
+                        {pieDataGenerated.map((entry) => (
                           <Cell key={entry.name} fill={entry.color} style={{ cursor: "pointer" }} />
                         ))}
                       </Pie>
@@ -789,9 +809,7 @@ const FLChart = ({ data }) => {
 
         {/* Card 5: Clients Per Reviewer */}
         <Grid item xs={12} md={expandedPanels["panel5"] ? 12 : 4}>
-          <Card
-            sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}
-          >
+          <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
               avatar={<GridViewIcon sx={{ color: "#333" }} />}
               title={
@@ -828,9 +846,7 @@ const FLChart = ({ data }) => {
 
         {/* Card 6: Workflow Sankey with KPI Summary */}
         <Grid item xs={12} md={expandedPanels["panel6"] ? 12 : 4}>
-          <Card
-            sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}
-          >
+          <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
               avatar={<AssessmentIcon sx={{ color: "#333" }} />}
               title={
@@ -839,11 +855,7 @@ const FLChart = ({ data }) => {
                 </Typography>
               }
               subheader="(Flow Diagram)"
-              sx={{
-                backgroundColor: "#90caf9",
-                borderBottom: "1px solid #ddd",
-                cursor: "pointer"
-              }}
+              sx={{ backgroundColor: "#90caf9", borderBottom: "1px solid #ddd", cursor: "pointer" }}
               onClick={(e) => togglePanel("panel6", e)}
             />
             {!expandedPanels["panel6"] && (
