@@ -1,6 +1,5 @@
-// src/FLTable.js
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -12,13 +11,17 @@ import {
   TableRow,
   TableSortLabel,
   TableFooter,
-  Typography,
   Tooltip,
   Button,
   Modal,
   Fade,
-  Backdrop
+  Backdrop,
+  Card,
+  CardContent,
+  Grid,
+  Typography
 } from "@mui/material";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import dayjs from "dayjs";
@@ -31,6 +34,7 @@ import csvIcon from "./assets/csvIcon.png";
 import pdfIcon from "./assets/pdfIcon.png";
 import Chart from "react-apexcharts";
 import html2canvas from "html2canvas";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -67,7 +71,6 @@ function stableSort(array, comparator) {
 }
 
 // -------- getFunnelData --------
-// Computes funnel data from a row's metrics.
 function getFunnelData(row) {
   const total = row.casesPast30Days || 0;
   const late = Math.round(((row.lateCasePercentage || 0) * total) / 100);
@@ -82,7 +85,6 @@ function getFunnelData(row) {
 }
 
 // -------- DynamicMiniFunnel Component --------
-// Renders a small inline funnel as an SVG for the "Workflow" column.
 function DynamicMiniFunnel({ row, onClick }) {
   const funnelData = getFunnelData(row);
   const total = funnelData[0].value || 1;
@@ -92,6 +94,7 @@ function DynamicMiniFunnel({ row, onClick }) {
   const inReviewWidth = ((total - late) / total) * 100;
   const completedWidth = ((total - late - revised) / total) * 100;
   const getXOffset = (width) => (100 - width) / 2;
+
   return (
     <Box onClick={onClick} sx={{ cursor: "pointer" }}>
       <svg width="100" height="20">
@@ -104,16 +107,12 @@ function DynamicMiniFunnel({ row, onClick }) {
 }
 
 // -------- FullFunnelModal Component --------
-// Displays the full funnel chart using ApexCharts in a modal.
 function FullFunnelModal({ open, onClose, rowData }) {
   const [renderChart, setRenderChart] = useState(false);
 
   const handleEntered = () => {
     setRenderChart(true);
     window.dispatchEvent(new Event("resize"));
-    const funnelData = getFunnelData(rowData);
-    let series = funnelData.map(stage => stage.value || 0);
-    console.log("FullFunnelModal - onEntered: Funnel Data:", funnelData, "Series:", series);
   };
 
   const handleExited = () => {
@@ -123,33 +122,11 @@ function FullFunnelModal({ open, onClose, rowData }) {
   if (!open || !rowData) return null;
 
   const funnelData = getFunnelData(rowData);
-  let series = funnelData.map(stage => stage.value || 0);
-  const labels = funnelData.map(stage => stage.name);
-  if (series.every(val => val === 0)) {
+  let series = funnelData.map((stage) => stage.value || 0);
+  const labels = funnelData.map((stage) => stage.name);
+  if (series.every((val) => val === 0)) {
     series = [1, 0, 0, 0];
   }
-
-  const chartOptions = {
-    chart: {
-      id: "funnelChart",
-      type: "funnel",
-      height: 300,
-      redrawOnWindowResize: true,
-      animations: { enabled: false },
-      parentHeightOffset: 0
-    },
-    plotOptions: {
-      funnel: { horizontal: false }
-    },
-    labels: labels,
-    dataLabels: { enabled: true, style: { colors: ["#000"] } },
-    legend: { position: "bottom" },
-    colors: ["#1E73BE", "#FF8042", "#FFBB28", "#66BB6A"],
-    noData: {
-      text: "No data available",
-      style: { color: "#000", fontSize: "14px" }
-    }
-  };
 
   return (
     <Modal
@@ -179,21 +156,68 @@ function FullFunnelModal({ open, onClose, rowData }) {
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
             Workflow Funnel for {rowData.name}
           </Typography>
-          <Box sx={{ width: 550, height: 300 }}>
-            {renderChart && (
+          {renderChart && (
+            <Box sx={{ width: 550, height: 300 }}>
               <Chart
                 key={`${rowData.mra_id}-funnel`}
-                options={chartOptions}
+                options={{
+                  chart: {
+                    id: "funnelChart",
+                    type: "funnel",
+                    height: 300,
+                    redrawOnWindowResize: true,
+                    animations: { enabled: false },
+                    parentHeightOffset: 0
+                  },
+                  plotOptions: {
+                    funnel: { horizontal: false }
+                  },
+                  labels,
+                  dataLabels: { enabled: true, style: { colors: ["#000"] } },
+                  legend: { position: "bottom" },
+                  colors: ["#1E73BE", "#FF8042", "#FFBB28", "#66BB6A"],
+                  noData: {
+                    text: "No data available",
+                    style: { color: "#000", fontSize: "14px" }
+                  }
+                }}
                 series={series}
                 type="funnel"
                 width={550}
                 height={300}
               />
-            )}
-          </Box>
+            </Box>
+          )}
         </Box>
       </Fade>
     </Modal>
+  );
+}
+
+// -------- KPI Card Component --------
+function KPICard({ title, value, tooltip, color }) {
+  return (
+    <Grid item xs={12} sm={6} md={2}>
+      <Tooltip title={tooltip} arrow>
+        <Card
+          sx={{
+            borderRadius: 2,
+            boxShadow: 2,
+            cursor: "default",
+            background: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)"
+          }}
+        >
+          <CardContent sx={{ textAlign: "center" }}>
+            <Typography variant="h6" sx={{ color: color || "#1565C0", fontWeight: "bold" }}>
+              {title}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: "bold", mt: 1 }}>
+              {value}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Tooltip>
+    </Grid>
   );
 }
 
@@ -202,10 +226,9 @@ function FLTable({ data }) {
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("qualityScore");
   const [funnelOpen, setFunnelOpen] = useState(false);
-  // Added missing declaration for selectedRowForFunnel
   const [selectedRowForFunnel, setSelectedRowForFunnel] = useState(null);
 
-  // Define handleFeedbackClick to navigate to a feedback page
+  // For navigation to feedback page
   const handleFeedbackClick = (row, feedbackType) => {
     const baseUrl = "/reports";
     const now = dayjs();
@@ -225,15 +248,17 @@ function FLTable({ data }) {
     setOrderBy(property);
   };
 
-  // Reorder columns: Quality Score, Name, Workflow, Clients, Avg Cases/Day, Late %, Rev Rate %, Feedback, Status, Local Time, Notes.
+  // Table columns
   const columns = [
     { id: "qualityScore", label: "Quality Score", align: "center" },
     { id: "name", label: "Name", align: "left", width: 250 },
     { id: "workflow", label: "Workflow", align: "center", width: 150 },
-    { id: "clients", label: "Clients", align: "center" },
+    { id: "clients", label: "Clients & Cost", align: "center" },
     { id: "avgCasesPerDay", label: "Avg Cases/Day", align: "center" },
     { id: "lateCasePercentage", label: "Late %", align: "center" },
     { id: "revisionRate", label: "Rev Rate %", align: "center" },
+    { id: "yield", label: "Yield", align: "center", width: 80 },
+    { id: "effectiveness", label: "Effectiveness", align: "center", width: 80 },
     { id: "feedback", label: "Feedback", align: "center" },
     { id: "status", label: "Status", align: "center" },
     { id: "localTime", label: "Local Time", align: "center", minWidth: "150px" },
@@ -246,6 +271,7 @@ function FLTable({ data }) {
     }
   ];
 
+  // Process data – compute local time and day/night status
   const processedData = data.map((row) => {
     const statusForSort = row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
     let clientList = [];
@@ -256,49 +282,95 @@ function FLTable({ data }) {
         clientList = row.clients;
       }
     }
+    const clientCount = clientList.length;
+    // Compute local time using tzMap and dayjs
     const tzID = tzMap[row.email] || "America/New_York";
     const localTimeObj = dayjs().tz(tzID);
     const localTime = localTimeObj.format("h:mm A");
     const localHour = localTimeObj.hour();
     const isDay = localHour >= 6 && localHour < 18;
-    const country = countryMap[tzID] || "Unknown";
-    return { ...row, statusForSort, localTime, isDay, country, clientList };
+
+    return {
+      ...row,
+      statusForSort,
+      clientList,
+      clientCount,
+      localTime,
+      isDay
+    };
   });
 
-  const sortKey = orderBy === "status" ? "statusForSort" : orderBy;
-  const sortedData = stableSort(processedData, getComparator(order, sortKey));
+  // Compute min & max for each metric
+  let minAccuracy = Infinity,
+    maxAccuracy = -Infinity;
+  let minTimeliness = Infinity,
+    maxTimeliness = -Infinity;
+  let minEfficiency = Infinity,
+    maxEfficiency = -Infinity;
+  let minQuality = Infinity,
+    maxQuality = -Infinity;
 
-  const summary = {
-    avgCasesPerDay:
-      sortedData.reduce((sum, row) => sum + (row.avgCasesPerDay || 0), 0) /
-      (sortedData.length || 1),
-    lateCasePercentage:
-      sortedData.reduce((sum, row) => sum + (row.lateCasePercentage || 0), 0) /
-      (sortedData.length || 1),
-    revisionRate:
-      sortedData.reduce((sum, row) => sum + (row.revisionRate || 0), 0) /
-      (sortedData.length || 1),
-    qualityScore:
-      sortedData.reduce((sum, row) => sum + (row.qualityScore || 0), 0) /
-      (sortedData.length || 1)
-  };
+  data.forEach((r) => {
+    const acc = r.accuracyScore ?? 0;
+    const tim = r.timelinessScore ?? 0;
+    const eff = r.efficiencyScore ?? 0;
+    const qua = r.qualityScore ?? 0;
+    if (acc < minAccuracy) minAccuracy = acc;
+    if (acc > maxAccuracy) maxAccuracy = acc;
+    if (tim < minTimeliness) minTimeliness = tim;
+    if (tim > maxTimeliness) maxTimeliness = tim;
+    if (eff < minEfficiency) minEfficiency = eff;
+    if (eff > maxEfficiency) maxEfficiency = eff;
+    if (qua < minQuality) minQuality = qua;
+    if (qua > maxQuality) maxQuality = qua;
+  });
 
+  // Summaries
+  const sortedDataMemo = useMemo(() => {
+    let sortKey;
+    if (orderBy === "status") sortKey = "statusForSort";
+    else if (orderBy === "clients") sortKey = "clientCount";
+    else sortKey = orderBy;
+    return stableSort(processedData, getComparator(order, sortKey));
+  }, [processedData, order, orderBy]);
+
+  const totalReviewers = data.length;
+  let totalAccuracy = 0;
+  let totalTimeliness = 0;
+  let totalEfficiency = 0;
+  let totalQualityScore = 0;
+
+  sortedDataMemo.forEach((row) => {
+    totalAccuracy += row.accuracyScore || 0;
+    totalTimeliness += row.timelinessScore || 0;
+    totalEfficiency += row.efficiencyScore || 0;
+    totalQualityScore += row.qualityScore || 0;
+  });
+
+  const avgAccuracy = totalReviewers ? totalAccuracy / totalReviewers : 0;
+  const avgTimeliness = totalReviewers ? totalTimeliness / totalReviewers : 0;
+  const avgEfficiency = totalReviewers ? totalEfficiency / totalReviewers : 0;
+  const avgQuality = totalReviewers ? totalQualityScore / totalReviewers : 0;
+  // Placeholder trend for avg quality
+  const avgQualityTrend = "+2.1%";
+
+  // PDF/CSV Export
   const handleExportCSV = () => {
     const csvHeaders = columns.map((col) => col.label);
-    const csvRows = sortedData.map((row) => {
+    const csvRows = sortedDataMemo.map((row) => {
       const status = row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
       const clientNames = row.clientList ? row.clientList.join(", ") : "";
       return [
         `${row.qualityScore?.toFixed(1) || 0}%`,
         `"${row.name}"`,
-        // Workflow column not exported
+        // Workflow, yield, effectiveness columns not exported
         `"${clientNames}"`,
         row.avgCasesPerDay?.toFixed(1) || 0,
         `${row.lateCasePercentage?.toFixed(1) || 0}%`,
         `${row.revisionRate?.toFixed(1) || 0}%`,
         `"QA / Client"`,
         status === "available" ? "Available" : "Off",
-        row.localTime,
+        row.localTime || "",
         `"${row.notes || ""}"`
       ].join(",");
     });
@@ -328,57 +400,158 @@ function FLTable({ data }) {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Typography variant="h5" sx={{ mt: 4, mb: 2, textAlign: "center", color: "#000" }}>
-        Reviewer Table
-      </Typography>
+    <Box sx={{ width: "100%", px: 2 }}>
+      {/* KPI Row: centered */}
+      <Grid container spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+        <KPICard
+          title="Total Reviewers"
+          value={totalReviewers}
+          tooltip="Methodology: Count of unique reviewers. Range: 0 - unlimited."
+        />
+        <KPICard
+          title="Avg Accuracy"
+          value={`${avgAccuracy.toFixed(1)}%`}
+          tooltip={`Methodology: (Sum of all reviewers' accuracy [100-rev rate%]) / number of reviewers.\nRange: ${minAccuracy.toFixed(1)}% - ${maxAccuracy.toFixed(1)}%.`}
+        />
+        <KPICard
+          title="Avg Timeliness"
+          value={`${avgTimeliness.toFixed(1)}%`}
+          tooltip={`Methodology: (Sum of all reviewers' timeliness [100=late%]) / number of reviewers.\nRange: ${minTimeliness.toFixed(1)}% - ${maxTimeliness.toFixed(1)}%.`}
+        />
+        <KPICard
+          title="Avg Efficiency"
+          value={`${avgEfficiency.toFixed(1)}%`}
+          tooltip={`Methodology: (Sum of all reviewers' efficiency) / number of reviewers. [Efficiency = MIN(100, 75 + (5 × (Avg Cases/Day − 1)). \nRange: ${minEfficiency.toFixed(1)}% - ${maxEfficiency.toFixed(1)}%.`}
+        />0
+        <KPICard
+          title="Avg Quality Score"
+          value={
+            <>
+              {`${avgQuality.toFixed(1)}% `}
+              <KeyboardArrowUpIcon sx={{ fontSize: 20, color: "green" }} />
+            </>
+          }
+          tooltip={`Methodology: Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (20%).\nRange: ${minQuality.toFixed(1)}% - ${maxQuality.toFixed(1)}%.\nTrend: ${avgQualityTrend} from last month`}
+        />
+      </Grid>
 
+      {/* Table Container - full page width with horizontal scroll on page */}
       <TableContainer
         component={Paper}
         sx={{
-          minHeight: "80vh",
-          maxHeight: "95vh",
-          overflowY: "auto",
-          width: "100%"
+          width: "100%",
+          overflowX: "visible"
         }}
       >
-        <Table stickyHeader size="small">
+        <Table id="reviewersTable" size="small" stickyHeader>
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  sx={{
-                    fontWeight: "bold",
-                    color: "white",
-                    borderRight: "1px solid #ddd",
-                    background: "linear-gradient(45deg, #1E73BE, #1565C0)",
-                    borderBottom: "2px solid #0D47A1",
-                    padding: "8px 12px",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 1000,
-                    width: column.width || "auto",
-                    minWidth: column.minWidth || "auto",
-                    textAlign: column.align || "center",
-                    whiteSpace: column.id === "notes" ? "nowrap" : "normal"
-                  }}
-                >
-                  <TableSortLabel
-                    active={orderBy === column.id}
-                    direction={orderBy === column.id ? "desc" : "asc"}
-                    onClick={(e) => handleRequestSort(e, column.id)}
-                    sx={{ color: "white", "&:hover": { color: "#f0f0f0" } }}
+              {columns.map((column) => {
+                if (column.id === "clients") {
+                  return (
+                    <TableCell
+                      key={column.id}
+                      sx={{
+                        fontWeight: "bold",
+                        color: "white",
+                        borderRight: "1px solid #ddd",
+                        background: "linear-gradient(45deg, #1E73BE, #1565C0)",
+                        borderBottom: "2px solid #0D47A1",
+                        padding: "8px 12px",
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 1000,
+                        width: column.width || "auto",
+                        minWidth: column.minWidth || "auto",
+                        textAlign: column.align || "center"
+                      }}
+                    >
+                      <Tooltip
+                        title="Clients & Cost: Sort by number of clients. Detailed cost ranking is shown in the Quality Score bar chart under Visualizations."
+                        arrow
+                      >
+                        <TableSortLabel
+                          active={orderBy === column.id}
+                          direction={orderBy === column.id ? "desc" : "asc"}
+                          onClick={(e) => handleRequestSort(e, column.id)}
+                          sx={{ color: "white", "&:hover": { color: "#f0f0f0" } }}
+                        >
+                          {column.label}
+                        </TableSortLabel>
+                      </Tooltip>
+                    </TableCell>
+                  );
+                }
+                if (["yield", "effectiveness"].includes(column.id)) {
+                  const colTooltip =
+                    column.id === "yield"
+                      ? "Yield: Indicates if the reviewer meets the benchmark for revisions vs. case volume. (Green = meets, Red = below)"
+                      : "Effectiveness: First-time success rate. (Green = meets timeliness & accuracy; Red = does not)";
+                  return (
+                    <TableCell
+                      key={column.id}
+                      sx={{
+                        fontWeight: "bold",
+                        color: "white",
+                        borderRight: "1px solid #ddd",
+                        background: "linear-gradient(45deg, #1E73BE, #1565C0)",
+                        borderBottom: "2px solid #0D47A1",
+                        padding: "8px 12px",
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 1000,
+                        width: column.width || "auto",
+                        minWidth: column.minWidth || "auto",
+                        textAlign: column.align || "center"
+                      }}
+                    >
+                      <Tooltip title={colTooltip} arrow>
+                        <TableSortLabel
+                          active={orderBy === column.id}
+                          direction={orderBy === column.id ? "desc" : "asc"}
+                          onClick={(e) => handleRequestSort(e, column.id)}
+                          sx={{ color: "white", "&:hover": { color: "#f0f0f0" } }}
+                        >
+                          {column.label}
+                        </TableSortLabel>
+                      </Tooltip>
+                    </TableCell>
+                  );
+                }
+                return (
+                  <TableCell
+                    key={column.id}
+                    sx={{
+                      fontWeight: "bold",
+                      color: "white",
+                      borderRight: "1px solid #ddd",
+                      background: "linear-gradient(45deg, #1E73BE, #1565C0)",
+                      borderBottom: "2px solid #0D47A1",
+                      padding: "8px 12px",
+                      position: "sticky",
+                      top: 0,
+                      zIndex: 1000,
+                      width: column.width || "auto",
+                      minWidth: column.minWidth || "auto",
+                      textAlign: column.align || "center"
+                    }}
                   >
-                    {column.label}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
+                    <TableSortLabel
+                      active={orderBy === column.id}
+                      direction={orderBy === column.id ? "desc" : "asc"}
+                      onClick={(e) => handleRequestSort(e, column.id)}
+                      sx={{ color: "white", "&:hover": { color: "#f0f0f0" } }}
+                    >
+                      {column.label}
+                    </TableSortLabel>
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {sortedData.map((row, index) => {
+            {sortedDataMemo.map((row, index) => {
               const qualityBg =
                 (row.qualityScore || 0) >= 90
                   ? "#A5D6A7"
@@ -387,6 +560,39 @@ function FLTable({ data }) {
                   : "#EF9A9A";
               const status =
                 row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
+
+              const revisionRate = row.revisionRate || 0;
+              const cases = row.casesPast30Days || 0;
+              let minX = isFinite(Math.min(...data.map((r) => r.casesPast30Days || 0)))
+                ? Math.min(...data.map((r) => r.casesPast30Days || 0))
+                : 0;
+              if (minX < 0) minX = 0;
+              const slope = (30 - 20) / (90 - minX);
+              const expectedY =
+                cases <= minX ? 20 : cases >= 90 ? 30 : 20 + slope * (cases - minX);
+              const yieldColor = revisionRate < expectedY ? "green" : "red";
+              const yieldTooltip = `Cases: ${cases}, Rev Rate: ${revisionRate.toFixed(1)}%`;
+
+              const effColor =
+                (row.accuracyScore || 0) >= 75 && (row.timelinessScore || 0) >= 75
+                  ? "green"
+                  : "red";
+              const effTooltip = `Accuracy: ${row.accuracyScore || 0}%\nTimeliness: ${row.timelinessScore || 0}%`;
+
+              let clientCostTooltip = "";
+              if (row.clientList && row.costPerCase) {
+                const lines = [];
+                lines.push("Clients & Cost:");
+                lines.push("");
+                row.clientList.forEach((client) => {
+                  const cost = row.costPerCase[client] ?? "N/A";
+                  lines.push(`- ${client}: $${cost}`);
+                });
+                clientCostTooltip = lines.join("\n");
+              } else {
+                clientCostTooltip = "No client/cost info";
+              }
+
               return (
                 <TableRow
                   key={row.mra_id}
@@ -433,28 +639,39 @@ function FLTable({ data }) {
                     onClick={() =>
                       (window.location.href = `/reports?reviewer=${encodeURIComponent(
                         row.name
-                      )}&clients=all&startDate=${dayjs().subtract(180, "day").format("YYYY-MM-DD")}&endDate=${dayjs().format("YYYY-MM-DD")}&reportType=Cases/Revisions`)
+                      )}&clients=all&startDate=${dayjs()
+                        .subtract(180, "day")
+                        .format("YYYY-MM-DD")}&endDate=${dayjs().format(
+                        "YYYY-MM-DD"
+                      )}&reportType=Cases/Revisions`)
                     }
                   >
                     {row.name}
                   </TableCell>
 
-                  {/* Workflow (placed immediately after Name) */}
+                  {/* Workflow */}
                   <TableCell sx={{ textAlign: "center" }}>
-                    <Box
-                      onClick={() =>
-                        (window.location.href = `/chart?reviewer=${encodeURIComponent(row.name)}`)
-                      }
-                      sx={{ cursor: "pointer" }}
+                    <Tooltip
+                      title="Workflow: Blue = Submitted Late, Orange = Submitted but needed revision, Green = Direct Completed. Click for detailed Sankey diagram."
+                      arrow
                     >
-                      <DynamicMiniFunnel row={row} />
-                    </Box>
+                      <Box
+                        onClick={() =>
+                          (window.location.href = `/chart?reviewer=${encodeURIComponent(
+                            row.name
+                          )}&section=workflow`)
+                        }
+                        sx={{ cursor: "pointer" }}
+                      >
+                        <DynamicMiniFunnel row={row} />
+                      </Box>
+                    </Tooltip>
                   </TableCell>
 
-                  {/* Clients */}
+                  {/* Clients & Cost */}
                   <TableCell sx={{ textAlign: "center" }}>
-                    <Tooltip title={row.clientList?.join(", ")} arrow>
-                      <span>{row.clientList?.length || 0}</span>
+                    <Tooltip title={clientCostTooltip} arrow>
+                      <AttachMoneyIcon sx={{ color: "green", cursor: "pointer", fontSize: "large" }} />
                     </Tooltip>
                   </TableCell>
 
@@ -467,7 +684,7 @@ function FLTable({ data }) {
                   <TableCell
                     sx={{
                       textAlign: "center",
-                      color: row.lateCasePercentage <= 5.0 ? "green" : "red"
+                      color: (row.lateCasePercentage || 0) <= 5.0 ? "green" : "red"
                     }}
                   >
                     {(row.lateCasePercentage || 0).toFixed(1)}%
@@ -477,10 +694,40 @@ function FLTable({ data }) {
                   <TableCell
                     sx={{
                       textAlign: "center",
-                      color: row.revisionRate <= 10.0 ? "green" : "red"
+                      color: revisionRate <= 10.0 ? "green" : "red"
                     }}
                   >
-                    {(row.revisionRate || 0).toFixed(1)}%
+                    {revisionRate.toFixed(1)}%
+                  </TableCell>
+
+                  {/* Yield */}
+                  <TableCell sx={{ textAlign: "center" }}>
+                    <Tooltip title={yieldTooltip} arrow>
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          backgroundColor: yieldColor,
+                          display: "inline-block"
+                        }}
+                      />
+                    </Tooltip>
+                  </TableCell>
+
+                  {/* Effectiveness */}
+                  <TableCell sx={{ textAlign: "center" }}>
+                    <Tooltip title={effTooltip} arrow>
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          backgroundColor: effColor,
+                          display: "inline-block"
+                        }}
+                      />
+                    </Tooltip>
                   </TableCell>
 
                   {/* Feedback */}
@@ -528,12 +775,13 @@ function FLTable({ data }) {
 
                   {/* Local Time */}
                   <TableCell sx={{ textAlign: "center", minWidth: "150px" }}>
-                    <Tooltip title={`Country: ${row.country}`} arrow>
+                    <Tooltip title={`Time Zone: ${tzMap[row.email] || "America/New_York"}`} arrow>
                       <Box
                         sx={{
-                          background: row.isDay
-                            ? "linear-gradient(45deg, rgba(255,213,79,0.2), rgba(255,179,0,0.3))"
-                            : "rgba(33,33,33,0.3)",
+                          background:
+                            row.isDay
+                              ? "linear-gradient(45deg, rgba(255,213,79,0.2), rgba(255,179,0,0.3))"
+                              : "rgba(33,33,33,0.3)",
                           color: row.isDay ? "inherit" : "black",
                           padding: "4px",
                           borderRadius: 1,
@@ -550,7 +798,7 @@ function FLTable({ data }) {
                           alt={row.isDay ? "Sun Icon" : "Moon Icon"}
                           sx={{ width: 16, height: 16, mr: 0.5 }}
                         />
-                        {row.localTime}
+                        {row.localTime || ""}
                       </Box>
                     </Tooltip>
                   </TableCell>
@@ -575,24 +823,11 @@ function FLTable({ data }) {
           <TableFooter>
             <TableRow sx={{ backgroundColor: "#e0e0e0" }}>
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
-                {`Avg Quality: ${summary.qualityScore.toFixed(1)}%`}
+                {`(Avg Quality: ${avgQuality.toFixed(1)}%)`}
               </TableCell>
-              <TableCell sx={{ textAlign: "left", fontWeight: "bold" }} />
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
-                {summary.avgCasesPerDay.toFixed(1)}
-              </TableCell>
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
-                {summary.lateCasePercentage.toFixed(1)}%
-              </TableCell>
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
-                {summary.revisionRate.toFixed(1)}%
-              </TableCell>
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
-              <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} />
-              <TableCell sx={{ textAlign: "left", fontWeight: "bold" }} />
+              {Array.from({ length: columns.length - 1 }, (_, i) => (
+                <TableCell key={i} sx={{ textAlign: "center", fontWeight: "bold" }} />
+              ))}
             </TableRow>
           </TableFooter>
         </Table>

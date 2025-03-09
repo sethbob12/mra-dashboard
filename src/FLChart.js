@@ -1,4 +1,3 @@
-// src/FLChart.js
 import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
@@ -32,6 +31,8 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import GridViewIcon from "@mui/icons-material/GridView";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { useSearchParams } from "react-router-dom";
@@ -191,7 +192,7 @@ function MiniImage({ src, alt }) {
     <Box
       sx={{
         borderRadius: 1,
-        height: 96,
+        height: 112,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -300,35 +301,6 @@ const ClientReviewerGrid = ({ data }) => {
   );
 };
 
-// ---------- KPI Helpers ----------
-const computeKpis = (data) => {
-  const totalCases = data.reduce((sum, r) => sum + (r.casesPast30Days || 0), 0);
-  const avgAccuracy =
-    data.reduce((sum, r) => sum + (r.accuracyScore || 0), 0) / (data.length || 1);
-  const avgTimeliness =
-    data.reduce((sum, r) => sum + (r.timelinessScore || 0), 0) / (data.length || 1);
-  const totalReviewers = data.length;
-  return {
-    totalCases,
-    avgAccuracy: avgAccuracy.toFixed(1),
-    avgTimeliness: avgTimeliness.toFixed(1),
-    totalReviewers
-  };
-};
-
-const KPIItem = ({ label, value, color }) => (
-  <Card sx={{ textAlign: "center", p: 2, backgroundColor: "#f5faff", boxShadow: 2 }}>
-    <CardContent>
-      <Typography variant="h6" sx={{ color: color || "#1E73BE", fontWeight: "bold" }}>
-        {label}
-      </Typography>
-      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-        {value}
-      </Typography>
-    </CardContent>
-  </Card>
-);
-
 // ---------- handleExportPDF Function ----------
 const handleExportPDF = async (elementId, title, event) => {
   event.stopPropagation();
@@ -345,10 +317,7 @@ const handleExportPDF = async (elementId, title, event) => {
 
 // ---------- Main FLChart Component ----------
 const FLChart = ({ data }) => {
-  // KPI row stats
-  const { totalCases, avgAccuracy, avgTimeliness, totalReviewers } = computeKpis(data);
-
-  // Expanded panel states - only header clicks will toggle expansion
+  // Expanded panel states – only header clicks will toggle expansion
   const [expandedPanels, setExpandedPanels] = useState({});
   const togglePanel = (panel, event) => {
     event.stopPropagation();
@@ -508,14 +477,12 @@ const FLChart = ({ data }) => {
   };
 
   // ---------- Query Parameter Handling ----------
-  // Read the "reviewer" parameter from the URL and, if present, auto-select that reviewer and expand panel6.
   const [searchParams] = useSearchParams();
   useEffect(() => {
     const reviewerParam = searchParams.get("reviewer");
     if (reviewerParam) {
       setSelectedReviewer(reviewerParam);
       setExpandedPanels((prev) => ({ ...prev, panel6: true }));
-      // Scroll to the Workflow Sankey panel after a short delay
       setTimeout(() => {
         const sankeyElem = document.getElementById("sankeyPaperRef");
         if (sankeyElem) {
@@ -526,7 +493,6 @@ const FLChart = ({ data }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // When selectedReviewer and panel6 are set, generate the Sankey chart.
   useEffect(() => {
     if (selectedReviewer && expandedPanels["panel6"]) {
       handleGenerateSankey();
@@ -537,40 +503,31 @@ const FLChart = ({ data }) => {
   return (
     <Box sx={{ mb: 4, px: 2 }}>
       <Typography variant="h4" sx={{ mb: 3, color: "#333", fontWeight: "bold" }}>
-        MRA Dashboard
+    
       </Typography>
-
-      {/* KPI Row */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <KPIItem label="Total Cases" value={totalCases} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <KPIItem label="Avg Accuracy" value={`${avgAccuracy}%`} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <KPIItem label="Avg Timeliness" value={`${avgTimeliness}%`} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <KPIItem label="Total Reviewers" value={totalReviewers} />
-        </Grid>
-      </Grid>
 
       <Grid container spacing={3}>
         {/* Card 1: Quality Scores */}
         <Grid item xs={12} md={expandedPanels["panel1"] ? 12 : 4}>
           <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
-              avatar={<BarChartIcon sx={{ color: "#333" }} />}
+              avatar={<BarChartIcon sx={{ color: "#fff" }} />}
               title={
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                   Quality Scores
                 </Typography>
               }
               subheader="(Stacked Bar Chart)"
+              action={
+                expandedPanels["panel1"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
+              }
               sx={{
-                backgroundColor: "#90caf9",
-                borderBottom: "1px solid #ddd",
+                background: "linear-gradient(to right, #E3F2FD, #90CAF9)",
+                borderBottom: "1px solid #0D47A1",
                 cursor: "pointer"
               }}
               onClick={(e) => togglePanel("panel1", e)}
@@ -608,16 +565,23 @@ const FLChart = ({ data }) => {
         <Grid item xs={12} md={expandedPanels["panel2"] ? 12 : 4}>
           <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
-              avatar={<PieChartIcon sx={{ color: "#333" }} />}
+              avatar={<PieChartIcon sx={{ color: "#fff" }} />}
               title={
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                   Reviewer Distribution
                 </Typography>
               }
               subheader="(Pie Chart)"
+              action={
+                expandedPanels["panel2"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
+              }
               sx={{
-                backgroundColor: "#90caf9",
-                borderBottom: "1px solid #ddd",
+                background: "linear-gradient(to right, #E1F5FE, #81D4FA)",
+                borderBottom: "1px solid #0D47A1",
                 cursor: "pointer"
               }}
               onClick={(e) => togglePanel("panel2", e)}
@@ -667,7 +631,6 @@ const FLChart = ({ data }) => {
           </Card>
         </Grid>
 
-        {/* Popover for Pie slices */}
         <Popover
           open={Boolean(popoverAnchor)}
           anchorEl={popoverAnchor}
@@ -696,16 +659,23 @@ const FLChart = ({ data }) => {
         <Grid item xs={12} md={expandedPanels["panel3"] ? 12 : 4}>
           <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
-              avatar={<AssessmentIcon sx={{ color: "#333" }} />}
+              avatar={<AssessmentIcon sx={{ color: "#fff" }} />}
               title={
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                   Revisions vs. Case Volume
                 </Typography>
               }
               subheader="(Composed Chart)"
+              action={
+                expandedPanels["panel3"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
+              }
               sx={{
-                backgroundColor: "#90caf9",
-                borderBottom: "1px solid #ddd",
+                background: "linear-gradient(to right, #F1F8E9, #C5E1A5)",
+                borderBottom: "1px solid #0D47A1",
                 cursor: "pointer"
               }}
               onClick={(e) => togglePanel("panel3", e)}
@@ -719,7 +689,7 @@ const FLChart = ({ data }) => {
               <CardContent id="revisionChartRef" sx={{ backgroundColor: "#fff" }}>
                 <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 1 }}>
-                    This chart compares the number of cases each reviewer handled (past 30 days) to their revision rate.
+                    "Yield". This chart compares the number of cases each reviewer handled (past 30 days) to their revision rate.
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <ResponsiveContainer width="100%" height={400}>
@@ -754,16 +724,23 @@ const FLChart = ({ data }) => {
         <Grid item xs={12} md={expandedPanels["panel4"] ? 12 : 4}>
           <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
-              avatar={<TimelineIcon sx={{ color: "#333" }} />}
+              avatar={<TimelineIcon sx={{ color: "#fff" }} />}
               title={
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                   Timeliness vs. Accuracy
                 </Typography>
               }
-              subheader="(Scatter Chart)"
+              subheader="(Scatter Chart with Quadrant Analysis)"
+              action={
+                expandedPanels["panel4"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
+              }
               sx={{
-                backgroundColor: "#90caf9",
-                borderBottom: "1px solid #ddd",
+                background: "linear-gradient(to right, #FCE4EC, #F8BBD0)",
+                borderBottom: "1px solid #0D47A1",
                 cursor: "pointer"
               }}
               onClick={(e) => togglePanel("panel4", e)}
@@ -777,7 +754,7 @@ const FLChart = ({ data }) => {
               <CardContent id="performanceChartRef" sx={{ backgroundColor: "#fff" }}>
                 <Paper elevation={1} sx={{ p: 2, mb: 4, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 1 }}>
-                    This chart plots each reviewer’s timeliness and accuracy. Green dots indicate strong performance.
+                    "Effectiveness". This chart plots each reviewer’s timeliness and accuracy. Green dots indicate strong performance.
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <ResponsiveContainer width="100%" height={400}>
@@ -811,16 +788,23 @@ const FLChart = ({ data }) => {
         <Grid item xs={12} md={expandedPanels["panel5"] ? 12 : 4}>
           <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
-              avatar={<GridViewIcon sx={{ color: "#333" }} />}
+              avatar={<GridViewIcon sx={{ color: "#fff" }} />}
               title={
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                   Clients Per Reviewer
                 </Typography>
               }
               subheader="(Grid)"
+              action={
+                expandedPanels["panel5"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
+              }
               sx={{
-                backgroundColor: "#90caf9",
-                borderBottom: "1px solid #ddd",
+                background: "linear-gradient(to right, #FFF3E0, #FFCC80)",
+                borderBottom: "1px solid #0D47A1",
                 cursor: "pointer"
               }}
               onClick={(e) => togglePanel("panel5", e)}
@@ -848,14 +832,25 @@ const FLChart = ({ data }) => {
         <Grid item xs={12} md={expandedPanels["panel6"] ? 12 : 4}>
           <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader
-              avatar={<AssessmentIcon sx={{ color: "#333" }} />}
+              avatar={<AssessmentIcon sx={{ color: "#fff" }} />}
               title={
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                   Workflow Sankey
                 </Typography>
               }
               subheader="(Flow Diagram)"
-              sx={{ backgroundColor: "#90caf9", borderBottom: "1px solid #ddd", cursor: "pointer" }}
+              action={
+                expandedPanels["panel6"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
+              }
+              sx={{
+                background: "linear-gradient(to right, #E8F5E9, #A5D6A7)",
+                borderBottom: "1px solid #0D47A1",
+                cursor: "pointer"
+              }}
               onClick={(e) => togglePanel("panel6", e)}
             />
             {!expandedPanels["panel6"] && (

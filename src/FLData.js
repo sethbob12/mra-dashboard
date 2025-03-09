@@ -18,7 +18,18 @@ const FLData = [
     "efficiencyScore": 92.75,
     "accuracyScore": 64.84,
     "qualityScore": 75.85,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 2,
@@ -38,7 +49,18 @@ const FLData = [
     "efficiencyScore": 90.25,
     "accuracyScore": 70.37,
     "qualityScore": 75.27,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 3,
@@ -58,7 +80,18 @@ const FLData = [
     "efficiencyScore": 94.0,
     "accuracyScore": 50.0,
     "qualityScore": 66.4,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 4,
@@ -78,7 +111,18 @@ const FLData = [
     "efficiencyScore": 88.75,
     "accuracyScore": 78.67,
     "qualityScore": 80.95,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 5,
@@ -98,7 +142,18 @@ const FLData = [
     "efficiencyScore": 98.75,
     "accuracyScore": 89.57,
     "qualityScore": 93.09,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 6,
@@ -118,7 +173,18 @@ const FLData = [
     "efficiencyScore": 96.75,
     "accuracyScore": 62.62,
     "qualityScore": 74.92,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 7,
@@ -138,7 +204,18 @@ const FLData = [
     "efficiencyScore": 93.75,
     "accuracyScore": 66.32,
     "qualityScore": 76.94,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 8,
@@ -158,7 +235,18 @@ const FLData = [
     "efficiencyScore": 97.25,
     "accuracyScore": 81.65,
     "qualityScore": 87.24,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 9,
@@ -178,7 +266,18 @@ const FLData = [
     "efficiencyScore": 85.5,
     "accuracyScore": 67.74,
     "qualityScore": 74.75,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 10,
@@ -198,7 +297,18 @@ const FLData = [
     "efficiencyScore": 91.0,
     "accuracyScore": 61.9,
     "qualityScore": 74.14,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 11,
@@ -218,7 +328,18 @@ const FLData = [
     "efficiencyScore": 90.25,
     "accuracyScore": 90.12,
     "qualityScore": 90.72,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 12,
@@ -238,7 +359,18 @@ const FLData = [
     "efficiencyScore": 86.0,
     "accuracyScore": 62.5,
     "qualityScore": 73.1,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 13,
@@ -258,7 +390,18 @@ const FLData = [
     "efficiencyScore": 84.25,
     "accuracyScore": 64.91,
     "qualityScore": 75.4,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 14,
@@ -278,7 +421,18 @@ const FLData = [
     "efficiencyScore": 82.0,
     "accuracyScore": 66.67,
     "qualityScore": 74.8,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 15,
@@ -298,7 +452,18 @@ const FLData = [
     "efficiencyScore": 89.5,
     "accuracyScore": 58.97,
     "qualityScore": 72.28,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 16,
@@ -318,7 +483,18 @@ const FLData = [
     "efficiencyScore": 85.75,
     "accuracyScore": 55.56,
     "qualityScore": 67.68,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 17,
@@ -338,7 +514,18 @@ const FLData = [
     "efficiencyScore": 97.0,
     "accuracyScore": 81.48,
     "qualityScore": 87.49,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 18,
@@ -358,7 +545,18 @@ const FLData = [
     "efficiencyScore": 88.75,
     "accuracyScore": 20.0,
     "qualityScore": 47.75,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 19,
@@ -378,7 +576,18 @@ const FLData = [
     "efficiencyScore": 83.0,
     "accuracyScore": 53.85,
     "qualityScore": 68.51,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 20,
@@ -398,7 +607,18 @@ const FLData = [
     "efficiencyScore": 93.5,
     "accuracyScore": 78.72,
     "qualityScore": 83.53,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 21,
@@ -418,7 +638,18 @@ const FLData = [
     "efficiencyScore": 94.75,
     "accuracyScore": 67.68,
     "qualityScore": 78.56,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 22,
@@ -438,7 +669,18 @@ const FLData = [
     "efficiencyScore": 86.0,
     "accuracyScore": 87.5,
     "qualityScore": 86.1,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 23,
@@ -458,7 +700,18 @@ const FLData = [
     "efficiencyScore": 86.0,
     "accuracyScore": 75.0,
     "qualityScore": 77.8,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 24,
@@ -478,7 +731,18 @@ const FLData = [
     "efficiencyScore": 85.0,
     "accuracyScore": 80.0,
     "qualityScore": 81.6,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 25,
@@ -498,7 +762,18 @@ const FLData = [
     "efficiencyScore": 98.75,
     "accuracyScore": 82.61,
     "qualityScore": 86.32,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 26,
@@ -518,7 +793,18 @@ const FLData = [
     "efficiencyScore": 94.0,
     "accuracyScore": 83.33,
     "qualityScore": 87.8,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 27,
@@ -538,7 +824,18 @@ const FLData = [
     "efficiencyScore": 85.75,
     "accuracyScore": 49.21,
     "qualityScore": 61.87,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 28,
@@ -558,7 +855,18 @@ const FLData = [
     "efficiencyScore": 84.0,
     "accuracyScore": 64.29,
     "qualityScore": 74.17,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 29,
@@ -578,7 +886,18 @@ const FLData = [
     "efficiencyScore": 93.75,
     "accuracyScore": 83.16,
     "qualityScore": 88.44,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 30,
@@ -598,7 +917,18 @@ const FLData = [
     "efficiencyScore": 86.0,
     "accuracyScore": 50.0,
     "qualityScore": 64.2,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 31,
@@ -618,7 +948,18 @@ const FLData = [
     "efficiencyScore": 85.75,
     "accuracyScore": 93.65,
     "qualityScore": 91.74,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 32,
@@ -638,7 +979,18 @@ const FLData = [
     "efficiencyScore": 88.5,
     "accuracyScore": 94.59,
     "qualityScore": 93.66,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 33,
@@ -658,7 +1010,18 @@ const FLData = [
     "efficiencyScore": 88.0,
     "accuracyScore": 94.44,
     "qualityScore": 93.67,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 34,
@@ -678,7 +1041,18 @@ const FLData = [
     "efficiencyScore": 87.25,
     "accuracyScore": 94.2,
     "qualityScore": 93.37,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 35,
@@ -698,7 +1072,18 @@ const FLData = [
     "efficiencyScore": 87.5,
     "accuracyScore": 88.57,
     "qualityScore": 90.24,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 36,
@@ -718,7 +1103,18 @@ const FLData = [
     "efficiencyScore": 95.5,
     "accuracyScore": 84.31,
     "qualityScore": 88.69,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 37,
@@ -738,7 +1134,18 @@ const FLData = [
     "efficiencyScore": 89.5,
     "accuracyScore": 89.74,
     "qualityScore": 90.95,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 38,
@@ -758,7 +1165,18 @@ const FLData = [
     "efficiencyScore": 89.25,
     "accuracyScore": 94.81,
     "qualityScore": 94.33,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 39,
@@ -778,7 +1196,18 @@ const FLData = [
     "efficiencyScore": 82.25,
     "accuracyScore": 91.84,
     "qualityScore": 90.75,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 40,
@@ -798,7 +1227,18 @@ const FLData = [
     "efficiencyScore": 86.75,
     "accuracyScore": 94.03,
     "qualityScore": 93.17,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 41,
@@ -818,7 +1258,18 @@ const FLData = [
     "efficiencyScore": 83.75,
     "accuracyScore": 92.73,
     "qualityScore": 91.59,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 42,
@@ -838,7 +1289,18 @@ const FLData = [
     "efficiencyScore": 93.25,
     "accuracyScore": 95.7,
     "qualityScore": 95.67,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 43,
@@ -858,7 +1320,18 @@ const FLData = [
     "efficiencyScore": 86.75,
     "accuracyScore": 94.03,
     "qualityScore": 93.17,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 44,
@@ -878,7 +1351,18 @@ const FLData = [
     "efficiencyScore": 99.0,
     "accuracyScore": 96.55,
     "qualityScore": 96.93,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 45,
@@ -898,7 +1382,18 @@ const FLData = [
     "efficiencyScore": 90.5,
     "accuracyScore": 95.12,
     "qualityScore": 93.57,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 46,
@@ -918,7 +1413,18 @@ const FLData = [
     "efficiencyScore": 90.5,
     "accuracyScore": 91.87,
     "qualityScore": 92.27,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 47,
@@ -938,7 +1444,18 @@ const FLData = [
     "efficiencyScore": 82.0,
     "accuracyScore": 91.67,
     "qualityScore": 90.4,
-    "notes": ""
+    "notes": "",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   },
   {
     "mra_id": 48,
@@ -958,7 +1475,18 @@ const FLData = [
     "efficiencyScore": 96.0,
     "accuracyScore": 96.15,
     "qualityScore": 95.89,
-    "notes": "an empty notes property has been added to objects in data array on FLData.js"
+    "notes": "an empty notes property has been added to objects in data array on FLData.js",
+    "costPerCase": {
+      "PFR": 20,
+      "NYL": 15,
+      "LTC": 30,
+      "Telco": 30,
+      "Lincoln": 20,
+      "Hartford": 20,
+      "Peer Review": 25,
+      "Muckleshoot": 15,
+      "Standard": 20
+    }
   }
 ];
 
