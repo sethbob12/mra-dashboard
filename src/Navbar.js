@@ -1,4 +1,4 @@
-// src/Navbar.js /* no REFACTOR needed */
+// src/Navbar.js
 import React from "react";
 import { AppBar, Toolbar, Button, Box, Typography, IconButton } from "@mui/material";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -20,7 +20,7 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  // Define a common style for icon images with slight rounding.
+  // Common style for icon images
   const iconStyle = {
     width: "40px",
     height: "40px",
@@ -30,33 +30,19 @@ const Navbar = () => {
   // Determine which logo to show based on the current path.
   let logoElement;
   if (location.pathname === "/login") {
-    logoElement = (
-      <img src={growthChartGif} alt="Growth Chart" style={iconStyle} />
-    );
+    logoElement = <img src={growthChartGif} alt="Growth Chart" style={iconStyle} />;
   } else if (location.pathname === "/") {
-    logoElement = (
-      <img src={houseChimney} alt="Home" style={iconStyle} />
-    );
+    logoElement = <img src={houseChimney} alt="Home" style={iconStyle} />;
   } else if (location.pathname === "/table") {
-    logoElement = (
-      <img src={tableGif} alt="Data Table" style={iconStyle} />
-    );
+    logoElement = <img src={tableGif} alt="Data Table" style={iconStyle} />;
   } else if (location.pathname === "/chart") {
-    logoElement = (
-      <img src={threeGif} alt="Visualizations" style={iconStyle} />
-    );
+    logoElement = <img src={threeGif} alt="Visualizations" style={iconStyle} />;
   } else if (location.pathname === "/emails") {
-    logoElement = (
-      <img src={doveGif} alt="Email Generator" style={iconStyle} />
-    );
+    logoElement = <img src={doveGif} alt="Email Generator" style={iconStyle} />;
   } else if (location.pathname === "/reports") {
-    logoElement = (
-      <img src={reportsGif} alt="MRA Reports" style={iconStyle} />
-    );
+    logoElement = <img src={reportsGif} alt="MRA Reports" style={iconStyle} />;
   } else if (location.pathname === "/qa-metrics") {
-    logoElement = (
-      <img src={oneGif} alt="QA Metrics" style={iconStyle} />
-    );
+    logoElement = <img src={oneGif} alt="QA Metrics" style={iconStyle} />;
   } else {
     logoElement = <DashboardIcon />;
   }
@@ -80,7 +66,7 @@ const Navbar = () => {
           gap: 2,
         }}
       >
-        {/* Left side: Brand/logo + title */}
+        {/* Left side: Logo and title */}
         <Box
           component={NavLink}
           to="/"
@@ -107,7 +93,7 @@ const Navbar = () => {
           </Typography>
         </Box>
 
-        {/* Right side: Navigation links + logout */}
+        {/* Right side: Navigation links and logout */}
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           {[
             { label: "Data Table", path: "/table" },
@@ -124,7 +110,7 @@ const Navbar = () => {
                 color: "white",
                 textTransform: "none",
                 fontWeight: 500,
-                transition: "0.3s ease-in-out",
+                transition: "transform 0.3s ease, background-color 0.3s ease",
                 "&.active": { borderBottom: "3px solid white" },
                 "&:hover": {
                   backgroundColor: "rgba(255,255,255,0.2)",
@@ -141,7 +127,7 @@ const Navbar = () => {
               color: "white",
               textTransform: "none",
               fontWeight: 500,
-              transition: "0.3s ease-in-out",
+              transition: "transform 0.3s ease, background-color 0.3s ease",
               "&:hover": {
                 backgroundColor: "rgba(255,255,255,0.2)",
                 transform: "scale(1.05)",

@@ -1,7 +1,7 @@
-// src/Home.js /* Doesn't fetch live or mock data so no REFACTOR needed */
+// src/Home.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Grid, Paper, IconButton } from "@mui/material";
+import { Box, Typography, Grid, Paper, IconButton, Tooltip } from "@mui/material";
 import { motion } from "framer-motion";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -21,28 +21,33 @@ const Home = () => {
   const modules = [
     {
       label: "Data Table",
-      icon: <TableChartIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      icon: <TableChartIcon fontSize="large" />,
       path: "/table",
+      color: "#1E73BE", // Blue
     },
     {
       label: "Visualizations",
-      icon: <BarChartIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      icon: <BarChartIcon fontSize="large" />,
       path: "/chart",
+      color: "#FF8042", // Orange
     },
     {
       label: "Email Generator",
-      icon: <EmailIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      icon: <EmailIcon fontSize="large" />,
       path: "/emails",
+      color: "#8A2BE2", // Violet
     },
     {
       label: "MRA Reports",
-      icon: <ReportIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      icon: <ReportIcon fontSize="large" />,
       path: "/reports",
+      color: "#66BB6A", // Green
     },
     {
       label: "QA Metrics",
-      icon: <ManageAccountsIcon fontSize="large" sx={{ color: "#1E73BE" }} />,
+      icon: <ManageAccountsIcon fontSize="large" />,
       path: "/qa-metrics",
+      color: "#FF6384", // Pinkish Red
     },
   ];
 
@@ -50,39 +55,32 @@ const Home = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        // Subtle diagonal stripe pattern overlay
-        background: `
-          linear-gradient(
-            135deg,
-            rgba(245,248,250,0.3) 25%,
-            transparent 25%,
-            transparent 50%,
-            rgba(245,248,250,0.3) 50%,
-            rgba(245,248,250,0.3) 75%,
-            transparent 75%,
-            transparent
-          ),
-          #f5f8fa
-        `,
-        backgroundSize: "40px 40px",
-        py: 8,
+        background: "linear-gradient(135deg, #e0efff, #ffffff)",
+        py: 6,
         px: { xs: 2, sm: 4, md: 8 },
         textAlign: "center",
       }}
     >
       <Typography
-        variant="h4"
+        variant="h3"
         sx={{
           fontWeight: "bold",
           color: "#1E73BE",
-          mb: 1,
+          mb: 2,
           fontFamily: "Open Sans, sans-serif",
         }}
       >
-        MRA Dashboard
+        Dashboard Home
       </Typography>
-      <Typography variant="subtitle1" sx={{ color: "#555", mb: 4, fontFamily: "Open Sans, sans-serif" }}>
-      Optimize workflow with actionable insights and tracking to drive quality forward
+      <Typography
+        variant="h6"
+        sx={{
+          color: "#555",
+          mb: 4,
+          fontFamily: "Open Sans, sans-serif",
+        }}
+      >
+        Actionable insights to drive quality forward.
       </Typography>
 
       <Grid container spacing={4} justifyContent="center">
@@ -94,43 +92,55 @@ const Home = () => {
               animate="visible"
               transition={{ delay: index * 0.15 }}
             >
-              <Paper
-                elevation={4}
-                sx={{
-                  p: 3,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "transform 0.2s ease-in-out",
-                  borderRadius: 2,
-                  "&:hover": {
-                    transform: "translateY(-5px)",
-                    boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
-                    backgroundColor: "#fff",
-                  },
-                }}
-                onClick={() => navigate(module.path)}
-              >
-                <IconButton disableRipple sx={{ mb: 1 }}>
-                  {module.icon}
-                </IconButton>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                  {module.label}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#777" }}>
-                  Click to explore
-                </Typography>
-              </Paper>
+              <Tooltip title={`Go to ${module.label}`} arrow>
+                <Paper
+                  elevation={4}
+                  sx={{
+                    p: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    borderRadius: 2,
+                    background: "linear-gradient(135deg, #f7f9fc, #ffffff)",
+                    border: "1px solid #666", // Uniform dark gray border
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      boxShadow: "0 12px 24px rgba(0, 0, 0, 0.2)",
+                    },
+                  }}
+                  onClick={() => navigate(module.path)}
+                >
+                  <IconButton
+                    disableRipple
+                    sx={{
+                      mb: 1,
+                      backgroundColor: module.color,
+                      borderRadius: "50%",
+                      p: 1,
+                      "&:hover": { backgroundColor: module.color },
+                    }}
+                  >
+                    {React.cloneElement(module.icon, { sx: { color: "#fff", fontSize: "large" } })}
+                  </IconButton>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                    {module.label}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#777" }}>
+                    Click to explore
+                  </Typography>
+                </Paper>
+              </Tooltip>
             </motion.div>
           </Grid>
         ))}
       </Grid>
 
-      <Box sx={{ mt: 8, color: "#888" }}>
+      <Box sx={{ mt: 6, color: "#888" }}>
         <Typography variant="caption" sx={{ fontFamily: "Open Sans, sans-serif" }}>
-          © {new Date().getFullYear()} MRA Dashboard. All rights reserved.
+          © {new Date().getFullYear()} MRA Interactive Dashboard. All rights reserved.
         </Typography>
       </Box>
     </Box>

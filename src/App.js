@@ -1,8 +1,8 @@
 // src/App.js
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Routes, Route } from "react-router-dom";
-import { Box, CssBaseline, Button } from "@mui/material";
+import { Box, CssBaseline, Button, Tooltip } from "@mui/material";
 
 import Navbar from "./Navbar";
 import Home from "./Home";
@@ -15,64 +15,56 @@ import Reports from "./Reports";
 import QAMetrics from "./QAMetrics";
 import LoginPage from "./LoginPage";
 
-// ** Import all your mock data files **
+// Import mock data files
 import FLData from "./FLData";        // Mock reviewer data
 import FeedbackData from "./FeedbackData";  // Mock feedback data
-import QAData from "./QAData";        // <-- Mock QA data (NEW)
+import QAData from "./QAData";        // Mock QA data
 
-// The rest
 import ProtectedRoute from "./ProtectedRoute";
 import apiService from "./apiService";
 
 function App() {
-  // --- State to hold reviewer & feedback data ---
-  const [reviewerData, setReviewerData] = useState(FLData); 
+  // State to hold reviewer, feedback, and QA data
+  const [reviewerData, setReviewerData] = useState(FLData);
   const [feedbackData, setFeedbackData] = useState(FeedbackData);
-
-  // ** NEW: State for QA data **
   const [qaData, setQaData] = useState(QAData);
 
-  // --- Toggle for mock vs. live API ---
+  // Toggle for mock vs. live API
   const [useLiveApi, setUseLiveApi] = useState(false);
 
-  // --- Fetch data on mount or when toggle changes ---
-  useEffect(() => {
-    const fetchData = async () => {
-      if (useLiveApi) {
-        console.log("🔄 Fetching LIVE API data...");
-        try {
-          // 1) Reviewer data
-          const rData = await apiService.fetchReviewerData();
-
-          // 2) Feedback data
-          const fData = await apiService.fetchFeedbackData();
-
-          // 3) QA data **(NEW)**
-          const qData = await apiService.fetchQualityData();
-
-          setReviewerData(rData);
-          setFeedbackData(fData);
-          setQaData(qData); // <-- store in state
-
-          console.log("✅ Loaded live API data.");
-        } catch (error) {
-          console.error("❌ Error fetching live API data:", error);
-          // Fallback to mock data
-          setReviewerData(FLData);
-          setFeedbackData(FeedbackData);
-          setQaData(QAData); // fallback for QA
-        }
-      } else {
-        console.log("🟡 Using MOCK data (FLData, FeedbackData, QAData).");
+  // Define fetchData with useCallback so it remains stable
+  const fetchData = useCallback(async () => {
+    if (useLiveApi) {
+      console.log("🔄 Fetching LIVE API data...");
+      try {
+        const rData = await apiService.fetchReviewerData();
+        const fData = await apiService.fetchFeedbackData();
+        const qData = await apiService.fetchQualityData();
+        setReviewerData(rData);
+        setFeedbackData(fData);
+        setQaData(qData);
+        console.log("✅ Loaded live API data.");
+      } catch (error) {
+        console.error("❌ Error fetching live API data:", error);
+        // Fallback to mock data on error
         setReviewerData(FLData);
         setFeedbackData(FeedbackData);
-        setQaData(QAData); // <-- set QA to mock as well
+        setQaData(QAData);
       }
-    };
-    fetchData();
+    } else {
+      console.log("🟡 Using MOCK data (FLData, FeedbackData, QAData).");
+      setReviewerData(FLData);
+      setFeedbackData(FeedbackData);
+      setQaData(QAData);
+    }
   }, [useLiveApi]);
 
-  // --- Toggling data source ---
+  // Fetch data on mount and when toggle changes
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Toggle the data source (mock vs. live)
   const toggleDataSource = () => {
     setUseLiveApi((prev) => !prev);
   };
@@ -81,27 +73,32 @@ function App() {
     <>
       <CssBaseline />
       <Navbar />
-
       <Box sx={{ mt: 4, margin: "0 auto", maxWidth: 1600, width: "100%", px: 2 }}>
-        {/* Button to switch between mock & live data */}
         <Box sx={{ textAlign: "center", my: 2 }}>
-          <Button
-            variant="contained"
-            color={useLiveApi ? "success" : "warning"}
-            onClick={toggleDataSource}
+          <Tooltip
+            title={
+              useLiveApi
+                ? "Live API: Data is fetched from a publicly hosted json-server; actual DB API endpoint will eventually replace."
+                : "Mock Data: Local static data is used for testing."
+            }
           >
-            {useLiveApi ? "🔄 Using LIVE API Data" : "🟡 Using MOCK Data"}
-          </Button>
+            <Button
+              variant="contained"
+              color={useLiveApi ? "success" : "warning"}
+              onClick={toggleDataSource}
+            >
+              {useLiveApi ? "🔄 Using LIVE API Data" : "🟡 Using MOCK Data"}
+            </Button>
+          </Tooltip>
+          <Tooltip title="Click to refresh data from the current source">
+            <Button variant="outlined" sx={{ ml: 2 }} onClick={fetchData}>
+              Refresh Data
+            </Button>
+          </Tooltip>
         </Box>
-
         <Routes>
-          {/* Public route for login */}
           <Route path="/login" element={<LoginPage />} />
-
-          {/* Protected routes */}
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-
-          {/* Table view, passing reviewerData */}
           <Route
             path="/table"
             element={
@@ -110,8 +107,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Chart view, passing reviewerData */}
           <Route
             path="/chart"
             element={
@@ -120,8 +115,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Email list, passing reviewerData */}
           <Route
             path="/emails"
             element={
@@ -130,8 +123,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* QA Feedback, passing feedbackData */}
           <Route
             path="/qa-feedback"
             element={
@@ -140,8 +131,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Client Feedback, passing feedbackData */}
           <Route
             path="/client-feedback"
             element={
@@ -150,8 +139,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Reports, passing both reviewerData & feedbackData */}
           <Route
             path="/reports"
             element={
@@ -160,16 +147,11 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* QA Metrics, NOW passing qaData & feedbackData */}
           <Route
             path="/qa-metrics"
             element={
               <ProtectedRoute>
-                <QAMetrics
-                  qaData={qaData}
-                  feedbackData={feedbackData}  // if needed
-                />
+                <QAMetrics qaData={qaData} feedbackData={feedbackData} />
               </ProtectedRoute>
             }
           />
