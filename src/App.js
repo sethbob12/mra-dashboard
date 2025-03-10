@@ -1,7 +1,9 @@
 // src/App.js
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import { Box, CssBaseline } from "@mui/material";
+import { Box, CssBaseline, Button } from "@mui/material";
+
 import Navbar from "./Navbar";
 import Home from "./Home";
 import FLTable from "./FLTable";
@@ -12,109 +14,162 @@ import ClientFeedbackAggregator from "./ClientFeedbackAggregator";
 import Reports from "./Reports";
 import QAMetrics from "./QAMetrics";
 import LoginPage from "./LoginPage";
-import FLData from "./FLData";
-import FeedbackData from "./FeedbackData";
+
+// ** Import all your mock data files **
+import FLData from "./FLData";        // Mock reviewer data
+import FeedbackData from "./FeedbackData";  // Mock feedback data
+import QAData from "./QAData";        // <-- Mock QA data (NEW)
+
+// The rest
 import ProtectedRoute from "./ProtectedRoute";
-
-// Full list of reviewers
-const reviewers = [
-  "Alyssa Teves", "Beatrice Solon", "Becca Kennedy", "Chukwudi Akubueze", "Chris Ekundare",
-  "Dilay Ackan", "Ebenezer Arisa", "Emmanuel Uduigwome", "Eliza Gomez", "Erika Sucgang",
-  "Geni Payales", "Ieva Puidoke", "Ileri Lawal", "Iyanuoluwa Oni", "Joshua Arisa",
-  "Joan Ajayi", "Khwaish Vasnani", "Lina Gutierrez", "Mary Goyenechea", "Mary Galos",
-  "Maja Loja", "Oluseye Oluremi", "Oluwadamilola Ogunsemowo", "Thomas Oyinlola",
-  "Ravit Haleva", "Sarah Watkins", "Shaila Maramara", "Vincent Medicielo", "Will Smith",
-  "Yllana Saavedra", "Temilola Edun", "Toluwani Merari", "Oluwapelumi Gabriel", "Tolulope Ajayi",
-  "Addison Marimberga", "Goodluck Odii", "Fiyinfoluwa Yemi-Lebi", "Elizabeth Adeyanju", "Opemipo Ade-Akingboye",
-  "Lebari Damgbor", "Uchechukwu Ejike", "Oluwaseyi Adare", "Mariam Akubo", "Jamiu Olurunnisola",
-  "Al Ameen Kalejaiye", "Solomon Bailey", "Oluwafemi Durojaiye"
-];
-
-const fetchReportData = (filters) => {
-  console.log("Fetching report with filters:", filters);
-};
+import apiService from "./apiService";
 
 function App() {
+  // --- State to hold reviewer & feedback data ---
+  const [reviewerData, setReviewerData] = useState(FLData); 
+  const [feedbackData, setFeedbackData] = useState(FeedbackData);
+
+  // ** NEW: State for QA data **
+  const [qaData, setQaData] = useState(QAData);
+
+  // --- Toggle for mock vs. live API ---
+  const [useLiveApi, setUseLiveApi] = useState(false);
+
+  // --- Fetch data on mount or when toggle changes ---
+  useEffect(() => {
+    const fetchData = async () => {
+      if (useLiveApi) {
+        console.log("🔄 Fetching LIVE API data...");
+        try {
+          // 1) Reviewer data
+          const rData = await apiService.fetchReviewerData();
+
+          // 2) Feedback data
+          const fData = await apiService.fetchFeedbackData();
+
+          // 3) QA data **(NEW)**
+          const qData = await apiService.fetchQualityData();
+
+          setReviewerData(rData);
+          setFeedbackData(fData);
+          setQaData(qData); // <-- store in state
+
+          console.log("✅ Loaded live API data.");
+        } catch (error) {
+          console.error("❌ Error fetching live API data:", error);
+          // Fallback to mock data
+          setReviewerData(FLData);
+          setFeedbackData(FeedbackData);
+          setQaData(QAData); // fallback for QA
+        }
+      } else {
+        console.log("🟡 Using MOCK data (FLData, FeedbackData, QAData).");
+        setReviewerData(FLData);
+        setFeedbackData(FeedbackData);
+        setQaData(QAData); // <-- set QA to mock as well
+      }
+    };
+    fetchData();
+  }, [useLiveApi]);
+
+  // --- Toggling data source ---
+  const toggleDataSource = () => {
+    setUseLiveApi((prev) => !prev);
+  };
+
   return (
     <>
       <CssBaseline />
       <Navbar />
 
-      <Box
-        sx={{
-          mt: 4,
-          margin: "0 auto",
-          maxWidth: 1600,
-          width: "100%",
-          px: 2,
-        }}
-      >
+      <Box sx={{ mt: 4, margin: "0 auto", maxWidth: 1600, width: "100%", px: 2 }}>
+        {/* Button to switch between mock & live data */}
+        <Box sx={{ textAlign: "center", my: 2 }}>
+          <Button
+            variant="contained"
+            color={useLiveApi ? "success" : "warning"}
+            onClick={toggleDataSource}
+          >
+            {useLiveApi ? "🔄 Using LIVE API Data" : "🟡 Using MOCK Data"}
+          </Button>
+        </Box>
+
         <Routes>
           {/* Public route for login */}
           <Route path="/login" element={<LoginPage />} />
 
           {/* Protected routes */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+
+          {/* Table view, passing reviewerData */}
           <Route
             path="/table"
             element={
               <ProtectedRoute>
-                <FLTable data={FLData} />
+                <FLTable data={reviewerData} />
               </ProtectedRoute>
             }
           />
+
+          {/* Chart view, passing reviewerData */}
           <Route
             path="/chart"
             element={
               <ProtectedRoute>
-                <FLChart data={FLData} />
+                <FLChart data={reviewerData} />
               </ProtectedRoute>
             }
           />
+
+          {/* Email list, passing reviewerData */}
           <Route
             path="/emails"
             element={
               <ProtectedRoute>
-                <EmailListGenerator data={FLData} />
+                <EmailListGenerator data={reviewerData} />
               </ProtectedRoute>
             }
           />
+
+          {/* QA Feedback, passing feedbackData */}
           <Route
             path="/qa-feedback"
             element={
               <ProtectedRoute>
-                <QAFeedbackAggregator feedbackData={FeedbackData} />
+                <QAFeedbackAggregator feedbackData={feedbackData} />
               </ProtectedRoute>
             }
           />
+
+          {/* Client Feedback, passing feedbackData */}
           <Route
             path="/client-feedback"
             element={
               <ProtectedRoute>
-                <ClientFeedbackAggregator feedbackData={FeedbackData} />
+                <ClientFeedbackAggregator feedbackData={feedbackData} />
               </ProtectedRoute>
             }
           />
+
+          {/* Reports, passing both reviewerData & feedbackData */}
           <Route
             path="/reports"
             element={
               <ProtectedRoute>
-                <Reports reviewers={reviewers} fetchReportData={fetchReportData} />
+                <Reports reviewerData={reviewerData} feedbackData={feedbackData} />
               </ProtectedRoute>
             }
           />
+
+          {/* QA Metrics, NOW passing qaData & feedbackData */}
           <Route
             path="/qa-metrics"
             element={
               <ProtectedRoute>
-                <QAMetrics />
+                <QAMetrics
+                  qaData={qaData}
+                  feedbackData={feedbackData}  // if needed
+                />
               </ProtectedRoute>
             }
           />

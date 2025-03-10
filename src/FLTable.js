@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars */ /* REFACTORED for apiService layer */
 import React, { useState, useMemo } from "react";
 import {
   Box,
@@ -39,6 +39,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+// ---------- Time Zone Country Map ----------
 const countryMap = {
   "Asia/Manila": "Philippines",
   "Africa/Lagos": "Nigeria",
@@ -49,7 +50,7 @@ const countryMap = {
   "America/New_York": "USA (Eastern)"
 };
 
-// -------- Sorting Helpers --------
+// ---------- Sorting Helpers ----------
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
@@ -70,7 +71,7 @@ function stableSort(array, comparator) {
   return stabilizedArray.map((el) => el[0]);
 }
 
-// -------- getFunnelData --------
+// ---------- getFunnelData ----------
 function getFunnelData(row) {
   const total = row.casesPast30Days || 0;
   const late = Math.round(((row.lateCasePercentage || 0) * total) / 100);
@@ -84,7 +85,7 @@ function getFunnelData(row) {
   ];
 }
 
-// -------- DynamicMiniFunnel Component --------
+// ---------- DynamicMiniFunnel Component ----------
 function DynamicMiniFunnel({ row, onClick }) {
   const funnelData = getFunnelData(row);
   const total = funnelData[0].value || 1;
@@ -106,7 +107,7 @@ function DynamicMiniFunnel({ row, onClick }) {
   );
 }
 
-// -------- FullFunnelModal Component --------
+// ---------- FullFunnelModal Component ----------
 function FullFunnelModal({ open, onClose, rowData }) {
   const [renderChart, setRenderChart] = useState(false);
 
@@ -194,34 +195,34 @@ function FullFunnelModal({ open, onClose, rowData }) {
   );
 }
 
-// -------- KPI Card Component --------
+// ---------- KPICard Component (NO grid item inside) ----------
 function KPICard({ title, value, tooltip, color }) {
   return (
-    <Grid item xs={12} sm={6} md={2}>
-      <Tooltip title={tooltip} arrow>
-        <Card
-          sx={{
-            borderRadius: 2,
-            boxShadow: 2,
-            cursor: "default",
-            background: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)"
-          }}
-        >
-          <CardContent sx={{ textAlign: "center" }}>
-            <Typography variant="h6" sx={{ color: color || "#1565C0", fontWeight: "bold" }}>
-              {title}
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: "bold", mt: 1 }}>
-              {value}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Tooltip>
-    </Grid>
+    <Tooltip title={tooltip} arrow>
+      <Card
+        sx={{
+          borderRadius: 2,
+          boxShadow: 2,
+          background: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
+          minWidth: 180,     // Adjust to ensure consistent size
+          minHeight: 110,    // Adjust as needed
+          cursor: "default"
+        }}
+      >
+        <CardContent sx={{ textAlign: "center" }}>
+          <Typography variant="h6" sx={{ color: color || "#1565C0", fontWeight: "bold" }}>
+            {title}
+          </Typography>
+          <Typography variant="h5" sx={{ fontWeight: "bold", mt: 1 }}>
+            {value}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Tooltip>
   );
 }
 
-// -------- FLTable Component --------
+// ---------- FLTable Component ----------
 function FLTable({ data }) {
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("qualityScore");
@@ -351,7 +352,7 @@ function FLTable({ data }) {
   const avgTimeliness = totalReviewers ? totalTimeliness / totalReviewers : 0;
   const avgEfficiency = totalReviewers ? totalEfficiency / totalReviewers : 0;
   const avgQuality = totalReviewers ? totalQualityScore / totalReviewers : 0;
-  // Placeholder trend for avg quality
+  // Placeholder trend
   const avgQualityTrend = "+2.1%";
 
   // PDF/CSV Export
@@ -387,65 +388,96 @@ function FLTable({ data }) {
   };
 
   const handleExportPDF = async (elementId, title, event) => {
-    event.stopPropagation();
-    const ref = document.getElementById(elementId);
+    event?.stopPropagation(); // 'event' may be undefined if called direct
+    const ref = document.getElementById(elementId || "reviewersTable");
     if (!ref) return;
     const canvas = await html2canvas(ref);
     const imgData = canvas.toDataURL("image/png");
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text(title, 14, 20);
+    doc.text(title || "Reviewers Table", 14, 20);
     doc.addImage(imgData, "PNG", 10, 30, 190, 100);
-    doc.save(`${title.replace(/\s+/g, "_").toLowerCase()}.pdf`);
+    doc.save(`${(title || "reviewers_table").replace(/\s+/g, "_").toLowerCase()}.pdf`);
   };
 
   return (
     <Box sx={{ width: "100%", px: 2 }}>
-      {/* KPI Row: centered */}
+      {/* KPI Row: We use <Grid container> and for EACH KPI, we add <Grid item> with a fixed size */}
       <Grid container spacing={2} justifyContent="center" sx={{ mb: 3 }}>
-        <KPICard
-          title="Total Reviewers"
-          value={totalReviewers}
-          tooltip="Methodology: Count of unique reviewers. Range: 0 - unlimited."
-        />
-        <KPICard
-          title="Avg Accuracy"
-          value={`${avgAccuracy.toFixed(1)}%`}
-          tooltip={`Methodology: (Sum of all reviewers' accuracy [100-rev rate%]) / number of reviewers.\nRange: ${minAccuracy.toFixed(1)}% - ${maxAccuracy.toFixed(1)}%.`}
-        />
-        <KPICard
-          title="Avg Timeliness"
-          value={`${avgTimeliness.toFixed(1)}%`}
-          tooltip={`Methodology: (Sum of all reviewers' timeliness [100=late%]) / number of reviewers.\nRange: ${minTimeliness.toFixed(1)}% - ${maxTimeliness.toFixed(1)}%.`}
-        />
-        <KPICard
-          title="Avg Efficiency"
-          value={`${avgEfficiency.toFixed(1)}%`}
-          tooltip={`Methodology: (Sum of all reviewers' efficiency) / number of reviewers. [Efficiency = MIN(100, 75 + (5 × (Avg Cases/Day − 1)). \nRange: ${minEfficiency.toFixed(1)}% - ${maxEfficiency.toFixed(1)}%.`}
-        />0
-        <KPICard
-          title="Avg Quality Score"
-          value={
-            <>
-              {`${avgQuality.toFixed(1)}% `}
-              <KeyboardArrowUpIcon sx={{ fontSize: 20, color: "green" }} />
-            </>
-          }
-          tooltip={`Methodology: Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (20%).\nRange: ${minQuality.toFixed(1)}% - ${maxQuality.toFixed(1)}%.\nTrend: ${avgQualityTrend} from last month`}
-        />
+        {/* 1) TOTAL REVIEWERS */}
+        <Grid item>
+          <KPICard
+            title="Total Reviewers"
+            value={totalReviewers}
+            tooltip="Methodology: Count of unique reviewers. Range: 0 - unlimited."
+          />
+        </Grid>
+
+        {/* 2) AVG ACCURACY */}
+        <Grid item>
+          <KPICard
+            title="Avg Accuracy"
+            value={`${avgAccuracy.toFixed(1)}%`}
+            tooltip={`Methodology: (Sum of all reviewers' accuracy [100-rev rate%]) / number of reviewers.\nRange: ${minAccuracy.toFixed(
+              1
+            )}% - ${maxAccuracy.toFixed(1)}%.`}
+          />
+        </Grid>
+
+        {/* 3) AVG TIMELINESS */}
+        <Grid item>
+          <KPICard
+            title="Avg Timeliness"
+            value={`${avgTimeliness.toFixed(1)}%`}
+            tooltip={`Methodology: (Sum of all reviewers' timeliness [100=late%]) / number of reviewers.\nRange: ${minTimeliness.toFixed(
+              1
+            )}% - ${maxTimeliness.toFixed(1)}%.`}
+          />
+        </Grid>
+
+        {/* 4) AVG EFFICIENCY */}
+        <Grid item>
+          <KPICard
+            title="Avg Efficiency"
+            value={`${avgEfficiency.toFixed(1)}%`}
+            tooltip={`Methodology: (Sum of all reviewers' efficiency) / number of reviewers. [Efficiency = MIN(100, 75 + (5 × (Avg Cases/Day − 1))).\nRange: ${minEfficiency.toFixed(
+              1
+            )}% - ${maxEfficiency.toFixed(1)}%.`}
+          />
+        </Grid>
+
+        {/* 5) AVG QUALITY SCORE (with arrow icon) */}
+        <Grid item>
+          <KPICard
+            title="Avg Quality Score"
+            value={
+              <>
+                {`${avgQuality.toFixed(1)}% `}
+                <KeyboardArrowUpIcon sx={{ fontSize: 18, color: "green" }} />
+              </>
+            }
+            tooltip={`Methodology: Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (20%).\nRange: ${minQuality.toFixed(
+              1
+            )}% - ${maxQuality.toFixed(1)}%.\nTrend: ${avgQualityTrend} from last month`}
+          />
+        </Grid>
       </Grid>
 
-      {/* Table Container - full page width with horizontal scroll on page */}
+      {/* TABLE CONTAINER */}
       <TableContainer
         component={Paper}
-        sx={{
-          width: "100%",
-          overflowX: "visible"
-        }}
+        sx={{ width: "100%", overflowX: "visible" }}
       >
         <Table id="reviewersTable" size="small" stickyHeader>
-          <TableHead>
+          <TableHead
+            sx={{
+              "& .MuiTableCell-stickyHeader": {
+                top: "80.5px" // Adjust if you have a navbar height
+              }
+            }}
+          >
             <TableRow>
+              {/* HEADERS */}
               {columns.map((column) => {
                 if (column.id === "clients") {
                   return (
@@ -459,7 +491,7 @@ function FLTable({ data }) {
                         borderBottom: "2px solid #0D47A1",
                         padding: "8px 12px",
                         position: "sticky",
-                        top: 0,
+                        top: "64px",
                         zIndex: 1000,
                         width: column.width || "auto",
                         minWidth: column.minWidth || "auto",
@@ -498,7 +530,7 @@ function FLTable({ data }) {
                         borderBottom: "2px solid #0D47A1",
                         padding: "8px 12px",
                         position: "sticky",
-                        top: 0,
+                        top: "64px",
                         zIndex: 1000,
                         width: column.width || "auto",
                         minWidth: column.minWidth || "auto",
@@ -529,7 +561,7 @@ function FLTable({ data }) {
                       borderBottom: "2px solid #0D47A1",
                       padding: "8px 12px",
                       position: "sticky",
-                      top: 0,
+                      top: "64px",
                       zIndex: 1000,
                       width: column.width || "auto",
                       minWidth: column.minWidth || "auto",
@@ -560,7 +592,6 @@ function FLTable({ data }) {
                   : "#EF9A9A";
               const status =
                 row.name === "Next Reviewer" ? "unavailable" : row.status || "available";
-
               const revisionRate = row.revisionRate || 0;
               const cases = row.casesPast30Days || 0;
               let minX = isFinite(Math.min(...data.map((r) => r.casesPast30Days || 0)))
@@ -572,13 +603,13 @@ function FLTable({ data }) {
                 cases <= minX ? 20 : cases >= 90 ? 30 : 20 + slope * (cases - minX);
               const yieldColor = revisionRate < expectedY ? "green" : "red";
               const yieldTooltip = `Cases: ${cases}, Rev Rate: ${revisionRate.toFixed(1)}%`;
-
               const effColor =
                 (row.accuracyScore || 0) >= 75 && (row.timelinessScore || 0) >= 75
                   ? "green"
                   : "red";
-              const effTooltip = `Accuracy: ${row.accuracyScore || 0}%\nTimeliness: ${row.timelinessScore || 0}%`;
-
+              const effTooltip = `Accuracy: ${row.accuracyScore || 0}%\nTimeliness: ${
+                row.timelinessScore || 0
+              }%`;
               let clientCostTooltip = "";
               if (row.clientList && row.costPerCase) {
                 const lines = [];
@@ -838,7 +869,7 @@ function FLTable({ data }) {
         <Button variant="outlined" onClick={handleExportCSV}>
           <Box component="img" src={csvIcon} alt="CSV Icon" sx={{ width: 40, height: 40 }} />
         </Button>
-        <Button variant="outlined" onClick={handleExportPDF}>
+        <Button variant="outlined" onClick={() => handleExportPDF("reviewersTable", "Reviewers Table")}>
           <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
         </Button>
       </Box>

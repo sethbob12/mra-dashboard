@@ -1,4 +1,4 @@
-// src/FLData.js
+// src/FLData.js ?* no REFACTORING needed, just static mock data that mimics eventual JSON structure from live API */
 const FLData = [
   {
     "mra_id": 1,

@@ -1,4 +1,4 @@
-// src/ClientFeedbackAggregator.js
+// src/ClientFeedbackAggregator.js ?* no need for REFACTORING as long as feedbackData prop matches expected JSON schema */
 import React, { useState } from 'react';
 import {
   Box,

@@ -1,3 +1,5 @@
+// apiService.js /* REFACTORED for apiService layer*/
+
 import React, { useState, useMemo } from "react";
 import { 
   Paper, 
@@ -19,7 +21,7 @@ import {
 } from "recharts";
 
 const InteractiveStackedBarChart = ({ data }) => {
-  // Process the data: compute overall qualityScore and keep individual scores.
+  // Process the data: compute overall qualityScore and include individual scores and cost.
   const processedData = useMemo(() => {
     return data.map((reviewer) => {
       const accuracy = reviewer.accuracyScore || 0;
@@ -32,12 +34,13 @@ const InteractiveStackedBarChart = ({ data }) => {
         timelinessScore: timeliness,
         efficiencyScore: efficiency,
         qualityScore: quality,
-        clientList: reviewer.clients.split(",").map(c => c.trim())
+        clientList: reviewer.clients.split(",").map(c => c.trim()),
+        costPerCase: reviewer.costPerCase // assume costPerCase is an object like { PFR:20, Lincoln:15, ... }
       };
     });
   }, [data]);
 
-  // Fixed client order (you can adjust as needed)
+  // Fixed client order (if needed)
   const allClients = useMemo(() => {
     const fixedOrder = ["PFR", "Lincoln", "Hartford", "Peer Review", "NYL", "Standard", "Telco", "LTC", "Muckleshoot"];
     const present = new Set();
@@ -60,7 +63,7 @@ const InteractiveStackedBarChart = ({ data }) => {
     return [...filteredData].sort((a, b) => b.qualityScore - a.qualityScore);
   }, [filteredData]);
 
-  // Dynamic height: 35 pixels per reviewer, with a minimum height of 400.
+  // Dynamic height: 40 pixels per reviewer (min 400px).
   const chartHeight = Math.max(400, sortedData.length * 40);
 
   // Colors for the stacked segments.
@@ -70,19 +73,30 @@ const InteractiveStackedBarChart = ({ data }) => {
     efficiencyScore: "#8884d8"   // purple/blue
   };
 
-  // Custom tooltip: shows reviewer name, each component value, and the overall Quality Score.
+  // Custom tooltip: displays the reviewer's scores and, if a specific client is selected, its cost.
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      // Find reviewer object from sorted data by name.
       const reviewerData = sortedData.find(d => d.name === label);
+      let costText = "";
+      if (selectedClient !== "All" && reviewerData && reviewerData.costPerCase) {
+        const cost = reviewerData.costPerCase[selectedClient] || 0;
+        costText = `Cost (${selectedClient}): $${cost}`;
+      }
       return (
         <div style={{ background: "#fff", border: "1px solid #ccc", padding: 5 }}>
           <p><strong>{`Reviewer: ${label}`}</strong></p>
           {payload.map((entry, idx) => (
-            <p key={idx} style={{ color: entry.fill }}>{`${entry.name}: ${entry.value.toFixed(1)}`}</p>
+            <p key={idx} style={{ color: entry.fill, margin: 0 }}>
+              {`${entry.name}: ${entry.value.toFixed(1)}`}
+            </p>
           ))}
           {reviewerData && (
-            <p style={{ fontWeight: "bold" }}>{`Quality Score: ${reviewerData.qualityScore.toFixed(1)}`}</p>
+            <p style={{ fontWeight: "bold", margin: 0 }}>
+              {`Quality Score: ${reviewerData.qualityScore.toFixed(1)}`}
+            </p>
           )}
+          {costText && <p style={{ fontWeight: "bold", margin: 0 }}>{costText}</p>}
         </div>
       );
     }
@@ -92,7 +106,7 @@ const InteractiveStackedBarChart = ({ data }) => {
   return (
     <Paper elevation={4} style={{ padding: 16, marginTop: 16, overflowY: "auto" }}>
       <Typography variant="h6" style={{ marginBottom: 16, color: "#1E73BE" }}>
-      
+        {/* You can add a title here if desired */}
       </Typography>
       <FormControl style={{ marginBottom: 16, minWidth: 200 }}>
         <InputLabel id="client-select-label">Filter by Client</InputLabel>
@@ -115,11 +129,10 @@ const InteractiveStackedBarChart = ({ data }) => {
           margin={{ top: 20, right: 80, left: 20, bottom: 20 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          {/* Hide the X-axis ticks and labels */}
           <XAxis type="number" domain={[0, 100]} tick={false} />
           <YAxis type="category" dataKey="name" width={150} />
           <Tooltip content={<CustomTooltip />} />
-          {/* Remove the legend as requested */}
+          {/* No Legend, as per request */}
           <Bar dataKey="accuracyScore" stackId="a" fill={colors.accuracyScore} name="Accuracy" />
           <Bar dataKey="timelinessScore" stackId="a" fill={colors.timelinessScore} name="Timeliness" />
           <Bar dataKey="efficiencyScore" stackId="a" fill={colors.efficiencyScore} name="Efficiency">

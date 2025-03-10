@@ -1,4 +1,4 @@
-// src/QAData.js
+// src/QAData.js /* no REFACTORING needed, just static mock data that mimics eventual JSON structure from live API */
 
 const QAData = [
   {

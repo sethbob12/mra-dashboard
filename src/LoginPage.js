@@ -1,4 +1,4 @@
-// src/LoginPage.js
+// src/LoginPage.js /* No REFACTOR needed, currently just handles authentication locally. Fi need to move authentication to live API endpoint, will need to REFACTOR though */
 import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
@@ -87,7 +87,7 @@ export default function LoginPage() {
       // Delay navigation to allow visual success indication
       setTimeout(() => {
         navigate("/");
-      }, 250);
+      }, 300);
     } else {
       setError("Incorrect password. Please try again.");
     }

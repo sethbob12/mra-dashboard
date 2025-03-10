@@ -1,4 +1,4 @@
-// src/Navbar.js
+// src/Navbar.js /* no REFACTOR needed */
 import React from "react";
 import { AppBar, Toolbar, Button, Box, Typography, IconButton } from "@mui/material";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";

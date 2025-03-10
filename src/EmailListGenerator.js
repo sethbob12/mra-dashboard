@@ -1,4 +1,5 @@
 // src/EmailListGenerator.js
+
 import React, { useState } from "react";
 import {
   Box,
@@ -22,31 +23,54 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 const openSansTheme = createTheme({
   typography: {
-    fontFamily: "Open Sans, sans-serif",
-  },
+    fontFamily: "Open Sans, sans-serif"
+  }
 });
 
+const uniformGradient = "linear-gradient(to right, #1E73BE, #1565C0)";
+
+// Hardcoded psych writers remain as-is.
+const psychWriters = {
+  "Becca Kennedy": "becca@peerlinkmedical.com",
+  "Eliza Gómez Toro": "elizagomeztoro4545@gmail.com",
+  "Khwaish Vasnani": "khwaishvasnani@gmail.com",
+  "Lina Gutierrez": "linis2791@gmail.com",
+  "Mary Lorens Goyenechea": "lorensgee1@gmail.com",
+  "Maja Loja": "lojamaja@gmail.com",
+  "Ravit Haleva": "ravithaleva@gmail.com",
+  "Shaila Anne Maramara": "shailamaramara@gmail.com",
+  "Will Smith": "will@peerlinkmedical.com",
+  "Addison Marimberga": "addison@peerlinkmedical.com"
+};
+
+/**
+ * EmailListGenerator component
+ * @param {Array} data - Array of reviewer data (mock/live) passed from App.js
+ */
 const EmailListGenerator = ({ data }) => {
   const [selectedClient, setSelectedClient] = useState(null);
-  // copiedClient holds the category that was last copied.
   const [copiedClient, setCopiedClient] = useState(null);
 
-  const psychWriters = {
-    "Becca Kennedy": "becca@peerlinkmedical.com",
-    "Eliza Gómez Toro": "elizagomeztoro4545@gmail.com",
-    "Khwaish Vasnani": "khwaishvasnani@gmail.com",
-    "Lina Gutierrez": "linis2791@gmail.com",
-    "Mary Lorens Goyenechea": "lorensgee1@gmail.com",
-    "Maja Loja": "lojamaja@gmail.com",
-    "Ravit Haleva": "ravithaleva@gmail.com",
-    "Shaila Anne Maramara": "shailamaramara@gmail.com",
-    "Will Smith": "will@peerlinkmedical.com",
-    "Addison Marimberga": "addison@peerlinkmedical.com",
-  };
+  // 1) If data is undefined or empty, show a placeholder
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <ThemeProvider theme={openSansTheme}>
+        <Box sx={{ mb: 4, pt: 4 }}>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}>
+            Email List Generator
+          </Typography>
+          <Typography sx={{ textAlign: "center", color: "gray" }}>
+            No data available.
+          </Typography>
+        </Box>
+      </ThemeProvider>
+    );
+  }
 
-  // Group Emails by Client
+  // 2) Group Emails by Client from the passed-in `data`.
   const groupedEmails = data.reduce((acc, item) => {
-    const clientsArray = item.clients.split(",").map((client) => client.trim());
+    if (!item.email) return acc;
+    const clientsArray = item.clients.split(",").map((c) => c.trim());
     clientsArray.forEach((client) => {
       if (!acc[client]) acc[client] = [];
       if (!acc[client].includes(item.email)) acc[client].push(item.email);
@@ -54,14 +78,17 @@ const EmailListGenerator = ({ data }) => {
     return acc;
   }, {});
 
-  const allEmails = [...new Set(data.map((item) => item.email))];
-  const psychEmails = Object.values(psychWriters);
+  // 3) All unique emails across reviewers
+  const allEmails = [...new Set(data.filter((item) => item.email).map((item) => item.email))];
+
+  // 4) Build categories: "All", "Psych", plus each client
   const emailCategories = {
     All: allEmails,
-    Psych: psychEmails,
-    ...groupedEmails,
+    Psych: Object.values(psychWriters),
+    ...groupedEmails
   };
 
+  // Copy to clipboard
   const handleCopy = (client) => {
     const textToCopy = emailCategories[client].join(", ");
     navigator.clipboard.writeText(textToCopy);
@@ -69,6 +96,7 @@ const EmailListGenerator = ({ data }) => {
     setTimeout(() => setCopiedClient(null), 1000);
   };
 
+  // Compose an email in user’s default mail client
   const handleEmailGroup = (client) => {
     if (emailCategories[client]) {
       const addresses = emailCategories[client].join(", ");
@@ -76,16 +104,14 @@ const EmailListGenerator = ({ data }) => {
       const mailtoLink = `mailto:?bcc=${encodeURIComponent(addresses)}&subject=${encodeURIComponent(subject)}`;
       window.location.href = mailtoLink;
     } else {
-      // Fallback if something goes wrong
       const mailtoLink = `mailto:?subject=${encodeURIComponent("Update -")}`;
       window.location.href = mailtoLink;
     }
   };
 
+  // Export the "All" emails as CSV
   const handleExportEmails = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8,Email\n" +
-      emailCategories["All"].join("\n");
+    const csvContent = "data:text/csv;charset=utf-8,Email\n" + emailCategories["All"].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -95,87 +121,155 @@ const EmailListGenerator = ({ data }) => {
     document.body.removeChild(link);
   };
 
+  // Convert to array for mapping
+  const categoryEntries = Object.entries(emailCategories);
+
   return (
     <ThemeProvider theme={openSansTheme}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#000" }}>
+      <Box sx={{ mb: 4, pt: 4 }}>
+        <Typography
+          variant="h5"
+          sx={{
+            mb: 2,
+            fontWeight: "bold",
+            color: "#000",
+            textAlign: "center"
+          }}
+        >
           Email List Generator
         </Typography>
+
         <Grid container spacing={2}>
-          {Object.keys(emailCategories).map((client) => (
+          {categoryEntries.map(([client, emails]) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={client}>
               <Paper
                 variant="outlined"
                 sx={{
-                  p: 2,
-                  textAlign: "center",
-                  backgroundColor: "#fff",
                   borderRadius: 2,
-                  transition: "0.3s ease-in-out",
+                  overflow: "hidden",
                   cursor: "pointer",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  transition: "0.3s ease-in-out",
                   "&:hover": {
-                    backgroundColor: "#E3F2FD",
-                    transform: "scale(1.03)",
-                  },
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+                    transform: "translateY(-2px)"
+                  }
                 }}
                 onClick={() => setSelectedClient(client)}
               >
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
-                  {client}
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  sx={{ textTransform: "none", fontWeight: "bold" }}
+                <Box
+                  sx={{
+                    background: uniformGradient,
+                    p: 2,
+                    textAlign: "center"
+                  }}
                 >
-                  Show Emails
-                </Button>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                      color: "#fff",
+                      fontSize: "1.3rem",
+                      letterSpacing: "0.7px",
+                      textShadow:
+                        "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000"
+                    }}
+                  >
+                    {client}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    p: 2,
+                    textAlign: "center",
+                    backgroundColor: "#fff"
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      textTransform: "none",
+                      fontWeight: "bold",
+                      backgroundColor: "#757575",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "#616161"
+                      }
+                    }}
+                  >
+                    Show Emails
+                  </Button>
+                </Box>
               </Paper>
             </Grid>
           ))}
 
-          {/* Extra Grid Cell: Export Emails */}
+          {/* Export Emails (CSV) box */}
           <Grid item xs={12} sm={6} md={4} lg={3}>
             <Paper
               variant="outlined"
               sx={{
-                p: 2,
-                textAlign: "center",
-                backgroundColor: "#fff",
                 borderRadius: 2,
-                transition: "0.3s ease-in-out",
+                overflow: "hidden",
                 cursor: "pointer",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                transition: "0.3s ease-in-out",
                 "&:hover": {
-                  backgroundColor: "#E3F2FD",
-                  transform: "scale(1.03)",
-                },
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+                  transform: "translateY(-2px)"
+                }
               }}
               onClick={handleExportEmails}
             >
-              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
-                Export Emails (CSV)
-              </Typography>
-              <Button
-                variant="contained"
-                fullWidth
+              <Box
                 sx={{
-                  textTransform: "none",
-                  fontWeight: "bold",
-                  background: "linear-gradient(45deg, #2196F3 30%, #1976D2 90%)",
-                  color: "#fff",
-                  "&:hover": {
-                    background: "linear-gradient(45deg, #1976D2 30%, #1565C0 90%)",
-                  },
+                  background: uniformGradient,
+                  p: 2,
+                  textAlign: "center"
                 }}
               >
-                <DownloadIcon />
-              </Button>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "#fff",
+                    textShadow:
+                      "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000"
+                  }}
+                >
+                  Export Emails (CSV)
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  p: 2,
+                  textAlign: "center",
+                  backgroundColor: "#fff"
+                }}
+              >
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: "bold",
+                    backgroundColor: "#757575",
+                    color: "#fff",
+                    "&:hover": {
+                      backgroundColor: "#616161"
+                    }
+                  }}
+                >
+                  <DownloadIcon sx={{ mr: 1 }} />
+                  Export
+                </Button>
+              </Box>
             </Paper>
           </Grid>
         </Grid>
 
-        {/* POPUP MODAL FOR EMAIL LIST */}
+        {/* MODAL FOR SELECTED CLIENT */}
         <Modal
           open={Boolean(selectedClient)}
           onClose={() => setSelectedClient(null)}
@@ -190,14 +284,13 @@ const EmailListGenerator = ({ data }) => {
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                width: "50%",
+                width: { xs: "80%", md: "50%" },
                 bgcolor: "background.paper",
                 boxShadow: 24,
                 p: 4,
-                borderRadius: 2,
+                borderRadius: 2
               }}
             >
-              {/* Modal Header */}
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                   {selectedClient} Emails
@@ -206,22 +299,18 @@ const EmailListGenerator = ({ data }) => {
                   <CloseIcon />
                 </IconButton>
               </Stack>
-
-              {/* Email List (Comma-Separated) */}
-              <Box sx={{ p: 2, backgroundColor: "#F5F5F5", borderRadius: 1 }}>
+              <Box sx={{ p: 2, backgroundColor: "#F5F5F5", borderRadius: 1, minHeight: 100 }}>
                 <Typography
                   sx={{
                     whiteSpace: "normal",
                     wordBreak: "break-word",
-                    fontSize: "14px",
+                    fontSize: "14px"
                   }}
                 >
-                  {emailCategories[selectedClient]?.join(", ")}
+                  {emailCategories[selectedClient]?.join(", ") || "No email addresses found."}
                 </Typography>
               </Box>
-
-              {/* Two Buttons: Copy Addresses & Email Group */}
-              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
                 <Button
                   variant="outlined"
                   onClick={() => handleCopy(selectedClient)}
@@ -242,11 +331,9 @@ const EmailListGenerator = ({ data }) => {
                   onClick={() => handleEmailGroup(selectedClient)}
                   startIcon={<EmailIcon />}
                   sx={{
-                    background: "linear-gradient(45deg, #66bb6a 30%, #43a047 90%)",
+                    backgroundColor: "#43a047",
                     color: "#fff",
-                    "&:hover": {
-                      background: "linear-gradient(45deg, #43a047 30%, #388e3c 90%)",
-                    },
+                    "&:hover": { backgroundColor: "#388e3c" }
                   }}
                 >
                   Email Group

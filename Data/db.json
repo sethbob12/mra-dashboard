@@ -1,0 +1,368 @@
+{
+    "mockFLData": [
+      {
+        "id": "101",
+        "mra_id": 101,
+        "name": "John Doe",
+        "clients": "PFR, Lincoln",
+        "email": "john.doe@example.com",
+        "totalCases": 250,
+        "casesPast30Days": 45,
+        "casesPast60Days": 90,
+        "clientRevisionsWeek": 3,
+        "clientRevisionsMonth": 12,
+        "clientRevisionsPast60": 20,
+        "lateCasePercentage": 8.5,
+        "avgCasesPerDay": 3.2,
+        "revisionRate": 4.2,
+        "timelinessScore": 88,
+        "efficiencyScore": 92,
+        "accuracyScore": 95,
+        "qualityScore": 90,
+        "notes": "Strong reviewer, occasionally late on cases.",
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "costPerCase": {
+          "PFR": 45,
+          "NYL": 50,
+          "LTC": 40,
+          "Telco": 38,
+          "Lincoln": 47,
+          "Hartford": 42,
+          "Peer Review": 55,
+          "Muckleshoot": 50,
+          "Standard": 48
+        }
+      },
+      {
+        "id": "102",
+        "mra_id": 102,
+        "name": "Jane Smith",
+        "clients": "NYL, Hartford",
+        "email": "jane.smith@example.com",
+        "totalCases": 180,
+        "casesPast30Days": 30,
+        "casesPast60Days": 70,
+        "clientRevisionsWeek": 4,
+        "clientRevisionsMonth": 10,
+        "clientRevisionsPast60": 18,
+        "lateCasePercentage": 5.2,
+        "avgCasesPerDay": 2.8,
+        "revisionRate": 3.9,
+        "timelinessScore": 92,
+        "efficiencyScore": 89,
+        "accuracyScore": 97,
+        "qualityScore": 91,
+        "notes": "Highly efficient, low revision rate.",
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "costPerCase": {
+          "PFR": 40,
+          "NYL": 52,
+          "LTC": 38,
+          "Telco": 36,
+          "Lincoln": 45,
+          "Hartford": 50,
+          "Peer Review": 58,
+          "Muckleshoot": 47,
+          "Standard": 49
+        }
+      },
+      {
+        "id": "107",
+        "mra_id": 107,
+        "name": "Test User",
+        "clients": "Hartford",
+        "email": "test@example.com",
+        "totalCases": 100,
+        "casesPast30Days": 20,
+        "casesPast60Days": 50,
+        "clientRevisionsWeek": 2,
+        "clientRevisionsMonth": 5,
+        "clientRevisionsPast60": 10,
+        "lateCasePercentage": 3.5,
+        "avgCasesPerDay": 2.5,
+        "revisionRate": 2.8,
+        "timelinessScore": 95,
+        "efficiencyScore": 93,
+        "accuracyScore": 96,
+        "qualityScore": 94,
+        "notes": "Test reviewer data",
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "costPerCase": {
+          "PFR": 45,
+          "NYL": 50,
+          "LTC": 40,
+          "Telco": 38,
+          "Lincoln": 47,
+          "Hartford": 42,
+          "Peer Review": 55,
+          "Muckleshoot": 50,
+          "Standard": 48
+        }
+      },
+      {
+        "id": "7ec9",
+        "mra_id": 108,
+        "name": "New Reviewer",
+        "clients": "PFR, NYL",
+        "email": "new.reviewer@example.com",
+        "totalCases": 50,
+        "casesPast30Days": 15,
+        "casesPast60Days": 30,
+        "clientRevisionsWeek": 1,
+        "clientRevisionsMonth": 4,
+        "clientRevisionsPast60": 8,
+        "lateCasePercentage": 2.5,
+        "avgCasesPerDay": 2,
+        "revisionRate": 3,
+        "timelinessScore": 92,
+        "efficiencyScore": 95,
+        "accuracyScore": 98,
+        "qualityScore": 96,
+        "notes": "Excellent reviewer with quick turnaround",
+        "snapshotDate": "2025-03-10T12:00:00Z",
+        "costPerCase": {
+          "PFR": 48,
+          "NYL": 52,
+          "LTC": 41,
+          "Telco": 39,
+          "Lincoln": 49,
+          "Hartford": 45,
+          "Peer Review": 58,
+          "Muckleshoot": 52,
+          "Standard": 50
+        }
+      },
+      {
+        "id": "109",
+        "mra_id": 109,
+        "name": "Emily Davis",
+        "clients": "Telco, LTC, Peer Review",
+        "email": "emily.davis@example.com",
+        "totalCases": 140,
+        "casesPast30Days": 40,
+        "casesPast60Days": 80,
+        "clientRevisionsWeek": 2,
+        "clientRevisionsMonth": 8,
+        "clientRevisionsPast60": 15,
+        "lateCasePercentage": 6.0,
+        "avgCasesPerDay": 3.0,
+        "revisionRate": 4.5,
+        "timelinessScore": 85,
+        "efficiencyScore": 90,
+        "accuracyScore": 92,
+        "qualityScore": 88,
+        "notes": "Handles multiple clients, moderate revision rate.",
+        "snapshotDate": "2025-03-11T08:00:00Z",
+        "costPerCase": {
+          "PFR": 46,
+          "NYL": 51,
+          "LTC": 39,
+          "Telco": 37,
+          "Lincoln": 46,
+          "Hartford": 44,
+          "Peer Review": 57,
+          "Muckleshoot": 49,
+          "Standard": 48
+        }
+      },
+      {
+        "id": "110",
+        "mra_id": 110,
+        "name": "Sophie Brown",
+        "clients": "Muckleshoot, Standard",
+        "email": "sophie.brown@example.com",
+        "totalCases": 220,
+        "casesPast30Days": 55,
+        "casesPast60Days": 100,
+        "clientRevisionsWeek": 5,
+        "clientRevisionsMonth": 14,
+        "clientRevisionsPast60": 25,
+        "lateCasePercentage": 7.5,
+        "avgCasesPerDay": 4.0,
+        "revisionRate": 3.8,
+        "timelinessScore": 89,
+        "efficiencyScore": 87,
+        "accuracyScore": 93,
+        "qualityScore": 90,
+        "notes": "High volume, moderate timeliness, good accuracy.",
+        "snapshotDate": "2025-03-11T09:15:00Z",
+        "costPerCase": {
+          "PFR": 44,
+          "NYL": 51,
+          "LTC": 37,
+          "Telco": 36,
+          "Lincoln": 48,
+          "Hartford": 43,
+          "Peer Review": 56,
+          "Muckleshoot": 51,
+          "Standard": 50
+        }
+      }
+    ],
+  
+    "mockQAData": [
+      {
+        "id": "301",
+        "qaMember": 301,
+        "name": "John QA",
+        "totalCasesSubmitted": 245,
+        "breakdownByClient": {
+          "PFR": 75,
+          "Lincoln": 85,
+          "Hartford": 85
+        },
+        "casesPast7Days": 15,
+        "casesPast30Days": 55,
+        "casesPast60Days": 110,
+        "revisionsSentWeek": 4,
+        "revisionsSentMonth": 15,
+        "clientRevisionsWeek": 3,
+        "avgCasesDay": 5.2,
+        "prevAvgCasesDay": 4.8,
+        "prevCasesPast7Days": 12,
+        "prevCasesPast30Days": 50,
+        "prevTotalCases": 235,
+        "prevRevisionsSentWeek": 5,
+        "prevClientRevisionsWeek": 2,
+        "feedback": [
+          {
+            "content": "Well-structured report with excellent attention to detail.",
+            "reviewer": "Michael Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-10203",
+            "date": "2025-03-07T10:45:00Z"
+          }
+        ]
+      },
+      {
+        "id": "302",
+        "qaMember": 302,
+        "name": "Jane QA",
+        "totalCasesSubmitted": 312,
+        "breakdownByClient": {
+          "PFR": 112,
+          "Lincoln": 100,
+          "Hartford": 100
+        },
+        "casesPast7Days": 18,
+        "casesPast30Days": 67,
+        "casesPast60Days": 125,
+        "revisionsSentWeek": 6,
+        "revisionsSentMonth": 18,
+        "clientRevisionsWeek": 4,
+        "avgCasesDay": 6.5,
+        "prevAvgCasesDay": 6.1,
+        "prevCasesPast7Days": 16,
+        "prevCasesPast30Days": 65,
+        "prevTotalCases": 305,
+        "prevRevisionsSentWeek": 7,
+        "prevClientRevisionsWeek": 3,
+        "feedback": [
+          {
+            "content": "Excellent analysis, provided strong supporting rationale.",
+            "reviewer": "Emily Reviewer",
+            "client": "Lincoln",
+            "caseID": "LIN-30567",
+            "date": "2025-03-08T12:20:00Z"
+          }
+        ]
+      },
+      {
+        "id": "303",
+        "qaMember": 303,
+        "name": "Sam QA",
+        "totalCasesSubmitted": 180,
+        "breakdownByClient": {
+          "NYL": 50,
+          "Telco": 70,
+          "Peer Review": 60
+        },
+        "casesPast7Days": 10,
+        "casesPast30Days": 40,
+        "casesPast60Days": 80,
+        "revisionsSentWeek": 2,
+        "revisionsSentMonth": 10,
+        "clientRevisionsWeek": 2,
+        "avgCasesDay": 4.0,
+        "prevAvgCasesDay": 3.8,
+        "prevCasesPast7Days": 8,
+        "prevCasesPast30Days": 38,
+        "prevTotalCases": 170,
+        "prevRevisionsSentWeek": 3,
+        "prevClientRevisionsWeek": 1,
+        "feedback": [
+          {
+            "content": "Minor errors found, but addressed quickly.",
+            "reviewer": "New Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-12789",
+            "date": "2025-03-09T13:10:00Z"
+          }
+        ]
+      }
+    ],
+  
+    "mockFeedbackData": [
+      {
+        "id": "201",
+        "name": "John Doe",
+        "feedbackType": "client",
+        "client": "PFR",
+        "text": "Great attention to detail, but slightly slow turnaround.",
+        "date": "2025-03-10T10:15:30Z",
+        "caseID": "PFR-123456",
+        "qaMember": 201
+      },
+      {
+        "id": "202",
+        "name": "Jane Smith",
+        "feedbackType": "internal",
+        "client": "Lincoln",
+        "text": "Consistently meets quality standards, minimal revisions needed.",
+        "date": "2025-03-09T14:25:45Z",
+        "caseID": "LIN-987654",
+        "qaMember": 202
+      },
+      {
+        "id": "203",
+        "name": "Michael Johnson",
+        "feedbackType": "client",
+        "client": "Hartford",
+        "text": "Accuracy is great, but timeliness needs improvement.",
+        "date": "2025-03-08T08:50:20Z",
+        "caseID": "HAR-567890",
+        "qaMember": 203
+      },
+      {
+        "id": "204",
+        "name": "Emily Davis",
+        "feedbackType": "client",
+        "client": "Telco",
+        "text": "Good thoroughness, short delays during peak hours.",
+        "date": "2025-03-11T09:05:00Z",
+        "caseID": "TEL-43210",
+        "qaMember": 204
+      },
+      {
+        "id": "205",
+        "name": "Sophie Brown",
+        "feedbackType": "internal",
+        "client": "Muckleshoot",
+        "text": "Excellent consistency, but watch for minor style issues.",
+        "date": "2025-03-11T11:42:00Z",
+        "caseID": "MUC-11023",
+        "qaMember": 205
+      },
+      {
+        "id": "206",
+        "name": "John Doe",
+        "feedbackType": "internal",
+        "client": "NYL",
+        "text": "Revision rate improved, keep up the good work.",
+        "date": "2025-03-09T18:55:00Z",
+        "caseID": "NYL-223344",
+        "qaMember": 206
+      }
+    ]
+  }
+  

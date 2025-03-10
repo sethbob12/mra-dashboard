@@ -1,4 +1,4 @@
-// src/ProtectedRoute.js
+// src/ProtectedRoute.js /* No REFACTOR needed */
 import React from "react";
 import { Navigate } from "react-router-dom";
 

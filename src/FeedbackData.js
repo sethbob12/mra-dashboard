@@ -1,4 +1,4 @@
-// src/FeedbackData.js
+// src/FeedbackData.js /*this static data array will be replaced with api call to database*/
 const FeedbackData = [
   // Reviewer 1: Alyssa Teves (clients: PFR, Lincoln, Hartford)
   {
@@ -1114,9 +1114,9 @@ const FeedbackData = [
     caseID: "5-2000124"
   },
 
-  // Reviewer 31: Temilola Edu (clients: "PFR")
+  // Reviewer 31: Temilola Edun (clients: "PFR")
   {
-    name: "Temilola Edu",
+    name: "Temilola Edun",
     feedbackType: "client",
     client: "PFR",
     text: "Case notes should incorporate recent observations from the latest consultation.",
@@ -1124,7 +1124,7 @@ const FeedbackData = [
     caseID: "5-2000125"
   },
   {
-    name: "Temilola Edu",
+    name: "Temilola Edun",
     feedbackType: "client",
     client: "PFR",
     text: "The treatment plan may benefit from updated diagnostic information.",
@@ -1132,7 +1132,7 @@ const FeedbackData = [
     caseID: "5-2000126"
   },
   {
-    name: "Temilola Edu",
+    name: "Temilola Edun",
     feedbackType: "internal",
     client: "PFR",
     qaMember: 1,
@@ -1141,7 +1141,7 @@ const FeedbackData = [
     caseID: "5-2000127"
   },
   {
-    name: "Temilola Edu",
+    name: "Temilola Edun",
     feedbackType: "internal",
     client: "PFR",
     qaMember: 2,

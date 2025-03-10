@@ -1,4 +1,4 @@
-// src/Home.js
+// src/Home.js /* Doesn't fetch live or mock data so no REFACTOR needed */
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Grid, Paper, IconButton } from "@mui/material";
