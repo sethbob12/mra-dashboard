@@ -1,0 +1,77 @@
+flowchart TD
+    subgraph "Local Development"
+      VS[VS Code (IDE)]
+      PS[Windows PowerShell/Terminal]
+      Local[Local React App Development]
+      VS --> PS
+      PS --> Local
+    end
+
+    subgraph "Version Control & Collaboration"
+      GH[GitHub Repository]
+      Local --> GH
+    end
+
+    subgraph "Deployment"
+      Vercel[Vercel (Front-End Hosting)]
+      Render[Render (JSON Server Hosting)]
+      GH --> Vercel
+      GH --> Render
+    end
+
+    subgraph "Live Environment"
+      LiveSite[Live Website (Vercel)]
+      PublicAPI[Public API (JSON Server on Render)]
+      Vercel --> LiveSite
+      LiveSite -- "API Requests" --> PublicAPI
+    end
+
+    subgraph "Testing Tools"
+      Postman[Postman for API Testing]
+      Local -- "API Testing" --> Postman
+    end
+
+
+
+   %%{ init: { "flowchart": { "nodeSpacing": 80, "rankSpacing": 80 }}}%%
+flowchart LR
+
+    %% Data Sources
+    subgraph DataSources["Data Sources"]
+        LiveAPI["Production API (Platform/Database) (when available)"]
+        MockOrJSON["Mock Data Arrays          /JSON Server on Render"]
+    end
+
+    %% API Service
+    subgraph APIService["apiService.js"]
+        API["fetchReviewerData()
+        fetchFeedbackData()
+        fetchQualityData()"]
+    end
+
+    %% React App
+    subgraph ReactApp["React Application"]
+        direction TB
+        App["App.js (Global State + Routing)"]
+        Navbar["Navbar.js"]
+        
+        subgraph ChildComponents["Child Components"]
+            FLTable["FLTable.js"]
+            FLChart["FLChart.js"]
+            Email["EmailListGenerator.js"]
+            Reports["Reports.js"]
+            QAMetrics["QAMetrics.js"]
+        end
+    end
+
+    %% Flow
+    LiveAPI -- "If toggle = Live" --> API
+    MockOrJSON -- "If toggle = Mock" --> API
+    API --> App
+    Navbar --> App
+
+    App --> FLTable
+    App --> FLChart
+    App --> Email
+    App --> Reports
+    App --> QAMetrics

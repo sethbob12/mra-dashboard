@@ -29,7 +29,7 @@ const openSansTheme = createTheme({
 
 const uniformGradient = "linear-gradient(to right, #1E73BE, #1565C0)";
 
-// Hardcoded psych writers remain as-is.
+// Hardcoded psych writers.
 const psychWriters = {
   "Becca Kennedy": "becca@peerlinkmedical.com",
   "Eliza Gómez Toro": "elizagomeztoro4545@gmail.com",

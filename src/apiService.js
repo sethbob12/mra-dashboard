@@ -18,7 +18,7 @@ export const fetchReviewerData = async (forceMock = false) => {
       return FLData;
     } else {
       console.log("Fetching LIVE Reviewer Data from Render...");
-      const response = await fetch("https://my-json-server-9oad.onrender.com/mockFLData");
+      const response = await fetch("https://my-json-server-9oad.onrender.com/mockFLData"); //THIS IS WHERE LIVE API ENDPOINT WILL GO//
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

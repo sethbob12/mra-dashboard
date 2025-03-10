@@ -538,7 +538,7 @@ const FLChart = ({ data }) => {
               <CardContent id="qualityScoresRef" sx={{ backgroundColor: "#fff" }}>
                 <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>
-                    This stacked bar chart shows each reviewer’s overall quality scores.
+                    This stacked bar chart shows each reviewer’s overall quality scores. Hover rows to see cost comparison by client type, when selected.
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <InteractiveStackedBarChart data={data} />

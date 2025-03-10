@@ -24,30 +24,35 @@ const Home = () => {
       icon: <TableChartIcon fontSize="large" />,
       path: "/table",
       color: "#1E73BE", // Blue
+      subtitle: "View detailed reviewer data",
     },
     {
       label: "Visualizations",
       icon: <BarChartIcon fontSize="large" />,
       path: "/chart",
       color: "#FF8042", // Orange
+      subtitle: "Analyze performance trends",
     },
     {
       label: "Email Generator",
       icon: <EmailIcon fontSize="large" />,
       path: "/emails",
       color: "#8A2BE2", // Violet
+      subtitle: "Create and manage email lists",
     },
     {
       label: "MRA Reports",
       icon: <ReportIcon fontSize="large" />,
       path: "/reports",
       color: "#66BB6A", // Green
+      subtitle: "Generate comprehensive reports",
     },
     {
       label: "QA Metrics",
       icon: <ManageAccountsIcon fontSize="large" />,
       path: "/qa-metrics",
       color: "#FF6384", // Pinkish Red
+      subtitle: "Assess QA performance",
     },
   ];
 
@@ -105,7 +110,7 @@ const Home = () => {
                     transition: "transform 0.2s ease, box-shadow 0.2s ease",
                     borderRadius: 2,
                     background: "linear-gradient(135deg, #f7f9fc, #ffffff)",
-                    border: "1px solid #666", // Uniform dark gray border
+                    border: "1px solid #666",
                     "&:hover": {
                       transform: "scale(1.05)",
                       boxShadow: "0 12px 24px rgba(0, 0, 0, 0.2)",
@@ -129,7 +134,7 @@ const Home = () => {
                     {module.label}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#777" }}>
-                    Click to explore
+                    {module.subtitle}
                   </Typography>
                 </Paper>
               </Tooltip>
