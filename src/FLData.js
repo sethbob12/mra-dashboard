@@ -1,4 +1,4 @@
-// src/FLData.js ?* no REFACTORING needed, just static mock data that mimics eventual JSON structure from live API */
+// src/FLData.js /* no REFACTORING needed, just static mock data that mimics eventual JSON structure from live API */
 const FLData = [
   {
     "mra_id": 1,
@@ -499,7 +499,7 @@ const FLData = [
   {
     "mra_id": 17,
     "name": "Khwaish Vasnani",
-    "clients": "PFR, Lincoln, Hartford, Peer Review, Telco, NYL, Standard, LTC",
+    "clients": "PFR, Lincoln, Hartford, Peer Review, Telco, NYL, Muckleshoot, Standard, LTC",
     "email": "khwaishvasnani@gmail.com",
     "totalCases": 1749,
     "casesPast30Days": 108,
