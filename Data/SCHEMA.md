@@ -256,3 +256,99 @@ text - The content of the feedback.
 date - The date and time when the feedback was given (ISO 8601 format).
 caseID - The identifier for the case associated with this feedback.
 qaMember - Numeric identifier/name for the QA member (included when feedback is internal). // Current architecture requires this field for reports to work under QA Metrics
+
+
+=====================================================================================================================================
+
+UPDATED:
+FLData.js
+
+{
+  "type": "object",
+  "properties": {
+    "id": { "type": "number" },
+    "mra_id": { "type": "number" },
+    "name": { "type": "string" },
+    "clients": { "type": "string" },
+    "email": { "type": "string" },
+    "notes": { "type": "string" },
+    "costPerCase": {
+      "type": "object",
+      "properties": {
+        "PFR": { "type": "number" },
+        "NYL": { "type": "number" },
+        "LTC": { "type": "number" },
+        "Telco": { "type": "number" },
+        "Lincoln": { "type": "number" },
+        "Hartford": { "type": "number" },
+        "Peer Review": { "type": "number" },
+        "Muckleshoot": { "type": "number" },
+        "Standard": { "type": "number" }
+      },
+      "required": [
+        "PFR",
+        "NYL",
+        "LTC",
+        "Telco",
+        "Lincoln",
+        "Hartford",
+        "Peer Review",
+        "Muckleshoot",
+        "Standard"
+      ]
+    },
+    "caseType": { 
+      "type": "string",
+      "enum": ["Psych", "Non-Psych", "Both"]
+    },
+    "snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "snapshotDate": { "type": "string", "format": "date-time" },
+          "totalCases": { "type": "number" },
+          "casesPast30Days": { "type": "number" },
+          "casesPast60Days": { "type": "number" },
+          "clientRevisionsWeek": { "type": "number" },
+          "clientRevisionsMonth": { "type": "number" },
+          "clientRevisionsPast60": { "type": "number" },
+          "lateCasePercentage": { "type": "number" },
+          "avgCasesPerDay": { "type": "number" },
+          "revisionRate": { "type": "number" },
+          "timelinessScore": { "type": "number" },
+          "efficiencyScore": { "type": "number" },
+          "accuracyScore": { "type": "number" },
+          "qualityScore": { "type": "number" }
+        },
+        "required": [
+          "snapshotDate",
+          "totalCases",
+          "casesPast30Days",
+          "casesPast60Days",
+          "clientRevisionsWeek",
+          "clientRevisionsMonth",
+          "clientRevisionsPast60",
+          "lateCasePercentage",
+          "avgCasesPerDay",
+          "revisionRate",
+          "timelinessScore",
+          "efficiencyScore",
+          "accuracyScore",
+          "qualityScore"
+        ]
+      }
+    }
+  },
+  "required": [
+    "id",
+    "mra_id",
+    "name",
+    "clients",
+    "email",
+    "notes",
+    "costPerCase",
+    "caseType",
+    "snapshots"
+  ]
+}

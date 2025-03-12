@@ -1,4 +1,3 @@
-// src/Reports.js
 /*REFACTORED*/
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -217,22 +216,26 @@ const Reports = ({ reviewerData, feedbackData }) => {
   // Derive unique clients from the data
   const uniqueClients = getUniqueClients(reviewerData);
 
-  // Generate Report (Cases/Revisions)
+  // Generate Report
   const handleGenerateReport = useCallback(() => {
     if (tabValue === 1) {
-      // -- Feedback Report (unchanged) --
+      // -- Feedback Report --
       let filteredFeedback = feedbackData.filter(item => {
         const itemDate = dayjs(item.date);
         return itemDate.isSameOrAfter(startDate) && itemDate.isSameOrBefore(endDate);
       });
+      console.log("Filtered Feedback by Date:", filteredFeedback);
 
+      // IMPORTANT: Using updated field names: 'reviewer' and 'content'
       let reviewerFeedback =
         selectedReviewer !== 'All Reviewers'
-          ? filteredFeedback.filter(item => item.name === selectedReviewer)
+          ? filteredFeedback.filter(item => item.reviewer === selectedReviewer)
           : filteredFeedback;
+      console.log("Feedback after Reviewer Filter:", reviewerFeedback);
 
       if (selectedClient !== 'All Clients') {
         reviewerFeedback = reviewerFeedback.filter(item => item.client === selectedClient);
+        console.log("Feedback after Client Filter:", reviewerFeedback);
       }
 
       if (selectedFeedbackType === 'client') {
@@ -242,12 +245,14 @@ const Reports = ({ reviewerData, feedbackData }) => {
           .forEach(item => {
             const client = item.client || 'Unknown Client';
             if (!groupedFeedback[client]) groupedFeedback[client] = {};
-            if (!groupedFeedback[client][item.name]) groupedFeedback[client][item.name] = [];
-            groupedFeedback[client][item.name].push({
-              text: item.text,
+            if (!groupedFeedback[client][item.reviewer]) groupedFeedback[client][item.reviewer] = [];
+            // Use 'content' instead of 'text'
+            groupedFeedback[client][item.reviewer].push({
+              text: item.content,
               caseID: item.caseID,
             });
           });
+        console.log("Grouped Client Feedback:", groupedFeedback);
 
         const sortedGroupedFeedback = {};
         Object.keys(groupedFeedback).forEach(client => {
@@ -257,15 +262,18 @@ const Reports = ({ reviewerData, feedbackData }) => {
             sortedGroupedFeedback[client][reviewer] = groupedFeedback[client][reviewer];
           });
         });
+        console.log("Sorted Grouped Client Feedback:", sortedGroupedFeedback);
         setClientComments(sortedGroupedFeedback);
         setInternalFeedback([]);
       } else {
         const internal = reviewerFeedback.filter(item => item.feedbackType === 'internal');
+        console.log("Internal Feedback:", internal);
         setClientComments({});
         setInternalFeedback(internal);
-        setInternalOrderBy('name');
+        setInternalOrderBy('reviewer');
         setInternalOrder('asc');
       }
+      // Clear out the Cases/Revisions data
       setReportResult(null);
       setClientBreakdown({});
       setQualityTrend([]);
@@ -273,6 +281,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
     } else {
       // -- Cases/Revisions Report --
       const periodDays = endDate.diff(startDate, 'day') + 1;
+      console.log("Report period (days):", periodDays);
 
       let filteredFLData =
         selectedReviewer !== 'All Reviewers'
@@ -284,16 +293,16 @@ const Reports = ({ reviewerData, feedbackData }) => {
           item.clients.split(',').map(c => c.trim()).includes(selectedClient)
         );
       }
+      console.log("Filtered FL Data:", filteredFLData);
 
       let overallTotalCases = 0;
       let overallRevisionRequests = 0;
       const breakdown = {};
 
-      // Use latest snapshot for each reviewer (if available)
       filteredFLData.forEach(item => {
         const snapshot = getLatestSnapshot(item, endDate);
         if (!snapshot) return;
-        const estimatedCases = snapshot.avgCasesPerDay * periodDays;
+        const estimatedCases = snapshot.avgCasesDay * periodDays;
         const estimatedRevisions = (snapshot.clientRevisionsMonth / 20) * periodDays;
 
         overallTotalCases += estimatedCases;
@@ -308,13 +317,15 @@ const Reports = ({ reviewerData, feedbackData }) => {
           breakdown[client].totalRevisions += estimatedRevisions;
         });
       });
+      console.log("Overall Total Cases:", overallTotalCases);
+      console.log("Overall Revision Requests:", overallRevisionRequests);
+      console.log("Client Breakdown:", breakdown);
 
       const overallRevisionPercentage =
         overallTotalCases > 0
           ? ((overallRevisionRequests / overallTotalCases) * 100).toFixed(2)
           : '0.00';
 
-      // Compute overall late percentage as the average of snapshot.lateCasePercentage
       const latePercentages = filteredFLData.map(item => {
         const snap = getLatestSnapshot(item, endDate);
         return snap ? snap.lateCasePercentage : 0;
@@ -322,7 +333,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
       const overallLatePercentage =
         latePercentages.reduce((sum, val) => sum + val, 0) / (latePercentages.length || 1);
 
-      // Compute overall quality score as the average of snapshot.qualityScore
       const qualityScores = filteredFLData.map(item => {
         const snap = getLatestSnapshot(item, endDate);
         return snap ? snap.qualityScore : 0;
@@ -446,6 +456,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 </Select>
               </FormControl>
             </Grid>
+
             {/* Client Selector */}
             <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth>
@@ -463,6 +474,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 </Select>
               </FormControl>
             </Grid>
+
             {/* Start Date */}
             <Grid item xs={12} sm={6} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -474,6 +486,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 />
               </LocalizationProvider>
             </Grid>
+
             {/* End Date */}
             <Grid item xs={12} sm={6} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -588,7 +601,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      innerRadius= {70}
+                      innerRadius={70}
                       outerRadius={100}
                       label
                     >
@@ -733,7 +746,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                     .flat()
                     .map(feedback => feedback.text)
                     .join('\n');
-
                   return (
                     <Box key={client} sx={{ mb: 2 }}>
                       <Box
@@ -818,7 +830,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                         }}
                         onClick={() => {
                           const allFeedbackText = internalFeedback
-                            .map(item => item.text)
+                            .map(item => item.content)
                             .join('\n');
                           navigator.clipboard.writeText(allFeedbackText);
                         }}
@@ -850,13 +862,13 @@ const Reports = ({ reviewerData, feedbackData }) => {
                         <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                           <TableCell sx={{ fontWeight: 'bold' }}>
                             <TableSortLabel
-                              active={internalOrderBy === 'name'}
-                              direction={internalOrderBy === 'name' ? internalOrder : 'asc'}
+                              active={internalOrderBy === 'reviewer'}
+                              direction={internalOrderBy === 'reviewer' ? internalOrder : 'asc'}
                               onClick={() => {
                                 const isAsc =
-                                  internalOrderBy === 'name' && internalOrder === 'asc';
+                                  internalOrderBy === 'reviewer' && internalOrder === 'asc';
                                 setInternalOrder(isAsc ? 'desc' : 'asc');
-                                setInternalOrderBy('name');
+                                setInternalOrderBy('reviewer');
                               }}
                             >
                               Reviewer
@@ -901,13 +913,13 @@ const Reports = ({ reviewerData, feedbackData }) => {
                           internalFeedback,
                           getComparator(internalOrder, internalOrderBy)
                         ).map((item, index) => (
-                          <TableRow key={index}>
-                            <TableCell sx={{ verticalAlign: 'top' }}>{item.name}</TableCell>
+                          <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#f9f9f9" : "inherit" }}>
+                            <TableCell sx={{ verticalAlign: 'top' }}>{item.reviewer}</TableCell>
                             <TableCell sx={{ verticalAlign: 'top' }}>{item.qaMember}</TableCell>
                             <TableCell>
                               <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fafafa' }}>
                                 <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                                  {`Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`}
+                                  {`Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nCase ID: ${item.caseID}\nFeedback: ${item.content}`}
                                 </Typography>
                               </Paper>
                             </TableCell>
@@ -920,7 +932,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                                   color: '#4caf50',
                                   '&:hover': { backgroundColor: '#4caf50', color: '#fff' }
                                 }}
-                                onClick={() => navigator.clipboard.writeText(item.text)}
+                                onClick={() => navigator.clipboard.writeText(item.content)}
                               >
                                 Copy
                               </Button>

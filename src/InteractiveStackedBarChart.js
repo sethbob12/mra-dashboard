@@ -106,7 +106,7 @@ const InteractiveStackedBarChart = ({ data }) => {
   return (
     <Paper elevation={4} style={{ padding: 16, marginTop: 16, overflowY: "auto" }}>
       <Typography variant="h6" style={{ marginBottom: 16, color: "#1E73BE" }}>
-        {/* You can add a title here if desired */}
+        {/* add a title here if desired */}
       </Typography>
       <FormControl style={{ marginBottom: 16, minWidth: 200 }}>
         <InputLabel id="client-select-label">Filter by Client</InputLabel>
@@ -132,7 +132,7 @@ const InteractiveStackedBarChart = ({ data }) => {
           <XAxis type="number" domain={[0, 100]} tick={false} />
           <YAxis type="category" dataKey="name" width={150} />
           <Tooltip content={<CustomTooltip />} />
-          {/* No Legend, as per request */}
+          {/* No Legend */}
           <Bar dataKey="accuracyScore" stackId="a" fill={colors.accuracyScore} name="Accuracy" />
           <Bar dataKey="timelinessScore" stackId="a" fill={colors.timelinessScore} name="Timeliness" />
           <Bar dataKey="efficiencyScore" stackId="a" fill={colors.efficiencyScore} name="Efficiency">
