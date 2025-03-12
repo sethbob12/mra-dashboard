@@ -1,4 +1,5 @@
-// src/Reports.js /*REFACTORED*/
+// src/Reports.js
+/*REFACTORED*/
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
@@ -22,7 +23,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TableSortLabel,
+  TableSortLabel
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -182,13 +183,18 @@ const exportReportPDF = (reportResult, clientBreakdown, selectedReviewer, startD
   }
 };
 
+// -- Helper to get the latest snapshot for a reviewer up to the selected end date --
+const getLatestSnapshot = (reviewer, endDate) => {
+  const snapshots = reviewer.snapshots.filter(snap => dayjs(snap.snapshotDate).isSameOrBefore(endDate));
+  if (snapshots.length === 0) return null;
+  snapshots.sort((a, b) => dayjs(b.snapshotDate).valueOf() - dayjs(a.snapshotDate).valueOf());
+  return snapshots[0];
+};
+
 const Reports = ({ reviewerData, feedbackData }) => {
   const location = useLocation();
 
-  // Instead of local fetch states, we use data from props
-  // const [reviewerData, setReviewerData] = useState([]);
-  // const [feedbackData, setFeedbackData] = useState([]);
-
+  // State variables
   const [selectedReviewer, setSelectedReviewer] = useState('All Reviewers');
   const [selectedClient, setSelectedClient] = useState('All Clients');
   const [startDate, setStartDate] = useState(dayjs().subtract(30, 'day'));
@@ -206,15 +212,15 @@ const Reports = ({ reviewerData, feedbackData }) => {
   const [shouldAutoGenerate, setShouldAutoGenerate] = useState(false);
 
   // Create a dynamic list of unique reviewers from the reviewerData prop
-  const allReviewers = [...new Set(reviewerData.map(item => item.name))];
+  const allReviewers = [...new Set(reviewerData.map(item => item.name))].sort();
 
   // Derive unique clients from the data
   const uniqueClients = getUniqueClients(reviewerData);
 
-  // Generate Report
+  // Generate Report (Cases/Revisions)
   const handleGenerateReport = useCallback(() => {
     if (tabValue === 1) {
-      // -- Feedback Report --
+      // -- Feedback Report (unchanged) --
       let filteredFeedback = feedbackData.filter(item => {
         const itemDate = dayjs(item.date);
         return itemDate.isSameOrAfter(startDate) && itemDate.isSameOrBefore(endDate);
@@ -229,7 +235,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
         reviewerFeedback = reviewerFeedback.filter(item => item.client === selectedClient);
       }
 
-      // Client feedback
       if (selectedFeedbackType === 'client') {
         const groupedFeedback = {};
         reviewerFeedback
@@ -244,7 +249,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
             });
           });
 
-        // Sort feedback by reviewer within each client
         const sortedGroupedFeedback = {};
         Object.keys(groupedFeedback).forEach(client => {
           const sortedReviewers = Object.keys(groupedFeedback[client]).sort();
@@ -256,15 +260,12 @@ const Reports = ({ reviewerData, feedbackData }) => {
         setClientComments(sortedGroupedFeedback);
         setInternalFeedback([]);
       } else {
-        // Internal feedback
         const internal = reviewerFeedback.filter(item => item.feedbackType === 'internal');
         setClientComments({});
         setInternalFeedback(internal);
         setInternalOrderBy('name');
         setInternalOrder('asc');
       }
-
-      // Clear out the Cases/Revisions data
       setReportResult(null);
       setClientBreakdown({});
       setQualityTrend([]);
@@ -288,9 +289,12 @@ const Reports = ({ reviewerData, feedbackData }) => {
       let overallRevisionRequests = 0;
       const breakdown = {};
 
+      // Use latest snapshot for each reviewer (if available)
       filteredFLData.forEach(item => {
-        const estimatedCases = item.avgCasesPerDay * periodDays;
-        const estimatedRevisions = (item.clientRevisionsMonth / 20) * periodDays;
+        const snapshot = getLatestSnapshot(item, endDate);
+        if (!snapshot) return;
+        const estimatedCases = snapshot.avgCasesPerDay * periodDays;
+        const estimatedRevisions = (snapshot.clientRevisionsMonth / 20) * periodDays;
 
         overallTotalCases += estimatedCases;
         overallRevisionRequests += estimatedRevisions;
@@ -310,35 +314,33 @@ const Reports = ({ reviewerData, feedbackData }) => {
           ? ((overallRevisionRequests / overallTotalCases) * 100).toFixed(2)
           : '0.00';
 
+      // Compute overall late percentage as the average of snapshot.lateCasePercentage
+      const latePercentages = filteredFLData.map(item => {
+        const snap = getLatestSnapshot(item, endDate);
+        return snap ? snap.lateCasePercentage : 0;
+      });
       const overallLatePercentage =
-        filteredFLData.reduce((sum, item) => sum + item.lateCasePercentage, 0) /
-        (filteredFLData.length || 1);
+        latePercentages.reduce((sum, val) => sum + val, 0) / (latePercentages.length || 1);
 
-      // Summaries
+      // Compute overall quality score as the average of snapshot.qualityScore
+      const qualityScores = filteredFLData.map(item => {
+        const snap = getLatestSnapshot(item, endDate);
+        return snap ? snap.qualityScore : 0;
+      });
+      const overallQualityScore =
+        qualityScores.reduce((a, b) => a + b, 0) / (qualityScores.length || 1);
+
       setReportResult({
         totalCases: overallTotalCases,
         revisionRequests: overallRevisionRequests,
         revisionPercentage: overallRevisionPercentage,
         periodDays,
         avgCasesPerDay: (overallTotalCases / periodDays).toFixed(1),
-        qualityScore:
-          filteredFLData.length > 0
-            ? (
-                filteredFLData
-                  .map(item => item.qualityScore)
-                  .reduce((a, b) => a + b, 0) / filteredFLData.length
-              ).toFixed(1)
-            : 0,
+        qualityScore: overallQualityScore.toFixed(1),
       });
       setClientBreakdown(breakdown);
 
-      // Quality Trend
-      const qualityScores = filteredFLData.map(item => item.qualityScore).filter(Boolean);
-      const overallQualityScore =
-        qualityScores.length > 0
-          ? qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length
-          : 0;
-
+      // Quality Trend (using overall average quality score for each day)
       const qualityTrendData = [];
       for (let d = 0; d < periodDays; d++) {
         const currentDate = dayjs(startDate).add(d, 'day').format('YYYY-MM-DD');
@@ -349,7 +351,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
       }
       setQualityTrend(qualityTrendData);
 
-      // Late Trend
+      // Late Trend (using overall late percentage)
       const lateTrendData = [];
       for (let d = 0; d < periodDays; d++) {
         const currentDate = dayjs(startDate).add(d, 'day').format('YYYY-MM-DD');
@@ -390,21 +392,17 @@ const Reports = ({ reviewerData, feedbackData }) => {
     if (startDateParam) setStartDate(dayjs(startDateParam));
     if (endDateParam) setEndDate(dayjs(endDateParam));
 
-    // If URL says "feedbackType=internal/qa", jump to tabValue=1
     if (feedbackTypeParam) {
       setTabValue(1);
       setSelectedFeedbackType(feedbackTypeParam === 'internal' ? 'qa' : feedbackTypeParam);
       setShouldAutoGenerate(true);
     }
-
-    // If URL says "reportType=Cases/Revisions", jump to tabValue=0
     if (reportTypeParam && reportTypeParam === 'Cases/Revisions') {
       setTabValue(0);
       setShouldAutoGenerate(true);
     }
   }, [location.search]);
 
-  // Auto-generate if shouldAutoGenerate is set
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const reportTypeParam = params.get('reportType');
@@ -415,7 +413,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
     }
   }, [location.search, reportResult, shouldAutoGenerate, handleGenerateReport]);
 
-  // Pie chart data
+  // Pie chart data for client breakdown
   const chartData = Object.entries(clientBreakdown).map(([client, totals]) => ({
     name: client,
     value: Math.round(totals.totalCases),
@@ -448,7 +446,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 </Select>
               </FormControl>
             </Grid>
-
             {/* Client Selector */}
             <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth>
@@ -466,7 +463,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 </Select>
               </FormControl>
             </Grid>
-
             {/* Start Date */}
             <Grid item xs={12} sm={6} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -478,7 +474,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 />
               </LocalizationProvider>
             </Grid>
-
             {/* End Date */}
             <Grid item xs={12} sm={6} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -505,7 +500,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
             </Tabs>
           </Box>
 
-          {/* Feedback Type Selector (visible only if tabValue=1) */}
           {tabValue === 1 && (
             <Box sx={{ mt: 2 }}>
               <FormControl fullWidth>
@@ -565,10 +559,9 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 </Typography>
                 <List>
                   {Object.entries(clientBreakdown).map(([client, totals]) => {
-                    const rate =
-                      totals.totalCases > 0
-                        ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
-                        : '0.00';
+                    const rate = totals.totalCases > 0
+                      ? ((totals.totalRevisions / totals.totalCases) * 100).toFixed(2)
+                      : '0.00';
                     return (
                       <ListItem key={client} disablePadding>
                         <ListItemText
@@ -595,8 +588,8 @@ const Reports = ({ reviewerData, feedbackData }) => {
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
+                      innerRadius= {70}
+                      outerRadius={100}
                       label
                     >
                       {chartData.map((entry, index) => (
@@ -618,13 +611,17 @@ const Reports = ({ reviewerData, feedbackData }) => {
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                 Overall Quality Score:{' '}
                 {Math.round(
-                  (reviewerData.filter(item =>
-                    (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
-                    (selectedClient === 'All Clients' ||
-                      item.clients.split(',').map(c => c.trim()).includes(selectedClient))
-                  )
-                  .map(item => item.qualityScore)
-                  .reduce((a, b) => a + b, 0) /
+                  (reviewerData
+                    .filter(item =>
+                      (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
+                      (selectedClient === 'All Clients' ||
+                        item.clients.split(',').map(c => c.trim()).includes(selectedClient))
+                    )
+                    .map(item => {
+                      const snap = getLatestSnapshot(item, endDate);
+                      return snap ? snap.qualityScore : 0;
+                    })
+                    .reduce((a, b) => a + b, 0) /
                     reviewerData.filter(item =>
                       (selectedReviewer === 'All Reviewers' || item.name === selectedReviewer) &&
                       (selectedClient === 'All Clients' ||
@@ -641,15 +638,9 @@ const Reports = ({ reviewerData, feedbackData }) => {
                   Quality Score Trend
                 </Typography>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={qualityTrend}
-                    margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
-                  >
+                  <LineChart data={qualityTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(date) => dayjs(date).format('MMM D')}
-                    />
+                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
                     <YAxis
                       domain={[0, 100]}
                       label={{
@@ -689,26 +680,13 @@ const Reports = ({ reviewerData, feedbackData }) => {
                   </Tooltip>
                 </Typography>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={lateTrend}
-                    margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
-                  >
+                  <LineChart data={lateTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(date) => dayjs(date).format('MMM D')}
-                    />
-                    <YAxis
-                      label={{ value: 'Late %', angle: -90, position: 'insideLeft', offset: -10 }}
-                    />
+                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
+                    <YAxis label={{ value: 'Late %', angle: -90, position: 'insideLeft', offset: -10 }} />
                     <RechartsTooltip />
                     <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="latePercentage"
-                      stroke="#FFB74D"
-                      name="Late %"
-                    />
+                    <Line type="monotone" dataKey="latePercentage" stroke="#FFB74D" name="Late %" />
                   </LineChart>
                 </ResponsiveContainer>
               </Box>
@@ -749,7 +727,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
         {tabValue === 1 && (
           <Box sx={{ mt: 3 }}>
             {selectedFeedbackType === 'client' ? (
-              // -- Client Feedback --
               <Box>
                 {Object.entries(clientComments).map(([client, reviewersObj]) => {
                   const copyText = Object.values(reviewersObj)
@@ -785,13 +762,10 @@ const Reports = ({ reviewerData, feedbackData }) => {
                           Copy
                         </Button>
                       </Box>
-
-                      {/* Feedback grouped by reviewer */}
                       {Object.keys(reviewersObj).sort().map(reviewer => {
                         const feedbackArray = Array.isArray(reviewersObj[reviewer])
                           ? reviewersObj[reviewer]
                           : [];
-
                         return (
                           <Box
                             key={reviewer}
@@ -823,7 +797,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 })}
               </Box>
             ) : (
-              // -- Internal (QA) Feedback --
               <Box>
                 <Typography variant="h6" gutterBottom>
                   Internal Feedback
@@ -834,7 +807,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                   </Typography>
                 ) : (
                   <>
-                    {/* Copy All Button */}
                     <Box sx={{ mb: 2 }}>
                       <Button
                         variant="outlined"
@@ -854,8 +826,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                         Copy All Internal Feedback
                       </Button>
                     </Box>
-
-                    {/* Sort by QA Member button */}
                     <Box sx={{ mb: 2 }}>
                       <Button
                         variant="outlined"
@@ -875,7 +845,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
                         Sort by QA Member
                       </Button>
                     </Box>
-
                     <Table sx={{ border: '1px solid #ddd' }}>
                       <TableHead>
                         <TableRow sx={{ bgcolor: '#f5f5f5' }}>
@@ -933,20 +902,12 @@ const Reports = ({ reviewerData, feedbackData }) => {
                           getComparator(internalOrder, internalOrderBy)
                         ).map((item, index) => (
                           <TableRow key={index}>
-                            <TableCell sx={{ verticalAlign: 'top' }}>
-                              {item.name}
-                            </TableCell>
-                            <TableCell sx={{ verticalAlign: 'top' }}>
-                              {item.qaMember}
-                            </TableCell>
+                            <TableCell sx={{ verticalAlign: 'top' }}>{item.name}</TableCell>
+                            <TableCell sx={{ verticalAlign: 'top' }}>{item.qaMember}</TableCell>
                             <TableCell>
                               <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fafafa' }}>
                                 <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                                  {`Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${
-                                    item.client
-                                  }\nCase ID: ${
-                                    item.caseID
-                                  }\nFeedback: ${item.text}`}
+                                  {`Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nCase ID: ${item.caseID}\nFeedback: ${item.text}`}
                                 </Typography>
                               </Paper>
                             </TableCell>

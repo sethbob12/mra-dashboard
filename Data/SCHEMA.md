@@ -47,6 +47,10 @@ FLData.js Schema
         "Muckleshoot",
         "Standard"
       ]
+    },
+    "caseType": { 
+      "type": "string",
+      "enum": ["Psych", "Non-Psych", "Both"]
     }
   },
   "required": [
@@ -70,7 +74,8 @@ FLData.js Schema
     "qualityScore",
     "notes",
     "costPerCase",
-    "snapshotDate"
+    "snapshotDate",
+    "caseType"
   ]
 }
 
@@ -95,6 +100,7 @@ accuracyScore - A score representing the accuracy of the reviewer's work. // It'
 qualityScore - Overall quality score derived from performance metrics. // Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (20%) --> this can be optimized once real data available to ensure it reflects sentiment currently
 notes - Additional notes or comments about the reviewer.
 snapshotDate - The date and time when this snapshot of reviewer data was recorded (This field uses ISO 8601 date-time format (e.g., "2025-03-09T12:34:56Z") // Needed for reports on historical trends.
+caseType - whether the reviewer writers Psych cases, Non-Psych cases, or both
 costPerCase - An object mapping each client type to its respective cost per case:
 PFR - Cost per case for PFR.
 NYL - Cost per case for NYL.

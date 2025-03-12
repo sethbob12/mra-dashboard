@@ -1,159 +1,378 @@
 [
-    {
-      "qaMember": 301,
-      "name": "John QA",
-      "totalCasesSubmitted": 245,
-      "breakdownByClient": {
-        "PFR": 75,
-        "Lincoln": 85,
-        "Hartford": 85
-      },
-      "casesPast7Days": 15,
-      "casesPast30Days": 55,
-      "casesPast60Days": 110,
-      "revisionsSentWeek": 4,
-      "revisionsSentMonth": 15,
-      "clientRevisionsWeek": 3,
-      "avgCasesDay": 5.2,
-      "prevAvgCasesDay": 4.8,
-      "prevCasesPast7Days": 12,
-      "prevCasesPast30Days": 50,
-      "prevTotalCases": 235,
-      "prevRevisionsSentWeek": 5,
-      "prevClientRevisionsWeek": 2,
-      "feedback": [
-        {
-          "content": "Well-structured report with excellent attention to detail.",
-          "reviewer": "Michael Reviewer",
-          "client": "PFR",
-          "caseID": "PFR-10203",
-          "date": "2025-03-07T10:45:00Z"
+  {
+    "qaMember": 301,
+    "name": "John QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 245,
+        "breakdownByClient": {
+          "PFR": 75,
+          "Lincoln": 85,
+          "Hartford": 85
         },
-        {
-          "content": "Missed minor formatting requirements but otherwise strong work.",
-          "reviewer": "Jane Reviewer",
-          "client": "Hartford",
-          "caseID": "HAR-23456",
-          "date": "2025-03-06T14:30:00Z"
-        }
-      ]
-    },
-    {
-      "qaMember": 302,
-      "name": "Jane QA",
-      "totalCasesSubmitted": 312,
-      "breakdownByClient": {
-        "PFR": 112,
-        "Lincoln": 100,
-        "Hartford": 100
+        "revisionsSent": 4,
+        "clientRevisions": 3,
+        "avgCasesDay": 5.2,
+        "feedback": [
+          {
+            "content": "Well-structured report with excellent attention to detail.",
+            "reviewer": "Michael Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-10203",
+            "date": "2025-03-03T10:45:00Z"
+          },
+          {
+            "content": "Missed minor formatting requirements but otherwise strong work.",
+            "reviewer": "Jane Reviewer",
+            "client": "Hartford",
+            "caseID": "HAR-23456",
+            "date": "2025-03-02T14:30:00Z"
+          }
+        ]
       },
-      "casesPast7Days": 18,
-      "casesPast30Days": 67,
-      "casesPast60Days": 125,
-      "revisionsSentWeek": 6,
-      "revisionsSentMonth": 18,
-      "clientRevisionsWeek": 4,
-      "avgCasesDay": 6.5,
-      "prevAvgCasesDay": 6.1,
-      "prevCasesPast7Days": 16,
-      "prevCasesPast30Days": 65,
-      "prevTotalCases": 305,
-      "prevRevisionsSentWeek": 7,
-      "prevClientRevisionsWeek": 3,
-      "feedback": [
-        {
-          "content": "Excellent analysis, provided strong supporting rationale.",
-          "reviewer": "Emily Reviewer",
-          "client": "Lincoln",
-          "caseID": "LIN-30567",
-          "date": "2025-03-08T12:20:00Z"
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 235,
+        "breakdownByClient": {
+          "PFR": 70,
+          "Lincoln": 80,
+          "Hartford": 85
         },
-        {
-          "content": "Efficiency has improved, but ensure clarity in complex cases.",
-          "reviewer": "Robert Reviewer",
-          "client": "PFR",
-          "caseID": "PFR-19876",
-          "date": "2025-03-09T09:50:00Z"
-        }
-      ]
-    },
-    {
-      "qaMember": 303,
-      "name": "David QA",
-      "totalCasesSubmitted": 279,
-      "breakdownByClient": {
-        "PFR": 92,
-        "Lincoln": 95,
-        "Hartford": 92
+        "revisionsSent": 5,
+        "clientRevisions": 2,
+        "avgCasesDay": 4.8,
+        "feedback": []
+      }
+    ]
+  },
+  {
+    "qaMember": 302,
+    "name": "Jane QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 312,
+        "breakdownByClient": {
+          "PFR": 112,
+          "Lincoln": 100,
+          "Hartford": 100
+        },
+        "revisionsSent": 6,
+        "clientRevisions": 4,
+        "avgCasesDay": 6.5,
+        "feedback": [
+          {
+            "content": "Excellent analysis, provided strong supporting rationale.",
+            "reviewer": "Emily Reviewer",
+            "client": "Lincoln",
+            "caseID": "LIN-30567",
+            "date": "2025-03-03T12:20:00Z"
+          },
+          {
+            "content": "Efficiency has improved, but ensure clarity in complex cases.",
+            "reviewer": "Robert Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-19876",
+            "date": "2025-03-02T09:50:00Z"
+          }
+        ]
       },
-      "casesPast7Days": 14,
-      "casesPast30Days": 58,
-      "casesPast60Days": 120,
-      "revisionsSentWeek": 3,
-      "revisionsSentMonth": 13,
-      "clientRevisionsWeek": 5,
-      "avgCasesDay": 5.8,
-      "prevAvgCasesDay": 5.3,
-      "prevCasesPast7Days": 13,
-      "prevCasesPast30Days": 56,
-      "prevTotalCases": 270,
-      "prevRevisionsSentWeek": 4,
-      "prevClientRevisionsWeek": 4,
-      "feedback": [
-        {
-          "content": "Comprehensive and well-researched, minor citation errors.",
-          "reviewer": "Sophia Reviewer",
-          "client": "Hartford",
-          "caseID": "HAR-56789",
-          "date": "2025-03-05T15:40:00Z"
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 305,
+        "breakdownByClient": {
+          "PFR": 110,
+          "Lincoln": 95,
+          "Hartford": 100
         },
-        {
-          "content": "Client feedback suggests clearer recommendations needed.",
-          "reviewer": "John Reviewer",
-          "client": "Lincoln",
-          "caseID": "LIN-34578",
-          "date": "2025-03-06T11:25:00Z"
-        }
-      ]
-    },
-    {
-      "qaMember": 304,
-      "name": "Sophia QA",
-      "totalCasesSubmitted": 331,
-      "breakdownByClient": {
-        "PFR": 105,
-        "Lincoln": 110,
-        "Hartford": 116
+        "revisionsSent": 7,
+        "clientRevisions": 3,
+        "avgCasesDay": 6.1,
+        "feedback": []
+      }
+    ]
+  },
+  {
+    "qaMember": 303,
+    "name": "David QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 279,
+        "breakdownByClient": {
+          "PFR": 92,
+          "Lincoln": 95,
+          "Hartford": 92
+        },
+        "revisionsSent": 3,
+        "clientRevisions": 5,
+        "avgCasesDay": 5.8,
+        "feedback": [
+          {
+            "content": "Comprehensive and well-researched, minor citation errors.",
+            "reviewer": "Sophia Reviewer",
+            "client": "Hartford",
+            "caseID": "HAR-56789",
+            "date": "2025-03-03T15:40:00Z"
+          },
+          {
+            "content": "Client feedback suggests clearer recommendations needed.",
+            "reviewer": "John Reviewer",
+            "client": "Lincoln",
+            "caseID": "LIN-34578",
+            "date": "2025-03-02T11:25:00Z"
+          }
+        ]
       },
-      "casesPast7Days": 20,
-      "casesPast30Days": 72,
-      "casesPast60Days": 140,
-      "revisionsSentWeek": 7,
-      "revisionsSentMonth": 22,
-      "clientRevisionsWeek": 6,
-      "avgCasesDay": 7.2,
-      "prevAvgCasesDay": 6.8,
-      "prevCasesPast7Days": 18,
-      "prevCasesPast30Days": 70,
-      "prevTotalCases": 320,
-      "prevRevisionsSentWeek": 6,
-      "prevClientRevisionsWeek": 5,
-      "feedback": [
-        {
-          "content": "Well-organized case, but minor revision needed for completeness.",
-          "reviewer": "Michael Reviewer",
-          "client": "PFR",
-          "caseID": "PFR-40123",
-          "date": "2025-03-04T09:15:00Z"
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 270,
+        "breakdownByClient": {
+          "PFR": 90,
+          "Lincoln": 93,
+          "Hartford": 87
         },
-        {
-          "content": "Fast turnaround time and strong documentation.",
-          "reviewer": "Laura Reviewer",
-          "client": "Lincoln",
-          "caseID": "LIN-90876",
-          "date": "2025-03-07T13:50:00Z"
-        }
-      ]
-    }
-  ]
-  
+        "revisionsSent": 4,
+        "clientRevisions": 4,
+        "avgCasesDay": 5.3,
+        "feedback": []
+      }
+    ]
+  },
+  {
+    "qaMember": 304,
+    "name": "Sophia QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 331,
+        "breakdownByClient": {
+          "PFR": 105,
+          "Lincoln": 110,
+          "Hartford": 116
+        },
+        "revisionsSent": 7,
+        "clientRevisions": 6,
+        "avgCasesDay": 7.2,
+        "feedback": [
+          {
+            "content": "Well-organized case, but minor revision needed for completeness.",
+            "reviewer": "Michael Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-40123",
+            "date": "2025-03-03T09:15:00Z"
+          },
+          {
+            "content": "Fast turnaround time and strong documentation.",
+            "reviewer": "Laura Reviewer",
+            "client": "Lincoln",
+            "caseID": "LIN-90876",
+            "date": "2025-03-02T13:50:00Z"
+          }
+        ]
+      },
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 320,
+        "breakdownByClient": {
+          "PFR": 100,
+          "Lincoln": 105,
+          "Hartford": 115
+        },
+        "revisionsSent": 6,
+        "clientRevisions": 5,
+        "avgCasesDay": 6.8,
+        "feedback": []
+      }
+    ]
+  },
+  {
+    "qaMember": 305,
+    "name": "Michael QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 290,
+        "breakdownByClient": {
+          "PFR": 95,
+          "Lincoln": 100,
+          "Hartford": 95
+        },
+        "revisionsSent": 5,
+        "clientRevisions": 4,
+        "avgCasesDay": 5.9,
+        "feedback": [
+          {
+            "content": "Data insights are solid and the approach is methodical.",
+            "reviewer": "Alice Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-55555",
+            "date": "2025-03-03T11:00:00Z"
+          },
+          {
+            "content": "Needs to improve clarity in recommendations.",
+            "reviewer": "Bob Reviewer",
+            "client": "Lincoln",
+            "caseID": "LIN-44444",
+            "date": "2025-03-02T16:30:00Z"
+          }
+        ]
+      },
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 280,
+        "breakdownByClient": {
+          "PFR": 90,
+          "Lincoln": 95,
+          "Hartford": 95
+        },
+        "revisionsSent": 6,
+        "clientRevisions": 3,
+        "avgCasesDay": 5.5,
+        "feedback": []
+      }
+    ]
+  },
+  {
+    "qaMember": 306,
+    "name": "Laura QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 310,
+        "breakdownByClient": {
+          "PFR": 105,
+          "Lincoln": 100,
+          "Hartford": 105
+        },
+        "revisionsSent": 6,
+        "clientRevisions": 4,
+        "avgCasesDay": 6.2,
+        "feedback": [
+          {
+            "content": "Well-executed analysis with attention to client nuances.",
+            "reviewer": "Chris Reviewer",
+            "client": "Hartford",
+            "caseID": "HAR-33333",
+            "date": "2025-03-03T14:00:00Z"
+          },
+          {
+            "content": "Satisfactory report, minor improvements needed in clarity.",
+            "reviewer": "Diana Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-22222",
+            "date": "2025-03-02T10:20:00Z"
+          }
+        ]
+      },
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 300,
+        "breakdownByClient": {
+          "PFR": 100,
+          "Lincoln": 95,
+          "Hartford": 105
+        },
+        "revisionsSent": 7,
+        "clientRevisions": 3,
+        "avgCasesDay": 6.0,
+        "feedback": []
+      }
+    ]
+  },
+  {
+    "qaMember": 307,
+    "name": "Robert QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 265,
+        "breakdownByClient": {
+          "PFR": 80,
+          "Lincoln": 90,
+          "Hartford": 95
+        },
+        "revisionsSent": 4,
+        "clientRevisions": 5,
+        "avgCasesDay": 5.4,
+        "feedback": [
+          {
+            "content": "The report is detailed but could use more context in recommendations.",
+            "reviewer": "Eve Reviewer",
+            "client": "Lincoln",
+            "caseID": "LIN-77777",
+            "date": "2025-03-03T09:40:00Z"
+          },
+          {
+            "content": "Solid performance; however, minor errors in formatting were noted.",
+            "reviewer": "Frank Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-66666",
+            "date": "2025-03-02T15:10:00Z"
+          }
+        ]
+      },
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 260,
+        "breakdownByClient": {
+          "PFR": 78,
+          "Lincoln": 88,
+          "Hartford": 94
+        },
+        "revisionsSent": 5,
+        "clientRevisions": 4,
+        "avgCasesDay": 5.0,
+        "feedback": []
+      }
+    ]
+  },
+  {
+    "qaMember": 308,
+    "name": "Emily QA",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-04T00:00:00Z",
+        "totalCasesSubmitted": 300,
+        "breakdownByClient": {
+          "PFR": 100,
+          "Lincoln": 95,
+          "Hartford": 105
+        },
+        "revisionsSent": 5,
+        "clientRevisions": 4,
+        "avgCasesDay": 6.0,
+        "feedback": [
+          {
+            "content": "Very consistent and reliable reporting.",
+            "reviewer": "Grace Reviewer",
+            "client": "Hartford",
+            "caseID": "HAR-88888",
+            "date": "2025-03-03T13:00:00Z"
+          },
+          {
+            "content": "Strong performance with room for minor improvements.",
+            "reviewer": "Hank Reviewer",
+            "client": "PFR",
+            "caseID": "PFR-99999",
+            "date": "2025-03-02T11:30:00Z"
+          }
+        ]
+      },
+      {
+        "snapshotDate": "2025-02-25T00:00:00Z",
+        "totalCasesSubmitted": 290,
+        "breakdownByClient": {
+          "PFR": 95,
+          "Lincoln": 90,
+          "Hartford": 105
+        },
+        "revisionsSent": 6,
+        "clientRevisions": 3,
+        "avgCasesDay": 5.7,
+        "feedback": []
+      }
+    ]
+  }
+]

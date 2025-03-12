@@ -1,75 +1,110 @@
 [
-    {
-      "name": "John Doe",
-      "feedbackType": "client",
-      "client": "PFR",
-      "text": "Great attention to detail, but slightly slow turnaround.",
-      "date": "2025-03-10T10:15:30Z",
-      "caseID": "PFR-123456",
-      "qaMember": 201
-    },
-    {
-      "name": "Jane Smith",
-      "feedbackType": "internal",
-      "client": "Lincoln",
-      "text": "Consistently meets quality standards, minimal revisions needed.",
-      "date": "2025-03-09T14:25:45Z",
-      "caseID": "LIN-987654",
-      "qaMember": 202
-    },
-    {
-      "name": "Michael Johnson",
-      "feedbackType": "client",
-      "client": "Hartford",
-      "text": "Accuracy is great, but the timeliness needs improvement.",
-      "date": "2025-03-08T08:50:20Z",
-      "caseID": "HAR-567890",
-      "qaMember": 203
-    },
-    {
-      "name": "Emily Davis",
-      "feedbackType": "internal",
-      "client": "Telco",
-      "text": "Well-structured reports, good balance between speed and quality.",
-      "date": "2025-03-07T12:05:00Z",
-      "caseID": "TEL-654321",
-      "qaMember": 204
-    },
-    {
-      "name": "Robert Brown",
-      "feedbackType": "client",
-      "client": "NYL",
-      "text": "Solid performance, but occasionally misses minor details.",
-      "date": "2025-03-06T16:20:35Z",
-      "caseID": "NYL-456123",
-      "qaMember": 205
-    },
-    {
-      "name": "Sophia Wilson",
-      "feedbackType": "internal",
-      "client": "Peer Review",
-      "text": "Consistently provides thorough reviews, very reliable.",
-      "date": "2025-03-05T09:40:50Z",
-      "caseID": "PR-789012",
-      "qaMember": 206
-    },
-    {
-      "name": "David Miller",
-      "feedbackType": "client",
-      "client": "Muckleshoot",
-      "text": "Exemplary work, highly detailed and precise.",
-      "date": "2025-03-04T11:30:25Z",
-      "caseID": "MCK-852741",
-      "qaMember": 207
-    },
-    {
-      "name": "Laura White",
-      "feedbackType": "internal",
-      "client": "Standard",
-      "text": "Occasionally needs minor corrections, but strong overall.",
-      "date": "2025-03-03T07:15:10Z",
-      "caseID": "STD-963852",
-      "qaMember": 208
-    }
-  ]
-  
+  {
+    "reviewer": "John Doe",
+    "feedbackType": "client",
+    "client": "PFR",
+    "content": "Great attention to detail, but slightly slow turnaround.",
+    "date": "2025-03-10T10:15:30Z",
+    "caseID": "PFR-123456",
+    "qaMember": 201
+  },
+  {
+    "reviewer": "Jane Smith",
+    "feedbackType": "internal",
+    "client": "Lincoln",
+    "content": "Consistently meets quality standards, minimal revisions needed.",
+    "date": "2025-03-09T14:25:45Z",
+    "caseID": "LIN-987654",
+    "qaMember": 202
+  },
+  {
+    "reviewer": "Michael Johnson",
+    "feedbackType": "client",
+    "client": "Hartford",
+    "content": "Accuracy is great, but the timeliness needs improvement.",
+    "date": "2025-03-08T08:50:20Z",
+    "caseID": "HAR-567890",
+    "qaMember": 203
+  },
+  {
+    "reviewer": "Emily Davis",
+    "feedbackType": "internal",
+    "client": "Telco",
+    "content": "Well-structured reports, good balance between speed and quality.",
+    "date": "2025-03-07T12:05:00Z",
+    "caseID": "TEL-654321",
+    "qaMember": 204
+  },
+  {
+    "reviewer": "Robert Brown",
+    "feedbackType": "client",
+    "client": "NYL",
+    "content": "Solid performance, but occasionally misses minor details.",
+    "date": "2025-03-06T16:20:35Z",
+    "caseID": "NYL-456123",
+    "qaMember": 205
+  },
+  {
+    "reviewer": "Sophia Wilson",
+    "feedbackType": "internal",
+    "client": "Peer Review",
+    "content": "Consistently provides thorough reviews, very reliable.",
+    "date": "2025-03-05T09:40:50Z",
+    "caseID": "PR-789012",
+    "qaMember": 206
+  },
+  {
+    "reviewer": "David Miller",
+    "feedbackType": "client",
+    "client": "Muckleshoot",
+    "content": "Exemplary work, highly detailed and precise.",
+    "date": "2025-03-04T11:30:25Z",
+    "caseID": "MCK-852741",
+    "qaMember": 207
+  },
+  {
+    "reviewer": "Laura White",
+    "feedbackType": "internal",
+    "client": "Standard",
+    "content": "Occasionally needs minor corrections, but strong overall.",
+    "date": "2025-03-03T07:15:10Z",
+    "caseID": "STD-963852",
+    "qaMember": 208
+  },
+  {
+    "reviewer": "Andrew Green",
+    "feedbackType": "client",
+    "client": "PFR",
+    "content": "Solid work overall, though the report could benefit from more clarity in data visualization.",
+    "date": "2025-03-10T09:05:00Z",
+    "caseID": "PFR-112233",
+    "qaMember": 209
+  },
+  {
+    "reviewer": "Catherine Blue",
+    "feedbackType": "internal",
+    "client": "Lincoln",
+    "content": "The analysis was comprehensive with clear recommendations.",
+    "date": "2025-03-09T11:30:00Z",
+    "caseID": "LIN-445566",
+    "qaMember": 210
+  },
+  {
+    "reviewer": "Daniel Red",
+    "feedbackType": "client",
+    "client": "Hartford",
+    "content": "The case narrative was well-organized, but some metrics seemed off.",
+    "date": "2025-03-08T13:20:00Z",
+    "caseID": "HAR-778899",
+    "qaMember": 211
+  },
+  {
+    "reviewer": "Fiona Gold",
+    "feedbackType": "internal",
+    "client": "Peer Review",
+    "content": "Quick turnaround and detailed analysis, keep up the good work.",
+    "date": "2025-03-07T15:45:00Z",
+    "caseID": "PR-334455",
+    "qaMember": 212
+  }
+]
