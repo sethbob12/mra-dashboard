@@ -6,7 +6,7 @@
     "content": "Great attention to detail, but slightly slow turnaround.",
     "date": "2025-03-10T10:15:30Z",
     "caseID": "PFR-123456",
-    "qaMember": 201
+    "qaMember": "ClientQA - Michael Brown"
   },
   {
     "reviewer": "Jane Smith",
@@ -15,7 +15,7 @@
     "content": "Consistently meets quality standards, minimal revisions needed.",
     "date": "2025-03-09T14:25:45Z",
     "caseID": "LIN-987654",
-    "qaMember": 202
+    "qaMember": "Brian Adams"
   },
   {
     "reviewer": "Michael Johnson",
@@ -24,7 +24,7 @@
     "content": "Accuracy is great, but the timeliness needs improvement.",
     "date": "2025-03-08T08:50:20Z",
     "caseID": "HAR-567890",
-    "qaMember": 203
+    "qaMember": "ClientQA - Linda Green"
   },
   {
     "reviewer": "Emily Davis",
@@ -33,7 +33,7 @@
     "content": "Well-structured reports, good balance between speed and quality.",
     "date": "2025-03-07T12:05:00Z",
     "caseID": "TEL-654321",
-    "qaMember": 204
+    "qaMember": "Derek Hughes"
   },
   {
     "reviewer": "Robert Brown",
@@ -42,7 +42,7 @@
     "content": "Solid performance, but occasionally misses minor details.",
     "date": "2025-03-06T16:20:35Z",
     "caseID": "NYL-456123",
-    "qaMember": 205
+    "qaMember": "ClientQA - Samuel Johnson"
   },
   {
     "reviewer": "Sophia Wilson",
@@ -51,7 +51,7 @@
     "content": "Consistently provides thorough reviews, very reliable.",
     "date": "2025-03-05T09:40:50Z",
     "caseID": "PR-789012",
-    "qaMember": 206
+    "qaMember": "Felix Ramirez"
   },
   {
     "reviewer": "David Miller",
@@ -60,7 +60,7 @@
     "content": "Exemplary work, highly detailed and precise.",
     "date": "2025-03-04T11:30:25Z",
     "caseID": "MCK-852741",
-    "qaMember": 207
+    "qaMember": "ClientQA - Olivia White"
   },
   {
     "reviewer": "Laura White",
@@ -69,7 +69,7 @@
     "content": "Occasionally needs minor corrections, but strong overall.",
     "date": "2025-03-03T07:15:10Z",
     "caseID": "STD-963852",
-    "qaMember": 208
+    "qaMember": "Gloria Chen"
   },
   {
     "reviewer": "Andrew Green",
@@ -78,7 +78,7 @@
     "content": "Solid work overall, though the report could benefit from more clarity in data visualization.",
     "date": "2025-03-10T09:05:00Z",
     "caseID": "PFR-112233",
-    "qaMember": 209
+    "qaMember": "ClientQA - William Black"
   },
   {
     "reviewer": "Catherine Blue",
@@ -87,7 +87,7 @@
     "content": "The analysis was comprehensive with clear recommendations.",
     "date": "2025-03-09T11:30:00Z",
     "caseID": "LIN-445566",
-    "qaMember": 210
+    "qaMember": "Henry Kim"
   },
   {
     "reviewer": "Daniel Red",
@@ -96,7 +96,7 @@
     "content": "The case narrative was well-organized, but some metrics seemed off.",
     "date": "2025-03-08T13:20:00Z",
     "caseID": "HAR-778899",
-    "qaMember": 211
+    "qaMember": "ClientQA - Emma Stone"
   },
   {
     "reviewer": "Fiona Gold",
@@ -105,6 +105,6 @@
     "content": "Quick turnaround and detailed analysis, keep up the good work.",
     "date": "2025-03-07T15:45:00Z",
     "caseID": "PR-334455",
-    "qaMember": 212
+    "qaMember": "Alice Cooper"
   }
 ]

@@ -1,6 +1,5 @@
-/*REFACTORED*/
-
-import React, { useState, useEffect, useCallback } from 'react';
+// src/Reports.js
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -24,7 +23,7 @@ import {
   TableRow,
   TableSortLabel
 } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -51,12 +50,25 @@ import {
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
-// -- THEME --
+// Fallback theme
 const openSansTheme = createTheme({
   typography: { fontFamily: 'Open Sans, sans-serif' },
 });
 
-// -- Helper: Extract unique clients from the dataset --
+// ---------- QA Member Mapping for Internal Feedback ----------
+const qaInternalMapping = {
+  202: "Jane QA",
+  204: "Emily QA",
+  206: "Sophia QA",
+  208: "Laura QA",
+  210: "Catherine QA",
+  212: "Fiona QA"
+};
+
+// ---------- COLORS for charts ----------
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF4560'];
+
+// ---------- Helper: Extract unique clients from the dataset ----------
 const getUniqueClients = (reviewerData) => {
   const clientSet = new Set();
   reviewerData.forEach(item => {
@@ -65,19 +77,17 @@ const getUniqueClients = (reviewerData) => {
   return ['All Clients', ...Array.from(clientSet).sort()];
 };
 
-// -- Sorting Helpers --
+// ---------- Sorting Helpers ----------
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
   return 0;
 }
-
 function getComparator(order, orderBy) {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
-
 function stableSort(array, comparator) {
   const stabilizedArray = array.map((el, idx) => [el, idx]);
   stabilizedArray.sort((a, b) => {
@@ -88,7 +98,7 @@ function stableSort(array, comparator) {
   return stabilizedArray.map((el) => el[0]);
 }
 
-// -- Custom dot renderer for quality trend graph --
+// ---------- Custom dot renderer for quality trend graph ----------
 const renderCustomDot = (props) => {
   const { cx, cy, value } = props;
   let fillColor = 'red';
@@ -97,7 +107,7 @@ const renderCustomDot = (props) => {
   return <circle cx={cx} cy={cy} r={4} fill={fillColor} />;
 };
 
-// -- CSV Export --
+// ---------- CSV Export ----------
 const exportReportCSV = (reportResult, clientBreakdown, selectedReviewer, lateTrend) => {
   if (reportResult && Object.keys(clientBreakdown).length > 0) {
     let csvContent = 'data:text/csv;charset=utf-8,';
@@ -125,13 +135,12 @@ const exportReportCSV = (reportResult, clientBreakdown, selectedReviewer, lateTr
   }
 };
 
-// -- PDF Export --
+// ---------- PDF Export ----------
 const exportReportPDF = (reportResult, clientBreakdown, selectedReviewer, startDate, endDate, lateTrend) => {
   if (reportResult && Object.keys(clientBreakdown).length > 0) {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Cases / Revisions Report', 14, 20);
-
     doc.setFontSize(12);
     doc.text(`Period: ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`, 14, 30);
     if (selectedReviewer !== 'All Reviewers') {
@@ -144,14 +153,11 @@ const exportReportPDF = (reportResult, clientBreakdown, selectedReviewer, startD
       doc.text(`Total Revision Requests: ${Math.round(reportResult.revisionRequests)}`, 14, 50);
       doc.text(`Revision Percentage: ${reportResult.revisionPercentage}%`, 14, 60);
     }
-
     doc.text(
       `Average Late %: ${lateTrend.length > 0 ? lateTrend[0].latePercentage.toFixed(1) : 'N/A'}%`,
       14,
       selectedReviewer !== 'All Reviewers' ? 80 : 70
     );
-
-    // Table
     const tableColumn = ['Client', 'Estimated Cases', 'Estimated Revisions', 'Revision Rate (%)'];
     const tableRows = [];
     for (const [client, totals] of Object.entries(clientBreakdown)) {
@@ -166,7 +172,6 @@ const exportReportPDF = (reportResult, clientBreakdown, selectedReviewer, startD
       startY: selectedReviewer !== 'All Reviewers' ? 90 : 80,
     });
     const finalY = doc.lastAutoTable.finalY || 30;
-
     doc.setFont('helvetica', 'bold');
     doc.text(
       `Summary: Avg Cases/Day: ${reportResult.avgCasesPerDay}, Late %: ${
@@ -177,12 +182,11 @@ const exportReportPDF = (reportResult, clientBreakdown, selectedReviewer, startD
     );
     doc.setFontSize(10);
     doc.text('Feedback column not fully represented in PDF export.', 14, finalY + 16);
-
     doc.save('cases_revisions_report.pdf');
   }
 };
 
-// -- Helper to get the latest snapshot for a reviewer up to the selected end date --
+// ---------- Helper to get the latest snapshot for a reviewer up to the selected end date ----------
 const getLatestSnapshot = (reviewer, endDate) => {
   const snapshots = reviewer.snapshots.filter(snap => dayjs(snap.snapshotDate).isSameOrBefore(endDate));
   if (snapshots.length === 0) return null;
@@ -192,6 +196,11 @@ const getLatestSnapshot = (reviewer, endDate) => {
 
 const Reports = ({ reviewerData, feedbackData }) => {
   const location = useLocation();
+  const theme = useTheme();
+  const textColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
+  const backgroundColor = theme.palette.mode === 'dark' ? '#424242' : '#f9f9f9';
+
+  const locationParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
 
   // State variables
   const [selectedReviewer, setSelectedReviewer] = useState('All Reviewers');
@@ -210,10 +219,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
   const [internalOrderBy, setInternalOrderBy] = useState('name');
   const [shouldAutoGenerate, setShouldAutoGenerate] = useState(false);
 
-  // Create a dynamic list of unique reviewers from the reviewerData prop
   const allReviewers = [...new Set(reviewerData.map(item => item.name))].sort();
-
-  // Derive unique clients from the data
   const uniqueClients = getUniqueClients(reviewerData);
 
   // Generate Report
@@ -224,36 +230,39 @@ const Reports = ({ reviewerData, feedbackData }) => {
         const itemDate = dayjs(item.date);
         return itemDate.isSameOrAfter(startDate) && itemDate.isSameOrBefore(endDate);
       });
-      console.log("Filtered Feedback by Date:", filteredFeedback);
 
-      // IMPORTANT: Using updated field names: 'reviewer' and 'content'
+      // Filter by reviewer
       let reviewerFeedback =
         selectedReviewer !== 'All Reviewers'
           ? filteredFeedback.filter(item => item.reviewer === selectedReviewer)
           : filteredFeedback;
-      console.log("Feedback after Reviewer Filter:", reviewerFeedback);
 
+      // Filter by client
       if (selectedClient !== 'All Clients') {
         reviewerFeedback = reviewerFeedback.filter(item => item.client === selectedClient);
-        console.log("Feedback after Client Filter:", reviewerFeedback);
       }
 
       if (selectedFeedbackType === 'client') {
+        // For client feedback, group by client -> then by the actual reviewer name
         const groupedFeedback = {};
         reviewerFeedback
           .filter(item => item.feedbackType === 'client')
           .forEach(item => {
             const client = item.client || 'Unknown Client';
-            if (!groupedFeedback[client]) groupedFeedback[client] = {};
-            if (!groupedFeedback[client][item.reviewer]) groupedFeedback[client][item.reviewer] = [];
-            // Use 'content' instead of 'text'
-            groupedFeedback[client][item.reviewer].push({
+            const reviewerName = item.reviewer;
+            if (!groupedFeedback[client]) {
+              groupedFeedback[client] = {};
+            }
+            if (!groupedFeedback[client][reviewerName]) {
+              groupedFeedback[client][reviewerName] = [];
+            }
+            groupedFeedback[client][reviewerName].push({
               text: item.content,
               caseID: item.caseID,
             });
           });
-        console.log("Grouped Client Feedback:", groupedFeedback);
 
+        // Sort the keys for each client
         const sortedGroupedFeedback = {};
         Object.keys(groupedFeedback).forEach(client => {
           const sortedReviewers = Object.keys(groupedFeedback[client]).sort();
@@ -262,17 +271,18 @@ const Reports = ({ reviewerData, feedbackData }) => {
             sortedGroupedFeedback[client][reviewer] = groupedFeedback[client][reviewer];
           });
         });
-        console.log("Sorted Grouped Client Feedback:", sortedGroupedFeedback);
+
         setClientComments(sortedGroupedFeedback);
         setInternalFeedback([]);
       } else {
+        // Internal feedback
         const internal = reviewerFeedback.filter(item => item.feedbackType === 'internal');
-        console.log("Internal Feedback:", internal);
         setClientComments({});
         setInternalFeedback(internal);
         setInternalOrderBy('reviewer');
         setInternalOrder('asc');
       }
+
       // Clear out the Cases/Revisions data
       setReportResult(null);
       setClientBreakdown({});
@@ -281,8 +291,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
     } else {
       // -- Cases/Revisions Report --
       const periodDays = endDate.diff(startDate, 'day') + 1;
-      console.log("Report period (days):", periodDays);
-
       let filteredFLData =
         selectedReviewer !== 'All Reviewers'
           ? reviewerData.filter(item => item.name === selectedReviewer)
@@ -293,7 +301,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
           item.clients.split(',').map(c => c.trim()).includes(selectedClient)
         );
       }
-      console.log("Filtered FL Data:", filteredFLData);
 
       let overallTotalCases = 0;
       let overallRevisionRequests = 0;
@@ -317,9 +324,6 @@ const Reports = ({ reviewerData, feedbackData }) => {
           breakdown[client].totalRevisions += estimatedRevisions;
         });
       });
-      console.log("Overall Total Cases:", overallTotalCases);
-      console.log("Overall Revision Requests:", overallRevisionRequests);
-      console.log("Client Breakdown:", breakdown);
 
       const overallRevisionPercentage =
         overallTotalCases > 0
@@ -348,9 +352,10 @@ const Reports = ({ reviewerData, feedbackData }) => {
         avgCasesPerDay: (overallTotalCases / periodDays).toFixed(1),
         qualityScore: overallQualityScore.toFixed(1),
       });
+
       setClientBreakdown(breakdown);
 
-      // Quality Trend (using overall average quality score for each day)
+      // Build Quality Trend array
       const qualityTrendData = [];
       for (let d = 0; d < periodDays; d++) {
         const currentDate = dayjs(startDate).add(d, 'day').format('YYYY-MM-DD');
@@ -361,7 +366,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
       }
       setQualityTrend(qualityTrendData);
 
-      // Late Trend (using overall late percentage)
+      // Build Late Trend array
       const lateTrendData = [];
       for (let d = 0; d < periodDays; d++) {
         const currentDate = dayjs(startDate).add(d, 'day').format('YYYY-MM-DD');
@@ -372,7 +377,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
       }
       setLateTrend(lateTrendData);
 
-      // Clear feedback
+      // Clear out feedback
       setClientComments({});
       setInternalFeedback([]);
     }
@@ -387,14 +392,12 @@ const Reports = ({ reviewerData, feedbackData }) => {
     selectedFeedbackType
   ]);
 
-  // -- Parse URL query params on mount (or location change) --
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const reviewerParam = params.get('reviewer');
-    const startDateParam = params.get('startDate');
-    const endDateParam = params.get('endDate');
-    const feedbackTypeParam = params.get('feedbackType');
-    const reportTypeParam = params.get('reportType');
+    const reviewerParam = locationParams.get('reviewer');
+    const startDateParam = locationParams.get('startDate');
+    const endDateParam = locationParams.get('endDate');
+    const feedbackTypeParam = locationParams.get('feedbackType');
+    const reportTypeParam = locationParams.get('reportType');
 
     if (reviewerParam && reviewerParam !== 'All Reviewers') {
       setSelectedReviewer(reviewerParam);
@@ -411,45 +414,76 @@ const Reports = ({ reviewerData, feedbackData }) => {
       setTabValue(0);
       setShouldAutoGenerate(true);
     }
-  }, [location.search]);
+  }, [locationParams]);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const reportTypeParam = params.get('reportType');
-
+    const reportTypeParam = locationParams.get('reportType');
     if (reportTypeParam === 'Cases/Revisions' && !reportResult && shouldAutoGenerate) {
       handleGenerateReport();
       setShouldAutoGenerate(false);
     }
-  }, [location.search, reportResult, shouldAutoGenerate, handleGenerateReport]);
+  }, [locationParams, reportResult, shouldAutoGenerate, handleGenerateReport]);
 
   // Pie chart data for client breakdown
   const chartData = Object.entries(clientBreakdown).map(([client, totals]) => ({
     name: client,
     value: Math.round(totals.totalCases),
   }));
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF4560'];
 
   return (
     <ThemeProvider theme={openSansTheme}>
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+      <Box sx={{ mt: 4, mb: 4, color: textColor, backgroundColor, p: 2, borderRadius: 2 }}>
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            mb: 3,
+            backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#fff',
+            color: textColor
+          }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, color: textColor }}>
             MRA Reports
           </Typography>
+
           <Grid container spacing={2}>
             {/* Reviewer Selector */}
             <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Reviewer</InputLabel>
+              <FormControl
+                fullWidth
+                sx={{
+                  '& .MuiSvgIcon-root': { color: textColor }
+                }}
+              >
+                <InputLabel sx={{ color: textColor, '&.Mui-focused': { color: textColor } }}>
+                  Reviewer
+                </InputLabel>
                 <Select
                   value={selectedReviewer}
                   onChange={(e) => setSelectedReviewer(e.target.value)}
                   label="Reviewer"
+                  sx={{
+                    color: textColor,
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '& .MuiSelect-icon': { color: textColor },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: theme.palette.mode === 'dark' ? '#424242' : '#fff',
+                        '& .MuiMenuItem-root': { color: textColor }
+                      }
+                    }
+                  }}
                 >
-                  <MenuItem value="All Reviewers">All Reviewers</MenuItem>
+                  <MenuItem value="All Reviewers" sx={{ color: textColor }}>
+                    All Reviewers
+                  </MenuItem>
                   {allReviewers.map((rev) => (
-                    <MenuItem key={rev} value={rev}>
+                    <MenuItem key={rev} value={rev} sx={{ color: textColor }}>
                       {rev}
                     </MenuItem>
                   ))}
@@ -459,15 +493,37 @@ const Reports = ({ reviewerData, feedbackData }) => {
 
             {/* Client Selector */}
             <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Client</InputLabel>
+              <FormControl
+                fullWidth
+                sx={{
+                  '& .MuiSvgIcon-root': { color: textColor }
+                }}
+              >
+                <InputLabel sx={{ color: textColor, '&.Mui-focused': { color: textColor } }}>
+                  Client
+                </InputLabel>
                 <Select
                   value={selectedClient}
                   onChange={(e) => setSelectedClient(e.target.value)}
                   label="Client"
+                  sx={{
+                    color: textColor,
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '& .MuiSelect-icon': { color: textColor },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: theme.palette.mode === 'dark' ? '#424242' : '#fff',
+                        '& .MuiMenuItem-root': { color: textColor }
+                      }
+                    }
+                  }}
                 >
                   {uniqueClients.map((client) => (
-                    <MenuItem key={client} value={client}>
+                    <MenuItem key={client} value={client} sx={{ color: textColor }}>
                       {client}
                     </MenuItem>
                   ))}
@@ -482,7 +538,20 @@ const Reports = ({ reviewerData, feedbackData }) => {
                   label="Start Date"
                   value={startDate}
                   onChange={setStartDate}
-                  slotProps={{ textField: { fullWidth: true } }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      sx: {
+                        '& .MuiOutlinedInput-root': { color: textColor },
+                        '& .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                        '& .MuiFormLabel-root': { color: textColor },
+                        '& .MuiFormLabel-root.Mui-focused': { color: textColor },
+                        '& input': { color: textColor },
+                      }
+                    }
+                  }}
                 />
               </LocalizationProvider>
             </Grid>
@@ -494,7 +563,20 @@ const Reports = ({ reviewerData, feedbackData }) => {
                   label="End Date"
                   value={endDate}
                   onChange={setEndDate}
-                  slotProps={{ textField: { fullWidth: true } }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      sx: {
+                        '& .MuiOutlinedInput-root': { color: textColor },
+                        '& .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                        '& .MuiFormLabel-root': { color: textColor },
+                        '& .MuiFormLabel-root.Mui-focused': { color: textColor },
+                        '& input': { color: textColor },
+                      }
+                    }
+                  }}
                 />
               </LocalizationProvider>
             </Grid>
@@ -505,8 +587,12 @@ const Reports = ({ reviewerData, feedbackData }) => {
             <Tabs
               value={tabValue}
               onChange={(e, newValue) => setTabValue(newValue)}
-              indicatorColor="primary"
-              textColor="primary"
+              textColor="inherit"
+              sx={{
+                '& .MuiTab-root': { color: textColor },
+                '& .Mui-selected': { color: textColor },
+                '& .MuiTabs-indicator': { backgroundColor: textColor }
+              }}
             >
               <Tab label="Cases / Revisions" />
               <Tab label="Feedback" />
@@ -515,15 +601,37 @@ const Reports = ({ reviewerData, feedbackData }) => {
 
           {tabValue === 1 && (
             <Box sx={{ mt: 2 }}>
-              <FormControl fullWidth>
-                <InputLabel>Feedback Type</InputLabel>
+              <FormControl
+                fullWidth
+                sx={{
+                  '& .MuiSvgIcon-root': { color: textColor }
+                }}
+              >
+                <InputLabel sx={{ color: textColor, '&.Mui-focused': { color: textColor } }}>
+                  Feedback Type
+                </InputLabel>
                 <Select
                   value={selectedFeedbackType}
                   onChange={(e) => setSelectedFeedbackType(e.target.value)}
                   label="Feedback Type"
+                  sx={{
+                    color: textColor,
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: textColor },
+                    '& .MuiSelect-icon': { color: textColor },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: theme.palette.mode === 'dark' ? '#424242' : '#fff',
+                        '& .MuiMenuItem-root': { color: textColor }
+                      }
+                    }
+                  }}
                 >
-                  <MenuItem value="client">Client</MenuItem>
-                  <MenuItem value="qa">Internal</MenuItem>
+                  <MenuItem value="client" sx={{ color: textColor }}>Client</MenuItem>
+                  <MenuItem value="qa" sx={{ color: textColor }}>Internal</MenuItem>
                 </Select>
               </FormControl>
             </Box>
@@ -547,17 +655,16 @@ const Reports = ({ reviewerData, feedbackData }) => {
               p: 2,
               border: '1px solid #ddd',
               borderRadius: 2,
-              backgroundColor: '#f9f9f9'
+              backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f9f9f9'
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: textColor }}>
               Report Results
             </Typography>
-            <Typography>
-              Total Estimated Cases (over {reportResult.periodDays} days):{' '}
-              {Math.round(reportResult.totalCases)}
+            <Typography sx={{ color: textColor }}>
+              Total Estimated Cases (over {reportResult.periodDays} days): {Math.round(reportResult.totalCases)}
             </Typography>
-            <Typography>
+            <Typography sx={{ color: textColor }}>
               Total Revision Requests: {Math.round(reportResult.revisionRequests)}{' '}
               <span title={`Revision Rate: ${reportResult.revisionPercentage}%`}>
                 (Revision Rate: {reportResult.revisionPercentage}%)
@@ -567,7 +674,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
             <Grid container spacing={2} sx={{ mt: 2 }}>
               {/* Client Breakdown */}
               <Grid item xs={12} md={6}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1, color: textColor }}>
                   Breakdown by Client
                 </Typography>
                 <List>
@@ -579,9 +686,8 @@ const Reports = ({ reviewerData, feedbackData }) => {
                       <ListItem key={client} disablePadding>
                         <ListItemText
                           primary={
-                            <Typography sx={{ fontWeight: 'bold' }}>
-                              {client}: {Math.round(totals.totalCases)} cases,{' '}
-                              {Math.round(totals.totalRevisions)} revisions (Rate: {rate}%)
+                            <Typography sx={{ fontWeight: 'bold', color: textColor }}>
+                              {client}: {Math.round(totals.totalCases)} cases, {Math.round(totals.totalRevisions)} revisions (Rate: {rate}%)
                             </Typography>
                           }
                         />
@@ -593,35 +699,34 @@ const Reports = ({ reviewerData, feedbackData }) => {
 
               {/* Pie Chart for Client Breakdown */}
               <Grid item xs={12} md={6}>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={70}
-                      outerRadius={100}
-                      label
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
+                <Box sx={{ width: '100%', height: 350 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart margin={{ top: 40 }}>
+                      <Pie
+                        data={chartData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={100}
+                        label
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </Box>
               </Grid>
             </Grid>
 
             {/* Quality Score */}
             <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: textColor }}>
                 Overall Quality Score:{' '}
                 {Math.round(
                   (reviewerData
@@ -647,31 +752,21 @@ const Reports = ({ reviewerData, feedbackData }) => {
             {/* Quality Trend */}
             {qualityTrend.length > 0 && (
               <Box sx={{ mt: 2, height: 300 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: textColor }}>
                   Quality Score Trend
                 </Typography>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={qualityTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
+                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} stroke={textColor} />
                     <YAxis
                       domain={[0, 100]}
-                      label={{
-                        value: 'Quality Score',
-                        angle: -90,
-                        position: 'insideLeft',
-                        offset: -10
-                      }}
+                      label={{ value: 'Quality Score', angle: -90, position: 'insideLeft', offset: -10, fill: textColor }}
+                      stroke={textColor}
                     />
                     <RechartsTooltip />
                     <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="qualityScore"
-                      name="Quality Score"
-                      dot={renderCustomDot}
-                      stroke="#00C49F"
-                    />
+                    <Line type="monotone" dataKey="qualityScore" name="Quality Score" dot={renderCustomDot} stroke="#00C49F" />
                   </LineChart>
                 </ResponsiveContainer>
               </Box>
@@ -679,14 +774,14 @@ const Reports = ({ reviewerData, feedbackData }) => {
 
             {/* Late % */}
             <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: textColor }}>
                 Average Late %:{' '}
                 {lateTrend.length > 0 ? lateTrend[0].latePercentage.toFixed(1) : 'N/A'}%
               </Typography>
             </Box>
             {lateTrend.length > 0 && (
               <Box sx={{ mt: 2, height: 300 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: textColor }}>
                   Late % Trend{' '}
                   <Tooltip title="Change in late percentage" arrow>
                     <span style={{ cursor: 'default' }}>▼ or ▲</span>
@@ -695,8 +790,11 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={lateTrend} margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} />
-                    <YAxis label={{ value: 'Late %', angle: -90, position: 'insideLeft', offset: -10 }} />
+                    <XAxis dataKey="date" tickFormatter={(date) => dayjs(date).format('MMM D')} stroke={textColor} />
+                    <YAxis
+                      label={{ value: 'Late %', angle: -90, position: 'insideLeft', offset: -10, fill: textColor }}
+                      stroke={textColor}
+                    />
                     <RechartsTooltip />
                     <Legend />
                     <Line type="monotone" dataKey="latePercentage" stroke="#FFB74D" name="Late %" />
@@ -720,14 +818,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                 variant="outlined"
                 color="secondary"
                 onClick={() =>
-                  exportReportPDF(
-                    reportResult,
-                    clientBreakdown,
-                    selectedReviewer,
-                    startDate,
-                    endDate,
-                    lateTrend
-                  )
+                  exportReportPDF(reportResult, clientBreakdown, selectedReviewer, startDate, endDate, lateTrend)
                 }
               >
                 Export as PDF
@@ -738,14 +829,16 @@ const Reports = ({ reviewerData, feedbackData }) => {
 
         {/* ---- FEEDBACK TAB CONTENT ---- */}
         {tabValue === 1 && (
-          <Box sx={{ mt: 3 }}>
+          <Box sx={{ mt: 3, backgroundColor, p: 2, borderRadius: 2 }}>
             {selectedFeedbackType === 'client' ? (
               <Box>
-                {Object.entries(clientComments).map(([client, reviewersObj]) => {
-                  const copyText = Object.values(reviewersObj)
+                {Object.entries(clientComments).map(([client, reviewerFeedbackObj]) => {
+                  // Flatten for "COPY" button
+                  const copyText = Object.values(reviewerFeedbackObj)
                     .flat()
                     .map(feedback => feedback.text)
                     .join('\n');
+
                   return (
                     <Box key={client} sx={{ mb: 2 }}>
                       <Box
@@ -753,12 +846,12 @@ const Reports = ({ reviewerData, feedbackData }) => {
                           display: 'flex',
                           alignItems: 'center',
                           gap: 1,
-                          bgcolor: '#f0f0f0',
+                          bgcolor: theme.palette.mode === 'dark' ? '#616161' : '#f0f0f0',
                           p: 1,
                           borderRadius: 1
                         }}
                       >
-                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: textColor }}>
                           {client}:
                         </Typography>
                         <Button
@@ -771,12 +864,12 @@ const Reports = ({ reviewerData, feedbackData }) => {
                           }}
                           onClick={() => navigator.clipboard.writeText(copyText)}
                         >
-                          Copy
+                          COPY
                         </Button>
                       </Box>
-                      {Object.keys(reviewersObj).sort().map(reviewer => {
-                        const feedbackArray = Array.isArray(reviewersObj[reviewer])
-                          ? reviewersObj[reviewer]
+                      {Object.keys(reviewerFeedbackObj).sort().map((reviewer) => {
+                        const feedbackArray = Array.isArray(reviewerFeedbackObj[reviewer])
+                          ? reviewerFeedbackObj[reviewer]
                           : [];
                         return (
                           <Box
@@ -786,7 +879,8 @@ const Reports = ({ reviewerData, feedbackData }) => {
                               mt: 1,
                               mb: 1,
                               p: 1,
-                              borderLeft: '2px solid #ccc'
+                              borderLeft: '2px solid #ccc',
+                              color: textColor
                             }}
                           >
                             <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
@@ -797,6 +891,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                                 <ListItem key={i} disablePadding>
                                   <ListItemText
                                     primary={`Case ID: ${feedback.caseID} – ${feedback.text}`}
+                                    sx={{ color: textColor }}
                                   />
                                 </ListItem>
                               ))}
@@ -810,11 +905,11 @@ const Reports = ({ reviewerData, feedbackData }) => {
               </Box>
             ) : (
               <Box>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ color: textColor }}>
                   Internal Feedback
                 </Typography>
                 {internalFeedback.length === 0 ? (
-                  <Typography>
+                  <Typography sx={{ color: textColor }}>
                     No internal QA feedback available for the selected period.
                   </Typography>
                 ) : (
@@ -829,9 +924,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                           '&:hover': { backgroundColor: '#4caf50', color: '#fff' }
                         }}
                         onClick={() => {
-                          const allFeedbackText = internalFeedback
-                            .map(item => item.content)
-                            .join('\n');
+                          const allFeedbackText = internalFeedback.map(item => item.content).join('\n');
                           navigator.clipboard.writeText(allFeedbackText);
                         }}
                       >
@@ -848,8 +941,7 @@ const Reports = ({ reviewerData, feedbackData }) => {
                           '&:hover': { backgroundColor: '#1976D2', color: '#fff' }
                         }}
                         onClick={() => {
-                          const isAsc =
-                            internalOrderBy === 'qaMember' && internalOrder === 'asc';
+                          const isAsc = internalOrderBy === 'qaMember' && internalOrder === 'asc';
                           setInternalOrder(isAsc ? 'desc' : 'asc');
                           setInternalOrderBy('qaMember');
                         }}
@@ -859,14 +951,13 @@ const Reports = ({ reviewerData, feedbackData }) => {
                     </Box>
                     <Table sx={{ border: '1px solid #ddd' }}>
                       <TableHead>
-                        <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                          <TableCell sx={{ fontWeight: 'bold' }}>
+                        <TableRow sx={{ bgcolor: theme.palette.mode === 'dark' ? '#616161' : '#f5f5f5' }}>
+                          <TableCell sx={{ fontWeight: 'bold', color: textColor }}>
                             <TableSortLabel
                               active={internalOrderBy === 'reviewer'}
                               direction={internalOrderBy === 'reviewer' ? internalOrder : 'asc'}
                               onClick={() => {
-                                const isAsc =
-                                  internalOrderBy === 'reviewer' && internalOrder === 'asc';
+                                const isAsc = internalOrderBy === 'reviewer' && internalOrder === 'asc';
                                 setInternalOrder(isAsc ? 'desc' : 'asc');
                                 setInternalOrderBy('reviewer');
                               }}
@@ -874,51 +965,49 @@ const Reports = ({ reviewerData, feedbackData }) => {
                               Reviewer
                             </TableSortLabel>
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 'bold' }}>
+                          <TableCell sx={{ fontWeight: 'bold', color: textColor }}>
                             <TableSortLabel
                               active={internalOrderBy === 'qaMember'}
                               direction={internalOrderBy === 'qaMember' ? internalOrder : 'asc'}
                               onClick={() => {
-                                const isAsc =
-                                  internalOrderBy === 'qaMember' && internalOrder === 'asc';
+                                const isAsc = internalOrderBy === 'qaMember' && internalOrder === 'asc';
                                 setInternalOrder(isAsc ? 'desc' : 'asc');
                                 setInternalOrderBy('qaMember');
                               }}
-                              sx={{
-                                background:
-                                  internalOrderBy === 'qaMember'
-                                    ? 'linear-gradient(45deg, #1976D2 30%, #1565C0 90%)'
-                                    : 'linear-gradient(45deg, #2196F3 30%, #1976D2 90%)',
-                                color: '#fff',
-                                borderRadius: '3px',
-                                px: 1,
-                                py: 0.5,
-                                cursor: 'pointer',
-                                transition: 'background-color 0.3s, box-shadow 0.3s',
-                                '&:hover': {
-                                  background: 'linear-gradient(45deg, #1976D2 30%, #1565C0 90%)',
-                                  boxShadow: '0px 2px 4px rgba(0,0,0,0.2)'
-                                }
-                              }}
                             >
-                              Sort by QA Member
+                              QA Member
                             </TableSortLabel>
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 'bold' }}>Feedback Details</TableCell>
-                          <TableCell sx={{ fontWeight: 'bold' }}>Copy Feedback</TableCell>
+                          <TableCell sx={{ fontWeight: 'bold', color: textColor }}>
+                            Feedback Details
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 'bold', color: textColor }}>
+                            Copy Feedback
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {stableSort(
-                          internalFeedback,
-                          getComparator(internalOrder, internalOrderBy)
-                        ).map((item, index) => (
-                          <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#f9f9f9" : "inherit" }}>
-                            <TableCell sx={{ verticalAlign: 'top' }}>{item.reviewer}</TableCell>
-                            <TableCell sx={{ verticalAlign: 'top' }}>{item.qaMember}</TableCell>
-                            <TableCell>
-                              <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fafafa' }}>
-                                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                        {stableSort(internalFeedback, getComparator(internalOrder, internalOrderBy)).map((item, index) => (
+                          <TableRow
+                            key={index}
+                            sx={{
+                              backgroundColor:
+                                index % 2 === 0
+                                  ? theme.palette.mode === 'dark'
+                                    ? '#555'
+                                    : '#f9f9f9'
+                                  : 'inherit'
+                            }}
+                          >
+                            <TableCell sx={{ verticalAlign: 'top', color: textColor }}>
+                              {item.reviewer}
+                            </TableCell>
+                            <TableCell sx={{ verticalAlign: 'top', color: textColor }}>
+                              {qaInternalMapping[Number(item.qaMember)] || item.qaMember}
+                            </TableCell>
+                            <TableCell sx={{ color: textColor }}>
+                              <Paper variant="outlined" sx={{ p: 1, bgcolor: theme.palette.mode === 'dark' ? '#616161' : '#fafafa' }}>
+                                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', color: textColor }}>
                                   {`Date: ${dayjs(item.date).format('YYYY-MM-DD')}\nClient: ${item.client}\nCase ID: ${item.caseID}\nFeedback: ${item.content}`}
                                 </Typography>
                               </Paper>

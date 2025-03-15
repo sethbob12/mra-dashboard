@@ -1,8 +1,11 @@
 // src/App.js
-
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Box, CssBaseline, Button, Tooltip } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import RefreshIcon from "@mui/icons-material/Refresh";
+
+import liveIcon from "./assets/liveIcon.png"; // Example live icon
 
 import Navbar from "./Navbar";
 import Home from "./Home";
@@ -15,16 +18,33 @@ import Reports from "./Reports";
 import QAMetrics from "./QAMetrics";
 import LoginPage from "./LoginPage";
 
-// Import mock data files
-import FLData from "./FLData";        // Mock reviewer data
-import FeedbackData from "./FeedbackData";  // Mock feedback data
-import QAData from "./QAData";        // Mock QA data
-
+// Mock data & ProtectedRoute
+import FLData from "./FLData";
+import FeedbackData from "./FeedbackData";
+import QAData from "./QAData";
 import ProtectedRoute from "./ProtectedRoute";
 import apiService from "./apiService";
 
 function App() {
-  // State to hold reviewer, feedback, and QA data
+  // Light/Dark mode
+  const [mode, setMode] = useState("light");
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+          ...(mode === "dark" && {
+            text: { primary: "#000" }
+          })
+        },
+        typography: {
+          allVariants: { color: mode === "dark" ? "#000" : "inherit" }
+        }
+      }),
+    [mode]
+  );
+
+  // Data states
   const [reviewerData, setReviewerData] = useState(FLData);
   const [feedbackData, setFeedbackData] = useState(FeedbackData);
   const [qaData, setQaData] = useState(QAData);
@@ -32,7 +52,7 @@ function App() {
   // Toggle for mock vs. live API
   const [useLiveApi, setUseLiveApi] = useState(false);
 
-  // Define fetchData with useCallback so it remains stable
+  // Data fetching
   const fetchData = useCallback(async () => {
     if (useLiveApi) {
       console.log("🔄 Fetching LIVE API data...");
@@ -46,7 +66,6 @@ function App() {
         console.log("✅ Loaded live API data.");
       } catch (error) {
         console.error("❌ Error fetching live API data:", error);
-        // Fallback to mock data on error
         setReviewerData(FLData);
         setFeedbackData(FeedbackData);
         setQaData(QAData);
@@ -59,22 +78,33 @@ function App() {
     }
   }, [useLiveApi]);
 
-  // Fetch data on mount and when toggle changes
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Toggle the data source (mock vs. live)
   const toggleDataSource = () => {
     setUseLiveApi((prev) => !prev);
   };
 
+  const toggleTheme = () => {
+    setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+  };
+
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Navbar />
+      <Navbar mode={mode} toggleTheme={toggleTheme} />
+
       <Box sx={{ mt: 4, margin: "0 auto", maxWidth: 1600, width: "100%", px: 2 }}>
-        <Box sx={{ textAlign: "center", my: 2 }}>
+        <Box
+          sx={{
+            my: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            justifyContent: "flex-start"
+          }}
+        >
           <Tooltip
             title={
               useLiveApi
@@ -86,16 +116,51 @@ function App() {
               variant="contained"
               color={useLiveApi ? "success" : "warning"}
               onClick={toggleDataSource}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1
+              }}
             >
-              {useLiveApi ? "🔄 Using LIVE API Data" : "🟡 Using MOCK Data"}
+              {useLiveApi ? (
+                <>
+                  <Box
+                    component="img"
+                    src={liveIcon}
+                    alt="Live Icon"
+                    sx={{ width: 24, height: 24 }}
+                  />
+                  Using LIVE API Data
+                </>
+              ) : (
+                "🟡 Using MOCK Data"
+              )}
             </Button>
           </Tooltip>
-          <Tooltip title="Click to refresh data from the current source">
-            <Button variant="outlined" sx={{ ml: 2 }} onClick={fetchData}>
+
+          <Tooltip title="Refresh Data">
+            <Button
+              variant="text"
+              onClick={fetchData}
+              sx={{
+                color: mode === "dark" ? "#fff" : "#000",
+                fontWeight: 500,
+                textTransform: "none",
+                padding: "4px 8px",
+                transition: "background-color 0.3s ease",
+                "&:hover": {
+                  backgroundColor: mode === "dark"
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.05)"
+                }
+              }}
+            >
+              <RefreshIcon sx={{ mr: 1 }} />
               Refresh Data
             </Button>
           </Tooltip>
         </Box>
+
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
@@ -157,7 +222,7 @@ function App() {
           />
         </Routes>
       </Box>
-    </>
+    </ThemeProvider>
   );
 }
 

@@ -32,14 +32,15 @@ import nightModeIcon from "./assets/night-mode.png";
 import csvIcon from "./assets/csvIcon.png";
 import pdfIcon from "./assets/pdfIcon.png";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-
 import {
   ResponsiveContainer,
   Sankey,
   Tooltip as RechartsTooltip
 } from "recharts";
+import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -228,11 +229,23 @@ function KPICard({ title, value, tooltip, color }) {
 
 /** ---------- FLTable Component ---------- */
 export default function FLTable({ data }) {
+  const theme = useTheme();
+  const darkMode = theme.palette.mode === "dark";
+  
+  // Header: blue gradient with black text
+  const headerBg = "linear-gradient(45deg, #1E73BE, #1565C0)";
+  const headerText = "#000";
+  // Row backgrounds for dark mode
+  const rowEvenBg = darkMode ? "#333" : "#f5f5f5";
+  const rowOddBg = darkMode ? "#424242" : "white";
+  const nameTextColor = darkMode ? "#fff" : "black";
+  
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("qualityScore");
   const [sankeyOpen, setSankeyOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-
+  const navigate = useNavigate();
+  
   // Sorting handler
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -240,9 +253,8 @@ export default function FLTable({ data }) {
     setOrderBy(property);
   };
 
-  // Feedback-click handler with added tooltips on buttons
+  // Feedback-click handler using navigate
   const handleFeedbackClick = (row, feedbackType) => {
-    const baseUrl = "/reports";
     const now = dayjs();
     const pastYear = now.subtract(365, "day");
     const queryParams = new URLSearchParams({
@@ -251,12 +263,10 @@ export default function FLTable({ data }) {
       endDate: now.format("YYYY-MM-DD"),
       feedbackType: feedbackType === "qa" ? "internal" : "client"
     });
-    window.location.href = `${baseUrl}?${queryParams.toString()}`;
+    navigate(`/reports?${queryParams.toString()}`);
   };
 
   // Build columns.
-  // "Case Type" header includes a tooltip explaining abbreviations.
-  // Added new tooltips for Yield and Effectiveness.
   const columns = [
     { id: "qualityScore", label: "Quality Score", align: "center" },
     { id: "name", label: "Name", align: "left", width: 250 },
@@ -319,8 +329,9 @@ export default function FLTable({ data }) {
       efficiencyScore: latest ? latest.efficiencyScore : row.efficiencyScore,
       revisionRate: latest ? latest.revisionRate : row.revisionRate,
       lateCasePercentage: latest ? latest.lateCasePercentage : row.lateCasePercentage,
-      avgCasesPerDay: latest ? latest.avgCasesPerDay : row.avgCasesPerDay,
+      avgCasesPerDay: latest ? (latest.avgCasesPerDay || latest.avgCasesDay) : (row.avgCasesPerDay || row.avgCasesDay),
       casesPast30Days: latest ? latest.casesPast30Days : row.casesPast30Days,
+      costPerCase: latest ? latest.costPerCase : row.costPerCase,
       status: row.status || "available"
     };
   });
@@ -354,7 +365,7 @@ export default function FLTable({ data }) {
     return stableSort(processed, getComparator(order, sortKey));
   }, [processedData, order, orderBy]);
 
-  // Compute KPI averages for display in a header row
+  // Compute KPI averages for header row
   let minAccuracy = Infinity,
     maxAccuracy = -Infinity,
     minTimeliness = Infinity,
@@ -437,8 +448,7 @@ export default function FLTable({ data }) {
     doc.save("reviewers_table.pdf");
   };
 
-  // A helper to render the Case Type cell with abbreviated labels and a tooltip on hover.
-  // "Psych" => "P" (darkgoldenrod), "Non-Psych" => "N" (blue), "Both" => "B" (green)
+  // Helper to render the Case Type cell with abbreviations and tooltip.
   function renderCaseType(row) {
     let label = "N";
     let color = "blue";
@@ -516,9 +526,9 @@ export default function FLTable({ data }) {
                   key={column.id}
                   sx={{
                     fontWeight: "bold",
-                    color: "white",
+                    color: headerText,
                     borderRight: "1px solid #ddd",
-                    background: "linear-gradient(45deg, #1E73BE, #1565C0)",
+                    background: headerBg,
                     borderBottom: "2px solid #0D47A1",
                     padding: "8px 12px",
                     textAlign: column.align || "center",
@@ -531,7 +541,7 @@ export default function FLTable({ data }) {
                     active={orderBy === column.id}
                     direction={orderBy === column.id ? "desc" : "asc"}
                     onClick={(e) => handleRequestSort(e, column.id)}
-                    sx={{ color: "white", "&:hover": { color: "#f0f0f0" } }}
+                    sx={{ color: headerText, "&:hover": { color: "#f0f0f0" } }}
                   >
                     {column.label}
                   </TableSortLabel>
@@ -576,8 +586,8 @@ export default function FLTable({ data }) {
                 <TableRow
                   key={row.mra_id}
                   sx={{
-                    backgroundColor: idx % 2 === 0 ? "#f5f5f5" : "white",
-                    "&:hover": { backgroundColor: "#e6f2ff" }
+                    backgroundColor: idx % 2 === 0 ? (darkMode ? "#333" : rowEvenBg) : (darkMode ? "#424242" : rowOddBg),
+                    "&:hover": { backgroundColor: darkMode ? "#555" : "#e6f2ff" }
                   }}
                 >
                   {/* Quality Score */}
@@ -606,17 +616,20 @@ export default function FLTable({ data }) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       cursor: "pointer",
-                      color: "black",
+                      color: nameTextColor,
                       textDecoration: "underline"
                     }}
                     onClick={() => {
                       const now = dayjs();
                       const pastYear = now.subtract(180, "day");
-                      window.location.href = `/reports?reviewer=${encodeURIComponent(
-                        row.name
-                      )}&clients=all&startDate=${pastYear.format(
-                        "YYYY-MM-DD"
-                      )}&endDate=${now.format("YYYY-MM-DD")}&reportType=Cases/Revisions`;
+                      const queryParams = new URLSearchParams({
+                        reviewer: row.name,
+                        clients: "all",
+                        startDate: pastYear.format("YYYY-MM-DD"),
+                        endDate: now.format("YYYY-MM-DD"),
+                        reportType: "Cases/Revisions"
+                      });
+                      navigate(`/reports?${queryParams.toString()}`);
                     }}
                   >
                     {row.name}
@@ -639,7 +652,7 @@ export default function FLTable({ data }) {
                   </TableCell>
 
                   {/* Avg Cases/Day */}
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell sx={{ textAlign: "center", color: darkMode ? "#fff" : "inherit" }}>
                     {row.avgCasesPerDay?.toFixed(1) || 0}
                   </TableCell>
 
@@ -701,7 +714,7 @@ export default function FLTable({ data }) {
                   {/* Status */}
                   <TableCell sx={{ textAlign: "center" }}>
                     <Tooltip title="Status pending API access" arrow>
-                      {status === "available" ? (
+                      {row.status === "available" ? (
                         <span style={{ color: "green", fontWeight: "bold" }}>✅</span>
                       ) : (
                         <span style={{ color: "red", fontWeight: "bold" }}>❌</span>

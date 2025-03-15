@@ -1,5 +1,4 @@
 // src/EmailListGenerator.js
-
 import React, { useState } from "react";
 import {
   Box,
@@ -15,6 +14,7 @@ import {
   createTheme,
   ThemeProvider
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
@@ -48,6 +48,7 @@ const psychWriters = {
  * @param {Array} data - Array of reviewer data (mock/live) passed from App.js
  */
 const EmailListGenerator = ({ data }) => {
+  const theme = useTheme();
   const [selectedClient, setSelectedClient] = useState(null);
   const [copiedClient, setCopiedClient] = useState(null);
 
@@ -56,7 +57,15 @@ const EmailListGenerator = ({ data }) => {
     return (
       <ThemeProvider theme={openSansTheme}>
         <Box sx={{ mb: 4, pt: 4 }}>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}>
+          <Typography
+            variant="h5"
+            sx={{
+              mb: 2,
+              fontWeight: "bold",
+              textAlign: "center",
+              color: theme.palette.mode === "dark" ? "#fff" : "#000"
+            }}
+          >
             Email List Generator
           </Typography>
           <Typography sx={{ textAlign: "center", color: "gray" }}>
@@ -79,7 +88,9 @@ const EmailListGenerator = ({ data }) => {
   }, {});
 
   // 3) All unique emails across reviewers
-  const allEmails = [...new Set(data.filter((item) => item.email).map((item) => item.email))];
+  const allEmails = [
+    ...new Set(data.filter((item) => item.email).map((item) => item.email))
+  ];
 
   // 4) Build categories: "All", "Psych", plus each client
   const emailCategories = {
@@ -101,7 +112,9 @@ const EmailListGenerator = ({ data }) => {
     if (emailCategories[client]) {
       const addresses = emailCategories[client].join(", ");
       const subject = `[${client}] Update -`;
-      const mailtoLink = `mailto:?bcc=${encodeURIComponent(addresses)}&subject=${encodeURIComponent(subject)}`;
+      const mailtoLink = `mailto:?bcc=${encodeURIComponent(
+        addresses
+      )}&subject=${encodeURIComponent(subject)}`;
       window.location.href = mailtoLink;
     } else {
       const mailtoLink = `mailto:?subject=${encodeURIComponent("Update -")}`;
@@ -111,7 +124,8 @@ const EmailListGenerator = ({ data }) => {
 
   // Export the "All" emails as CSV
   const handleExportEmails = () => {
-    const csvContent = "data:text/csv;charset=utf-8,Email\n" + emailCategories["All"].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8,Email\n" + emailCategories["All"].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -132,8 +146,8 @@ const EmailListGenerator = ({ data }) => {
           sx={{
             mb: 2,
             fontWeight: "bold",
-            color: "#000",
-            textAlign: "center"
+            textAlign: "center",
+            color: theme.palette.mode === "dark" ? "#fff" : "#000"
           }}
         >
           Email List Generator

@@ -3,6 +3,8 @@ import React from "react";
 import { AppBar, Toolbar, Button, Box, Typography, IconButton } from "@mui/material";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import ThemeToggleSwitch from "./ThemeToggleSwitch"; // Import your custom toggle switch
+
 import growthChartGif from "./assets/growth-chart.gif";
 import houseChimney from "./assets/house-chimney.png";
 import tableGif from "./assets/table.gif";
@@ -11,7 +13,7 @@ import doveGif from "./assets/dove.gif";
 import reportsGif from "./assets/reports.gif";
 import oneGif from "./assets/1.gif";
 
-const Navbar = () => {
+const Navbar = ({ mode, toggleTheme }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -66,31 +68,37 @@ const Navbar = () => {
           gap: 2,
         }}
       >
-        {/* Left side: Logo and title */}
-        <Box
-          component={NavLink}
-          to="/"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            textDecoration: "none",
-            color: "white",
-            "&:hover": { opacity: 0.9 },
-          }}
-        >
-          <IconButton size="large" edge="start" color="inherit" aria-label="dashboard" sx={{ mr: 1 }}>
-            {logoElement}
-          </IconButton>
-          <Typography
-            variant="h5"
+        {/* Left side: Logo, title, and theme toggle switch */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box
+            component={NavLink}
+            to="/"
             sx={{
-              fontWeight: "bold",
-              letterSpacing: ".5px",
-              fontFamily: "Open Sans, sans-serif",
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+              color: "white",
+              "&:hover": { opacity: 0.9 },
             }}
           >
-            MRA Dashboard
-          </Typography>
+            <IconButton size="large" edge="start" color="inherit" aria-label="dashboard" sx={{ mr: 1 }}>
+              {logoElement}
+            </IconButton>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "bold",
+                letterSpacing: ".5px",
+                fontFamily: "Open Sans, sans-serif",
+              }}
+            >
+              MRA Dashboard
+            </Typography>
+          </Box>
+          {/* Theme toggle placed outside the NavLink */}
+          <Box sx={{ ml: 1 }}>
+            <ThemeToggleSwitch checked={mode === "dark"} onChange={toggleTheme} />
+          </Box>
         </Box>
 
         {/* Right side: Navigation links and logout */}

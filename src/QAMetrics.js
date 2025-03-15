@@ -22,19 +22,14 @@ import {
   Grid,
   TextField
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -50,6 +45,8 @@ import {
   Pie,
   Cell
 } from "recharts";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 dayjs.extend(utc);
 
@@ -180,6 +177,10 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
 
 // ========== QAMetrics Component ==========
 export default function QAMetrics({ qaData }) {
+  const theme = useTheme();
+  const textColor = theme.palette.mode === "dark" ? "#fff" : "#000";
+  const bgColor = theme.palette.mode === "dark" ? "#424242" : "#f9f9f9";
+
   const [qaMemberFilter, setQaMemberFilter] = useState("All");
   const [startDate, setStartDate] = useState(dayjs("2025-02-09"));
   const [endDate, setEndDate] = useState(dayjs("2025-03-11"));
@@ -337,58 +338,103 @@ export default function QAMetrics({ qaData }) {
 
   return (
     <ThemeProvider theme={openSansTheme}>
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Paper sx={{ p: 3, borderRadius: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+      <Box sx={{ mt: 4, mb: 4, color: textColor, backgroundColor: bgColor, p: 2, borderRadius: 2 }}>
+        <Paper
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            backgroundColor: bgColor,
+            color: textColor
+          }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: textColor }}>
             QA Metrics Report
           </Typography>
-          {/* Header row with three equal columns */}
-          <Box sx={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-            <FormControl sx={{ flexBasis: { xs: "100%", sm: "33%" } }}>
-              <InputLabel>QA Member</InputLabel>
-              <Select
-                value={qaMemberFilter}
-                onChange={e => setQaMemberFilter(e.target.value)}
-                label="QA Member"
-              >
-                {uniqueQAMembers.map(member => (
-                  <MenuItem key={member} value={member}>
-                    {member}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Start Date"
-                value={startDate}
-                onChange={newValue => {
-                  if (newValue && newValue.isValid()) setStartDate(newValue);
-                }}
-                inputFormat="YYYY-MM-DD"
-                renderInput={params => (
-                  <Box sx={{ flexBasis: { xs: "100%", sm: "33%" } }}>
-                    <TextField fullWidth {...params} />
-                  </Box>
-                )}
-              />
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="End Date"
-                value={endDate}
-                onChange={newValue => {
-                  if (newValue && newValue.isValid()) setEndDate(newValue);
-                }}
-                inputFormat="YYYY-MM-DD"
-                renderInput={params => (
-                  <Box sx={{ flexBasis: { xs: "100%", sm: "33%" } }}>
-                    <TextField fullWidth {...params} />
-                  </Box>
-                )}
-              />
-            </LocalizationProvider>
-          </Box>
+          {/* Header row using Grid for even spacing */}
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel sx={{ color: textColor, "&.Mui-focused": { color: textColor } }}>QA Member</InputLabel>
+                <Select
+                  value={qaMemberFilter}
+                  onChange={e => setQaMemberFilter(e.target.value)}
+                  label="QA Member"
+                  sx={{
+                    color: textColor,
+                    "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: textColor }
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: bgColor,
+                        "& .MuiMenuItem-root": { color: textColor }
+                      }
+                    }
+                  }}
+                >
+                  {uniqueQAMembers.map(member => (
+                    <MenuItem key={member} value={member} sx={{ color: textColor }}>
+                      {member}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Start Date"
+                  value={startDate}
+                  onChange={newValue => {
+                    if (newValue && newValue.isValid()) setStartDate(newValue);
+                  }}
+                  inputFormat="YYYY-MM-DD"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      sx: {
+                        "& .MuiOutlinedInput-root": { color: textColor },
+                        "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "& .MuiFormLabel-root": { color: textColor },
+                        "& .MuiFormLabel-root.Mui-focused": { color: textColor }
+                      }
+                    }
+                  }}
+                  renderInput={params => <TextField fullWidth {...params} />}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="End Date"
+                  value={endDate}
+                  onChange={newValue => {
+                    if (newValue && newValue.isValid()) setEndDate(newValue);
+                  }}
+                  inputFormat="YYYY-MM-DD"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      sx: {
+                        "& .MuiOutlinedInput-root": { color: textColor },
+                        "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "& .MuiFormLabel-root": { color: textColor },
+                        "& .MuiFormLabel-root.Mui-focused": { color: textColor }
+                      }
+                    }
+                  }}
+                  renderInput={params => <TextField fullWidth {...params} />}
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Grid>
           <Button
             variant="contained"
             color="primary"
@@ -417,23 +463,18 @@ export default function QAMetrics({ qaData }) {
                   : 0;
               const revisionTrend = getTrend(currentRevisionRate, previousRevisionRate);
               const avgCasesTrend = getTrend(member.avgCasesDay, member.prevAvgCasesDay);
-              const clientData = Object.entries(member.breakdownByClient).map(([client, count]) => ({
-                client,
-                count
-              }));
-
               return (
-                <Paper key={member.qaMember} sx={{ p: 2, mb: 2 }}>
+                <Paper key={member.qaMember} sx={{ p: 2, mb: 2, backgroundColor: bgColor, color: textColor }}>
                   <Grid container spacing={2}>
-                    {/* Left Column: Submission Stats, Revisions, and Bar Chart */}
+                    {/* Left Column */}
                     <Grid item xs={12} sm={6}>
-                      <Typography variant="h6" sx={{ mb: 1 }}>
+                      <Typography variant="h6" sx={{ mb: 1, color: textColor }}>
                         QA Member {member.qaMember} – {member.name}
                       </Typography>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, color: textColor }}>
                         Submission Stats
                       </Typography>
-                      <List dense>
+                      <List dense sx={{ color: textColor }}>
                         <ListItem>
                           <Tooltip title={`Change: ${avgCasesTrend.change}`}>
                             {avgCasesTrend.arrow === "↑" ? (
@@ -444,28 +485,28 @@ export default function QAMetrics({ qaData }) {
                           </Tooltip>
                           <ListItemText
                             primary={
-                              <Typography variant="body1" sx={{ fontWeight: "bold", textAlign: "left" }}>
+                              <Typography variant="body1" sx={{ fontWeight: "bold", textAlign: "left", color: textColor }}>
                                 Avg Cases/Day: {member.avgCasesDay.toFixed(1)}
                               </Typography>
                             }
                           />
                         </ListItem>
                         <ListItem>
-                          <ListItemText primary={`Cases (Past 7 Days): ${member.casesPast7Days}`} />
+                          <ListItemText primary={`Cases (Past 7 Days): ${member.casesPast7Days}`} sx={{ color: textColor }} />
                         </ListItem>
                         <ListItem>
-                          <ListItemText primary={`Cases (Past 30 Days): ${member.casesPast30Days}`} />
+                          <ListItemText primary={`Cases (Past 30 Days): ${member.casesPast30Days}`} sx={{ color: textColor }} />
                         </ListItem>
                         <ListItem>
-                          <ListItemText primary={`Total Cases Submitted: ${member.totalCases}`} />
+                          <ListItemText primary={`Total Cases Submitted: ${member.totalCases}`} sx={{ color: textColor }} />
                         </ListItem>
                       </List>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, color: textColor }}>
                         Revisions / Feedback
                       </Typography>
                       <List dense>
                         <ListItem>
-                          <ListItemText primary={`Revisions Sent (Week): ${member.revisionsSentWeek}`} />
+                          <ListItemText primary={`Revisions Sent (Week): ${member.revisionsSentWeek}`} sx={{ color: textColor }} />
                         </ListItem>
                         <ListItem>
                           <Tooltip title={`(Client Revisions / Total Cases) x 100. Trend: ${revisionTrend.change}`}>
@@ -489,7 +530,7 @@ export default function QAMetrics({ qaData }) {
                               )}
                               <ListItemText
                                 primary={
-                                  <Typography variant="body1" sx={{ fontWeight: "bold", textAlign: "left" }}>
+                                  <Typography variant="body1" sx={{ fontWeight: "bold", textAlign: "left", color: textColor }}>
                                     Revision Rate: {currentRevisionRate.toFixed(1)}%
                                   </Typography>
                                 }
@@ -498,7 +539,7 @@ export default function QAMetrics({ qaData }) {
                           </Tooltip>
                         </ListItem>
                       </List>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, mb: 1, textAlign: "left" }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, mb: 1, textAlign: "left", color: textColor }}>
                         Avg Cases/Day by Snapshot
                       </Typography>
                       {barData.length > 0 ? (
@@ -506,8 +547,8 @@ export default function QAMetrics({ qaData }) {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={barData}>
                               <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="dateLabel" />
-                              <YAxis />
+                              <XAxis dataKey="dateLabel" stroke={textColor} />
+                              <YAxis stroke={textColor} />
                               <RechartsTooltip
                                 formatter={val => `${val.toFixed(1)} cases/day`}
                                 labelFormatter={label => `Date: ${label}`}
@@ -518,19 +559,19 @@ export default function QAMetrics({ qaData }) {
                           </ResponsiveContainer>
                         </Box>
                       ) : (
-                        <Typography>No snapshots in this date range.</Typography>
+                        <Typography sx={{ color: textColor }}>No snapshots in this date range.</Typography>
                       )}
                     </Grid>
 
                     {/* Right Column: Larger Pie Chart */}
                     <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, textAlign: "center" }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, textAlign: "center", color: textColor }}>
                         Client Breakdown
                       </Typography>
                       <Box
                         sx={{
                           width: "100%",
-                          height: 350,  // Increased height for a bigger pie chart
+                          height: 350,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center"
@@ -539,14 +580,14 @@ export default function QAMetrics({ qaData }) {
                         <ResponsiveContainer width="80%" height="80%">
                           <PieChart>
                             <Pie
-                              data={clientData}
+                              data={Object.entries(member.breakdownByClient).map(([client, count]) => ({ client, count }))}
                               dataKey="count"
                               nameKey="client"
                               innerRadius={50}
                               outerRadius={80}
                               label
                             >
-                              {clientData.map((entry, index) => (
+                              {Object.entries(member.breakdownByClient).map(([client, count], index) => (
                                 <Cell key={`cell-${index}`} fill={baseColors[index % baseColors.length]} />
                               ))}
                             </Pie>
@@ -574,36 +615,48 @@ export default function QAMetrics({ qaData }) {
                     </Button>
                     <Collapse in={expandedFeedback[member.qaMember]} timeout="auto" unmountOnExit>
                       <Box sx={{ mt: 2 }}>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                        <Typography variant="subtitle1" sx={{ mb: 1, color: textColor }}>
                           Feedback (in this date range):
                         </Typography>
                         {sortedFeedbackList.length > 0 ? (
-                          <Paper sx={{ overflowX: "auto" }}>
+                          <Paper sx={{ overflowX: "auto", backgroundColor: bgColor }}>
                             <Table size="small">
                               <TableHead>
-                                <TableRow>
-                                  <TableCell sx={{ minWidth: "120px" }}>Reviewer</TableCell>
-                                  <TableCell sx={{ minWidth: "120px" }}>Date</TableCell>
-                                  <TableCell>Client</TableCell>
-                                  <TableCell sx={{ minWidth: "120px" }}>Case ID</TableCell>
-                                  <TableCell>Feedback</TableCell>
+                                <TableRow sx={{ backgroundColor: theme.palette.mode === "dark" ? "#555" : "#f5f5f5" }}>
+                                  <TableCell sx={{ minWidth: "120px", color: textColor }}>Reviewer</TableCell>
+                                  <TableCell sx={{ minWidth: "120px", color: textColor }}>Date</TableCell>
+                                  <TableCell sx={{ color: textColor }}>Client</TableCell>
+                                  <TableCell sx={{ minWidth: "120px", color: textColor }}>Case ID</TableCell>
+                                  <TableCell sx={{ color: textColor }}>Feedback</TableCell>
                                 </TableRow>
                               </TableHead>
                               <TableBody>
                                 {sortedFeedbackList.map((fb, idx) => (
-                                  <TableRow key={idx}>
-                                    <TableCell>{fb.reviewer}</TableCell>
-                                    <TableCell>{dayjs(fb.date).format("YYYY-MM-DD")}</TableCell>
-                                    <TableCell>{fb.client}</TableCell>
-                                    <TableCell>{fb.caseID}</TableCell>
-                                    <TableCell>{fb.content}</TableCell>
+                                  <TableRow
+                                    key={idx}
+                                    sx={{
+                                      backgroundColor:
+                                        idx % 2 === 0
+                                          ? theme.palette.mode === "dark"
+                                            ? "#555"
+                                            : "#f9f9f9"
+                                          : "inherit"
+                                    }}
+                                  >
+                                    <TableCell sx={{ color: textColor }}>{fb.reviewer}</TableCell>
+                                    <TableCell sx={{ color: textColor }}>
+                                      {dayjs(fb.date).format("YYYY-MM-DD")}
+                                    </TableCell>
+                                    <TableCell sx={{ color: textColor }}>{fb.client}</TableCell>
+                                    <TableCell sx={{ color: textColor }}>{fb.caseID}</TableCell>
+                                    <TableCell sx={{ color: textColor }}>{fb.content}</TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
                             </Table>
                           </Paper>
                         ) : (
-                          <Typography>No feedback in this date range.</Typography>
+                          <Typography sx={{ color: textColor }}>No feedback in this date range.</Typography>
                         )}
                       </Box>
                     </Collapse>
@@ -620,13 +673,13 @@ export default function QAMetrics({ qaData }) {
         )}
 
         {/* Combined Chart */}
-        <Paper sx={{ p: 3, borderRadius: 2, mt: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+        <Paper sx={{ p: 3, borderRadius: 2, mt: 4, backgroundColor: bgColor, color: textColor }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: textColor }}>
             Combined Avg Cases/Day Trend (Past 30 Days)
           </Typography>
           <Box sx={{ display: "flex" }}>
             <Box sx={{ mr: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1, color: textColor }}>
                 Legend
               </Typography>
               {uniqueQAMemberIDs.map(qaMember => (
@@ -644,7 +697,7 @@ export default function QAMetrics({ qaData }) {
                       mr: 1
                     }}
                   />
-                  <Typography sx={{ opacity: activeQA[qaMember] ? 1 : 0.3 }} variant="body2">
+                  <Typography sx={{ opacity: activeQA[qaMember] ? 1 : 0.3, color: textColor }} variant="body2">
                     QA Member {qaMember} - {qaData.find(m => m.qaMember === qaMember)?.name}
                   </Typography>
                 </Box>
@@ -653,9 +706,10 @@ export default function QAMetrics({ qaData }) {
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={combinedTrendData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis domain={[minDomain, maxDomain]} />
+                <XAxis dataKey="date" stroke={textColor} />
+                <YAxis domain={[minDomain, maxDomain]} stroke={textColor} />
                 <RechartsTooltip cursor={{ strokeDasharray: "3 3", strokeWidth: 1 }} />
+                <Legend />
                 {uniqueQAMemberIDs.map(qaMember => (
                   <Line
                     key={qaMember}

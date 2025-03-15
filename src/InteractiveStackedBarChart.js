@@ -1,5 +1,4 @@
-// apiService.js /* REFACTORED for apiService layer*/
-
+// src/InteractiveStackedBarChart.js
 import React, { useState, useMemo } from "react";
 import { 
   Paper, 
@@ -9,6 +8,7 @@ import {
   Select, 
   MenuItem 
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import {
   ResponsiveContainer,
   BarChart,
@@ -21,6 +21,10 @@ import {
 } from "recharts";
 
 const InteractiveStackedBarChart = ({ data }) => {
+  const theme = useTheme();
+  // Set text color: white in dark mode, black in light mode.
+  const textColor = theme.palette.mode === "dark" ? "#fff" : "#000";
+
   // Process the data: compute overall qualityScore and include individual scores and cost.
   const processedData = useMemo(() => {
     return data.map((reviewer) => {
@@ -105,20 +109,40 @@ const InteractiveStackedBarChart = ({ data }) => {
 
   return (
     <Paper elevation={4} style={{ padding: 16, marginTop: 16, overflowY: "auto" }}>
-      <Typography variant="h6" style={{ marginBottom: 16, color: "#1E73BE" }}>
-        {/* add a title here if desired */}
+      {/* Optionally add a title here */}
+      <Typography variant="h6" style={{ marginBottom: 16, color: textColor }}>
+        Quality Scores
       </Typography>
-      <FormControl style={{ marginBottom: 16, minWidth: 200 }}>
-        <InputLabel id="client-select-label">Filter by Client</InputLabel>
+      <FormControl sx={{ mb: 2, minWidth: 200 }}>
+        <InputLabel
+          id="client-select-label"
+          sx={{ color: textColor, "&.Mui-focused": { color: textColor } }}
+        >
+          Filter by Client
+        </InputLabel>
         <Select
           labelId="client-select-label"
           value={selectedClient}
           label="Filter by Client"
           onChange={(e) => setSelectedClient(e.target.value)}
+          sx={{
+            color: textColor,
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: textColor,
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: textColor,
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: textColor,
+            },
+          }}
         >
-          <MenuItem value="All">All</MenuItem>
+          <MenuItem value="All" sx={{ color: textColor }}>All</MenuItem>
           {allClients.map(client => (
-            <MenuItem key={client} value={client}>{client}</MenuItem>
+            <MenuItem key={client} value={client} sx={{ color: textColor }}>
+              {client}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -130,7 +154,7 @@ const InteractiveStackedBarChart = ({ data }) => {
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" domain={[0, 100]} tick={false} />
-          <YAxis type="category" dataKey="name" width={150} />
+          <YAxis type="category" dataKey="name" width={150} tick={{ fill: textColor }} />
           <Tooltip content={<CustomTooltip />} />
           {/* No Legend */}
           <Bar dataKey="accuracyScore" stackId="a" fill={colors.accuracyScore} name="Accuracy" />
