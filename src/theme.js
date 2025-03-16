@@ -4,13 +4,13 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#007bff', // Brand color
+      main: '#007bff', // Brand (primary) color
     },
     secondary: {
       main: '#28a745', // Secondary color
     },
     background: {
-      default: '#f0f0f0', // A warmer, more subdued light gray
+      default: '#f0f0f0', // A warmer, subdued light gray
     },
     text: {
       primary: '#333',
@@ -46,7 +46,7 @@ const theme = createTheme({
     MuiContainer: {
       styleOverrides: {
         root: {
-          backgroundColor: '#f0f0f0', // Matches the overall app background
+          backgroundColor: '#f0f0f0',
         },
       },
     },

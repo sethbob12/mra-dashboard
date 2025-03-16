@@ -108,6 +108,7 @@ const getSortedFeedback = (qaMember, start, end, feedbackData) => {
     .sort((a, b) => dayjs(a.date) - dayjs(b.date));
 };
 
+// eslint-disable-next-line no-unused-vars
 const computeDifferenceInRange = (snapshots, metric, rangeStart, rangeEnd) => {
   if (!snapshots || !Array.isArray(snapshots)) return 0;
   const filtered = snapshots
@@ -193,18 +194,6 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
   return data;
 };
 
-const getLatestSnapshot = (reviewer, endDate) => {
-  const snapshots = reviewer.snapshots.filter((snap) =>
-    dayjs(snap.snapshotDate).isSameOrBefore(endDate)
-  );
-  if (snapshots.length === 0) return null;
-  snapshots.sort(
-    (a, b) =>
-      dayjs(b.snapshotDate).valueOf() - dayjs(a.snapshotDate).valueOf()
-  );
-  return snapshots[0];
-};
-
 // ========== QAMetrics Component ==========
 export default function QAMetrics({ qaData, feedbackData }) {
   const theme = useTheme();
@@ -272,12 +261,7 @@ export default function QAMetrics({ qaData, feedbackData }) {
       )
       .map((member) => {
         const snapshots = member.snapshots || [];
-        const totalCases = computeDifferenceInRange(
-          snapshots,
-          "totalCasesSubmitted",
-          startDate,
-          endDate
-        );
+        // Filter snapshots within the selected range
         const snapshotsInRange = snapshots
           .filter((snap) => {
             const t = dayjs.utc(snap.snapshotDate);
@@ -287,24 +271,19 @@ export default function QAMetrics({ qaData, feedbackData }) {
             );
           })
           .sort((a, b) => dayjs.utc(a.snapshotDate) - dayjs.utc(b.snapshotDate));
+        // Choose the most recent snapshot in the range
         const latestSnapshot =
           snapshotsInRange.length > 0 ? snapshotsInRange[snapshotsInRange.length - 1] : null;
+        // Use the snapshot value directly as the measure for the past 7 days.
+        const totalCases = latestSnapshot ? latestSnapshot.totalCasesSubmitted : 0;
         const revisionsSentWeek = latestSnapshot ? latestSnapshot.revisionsSent : 0;
         const clientRevisionsWeek = latestSnapshot ? latestSnapshot.clientRevisions : 0;
+        const casesPast7Days = totalCases;
+        // Estimate 30-day total by multiplying the weekly number by (30/7)
+        const casesPast30Days = latestSnapshot ? Math.round(totalCases * (30 / 7)) : 0;
+        // For avgCasesDay, retain the computed value (if needed, could also use latestSnapshot.avgCasesDay)
         const workdays = getWorkdays(startDate, endDate);
         const avgCasesDayComputed = workdays > 0 ? totalCases / workdays : 0;
-        const casesPast7Days = computeDifferenceInRange(
-          snapshots,
-          "totalCasesSubmitted",
-          endDate.clone().subtract(6, "day"),
-          endDate
-        );
-        const casesPast30Days = computeDifferenceInRange(
-          snapshots,
-          "totalCasesSubmitted",
-          endDate.clone().subtract(29, "day"),
-          endDate
-        );
         return {
           qaMember: member.qaMember,
           name: member.name,
