@@ -55,7 +55,6 @@ const openSansTheme = createTheme({
 });
 
 // ---------- QA Internal Mapping ----------
-// Map internal QA member IDs (from qaData) to full names for internal feedback.
 const qaInternalMapping = {
   301: "Alice Cooper",
   302: "Brian Adams",
@@ -95,7 +94,7 @@ const getWorkdays = (start, end) => {
   return count;
 };
 
-// Returns only internal feedback items (from feedbackData) that match the full name mapping
+// Returns only internal feedback items from feedbackData that match the QA member (using full name mapping)
 const getSortedFeedback = (qaMember, start, end, feedbackData) => {
   return feedbackData
     .filter((fb) => {
@@ -192,6 +191,18 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
     data.push(point);
   }
   return data;
+};
+
+const getLatestSnapshot = (reviewer, endDate) => {
+  const snapshots = reviewer.snapshots.filter((snap) =>
+    dayjs(snap.snapshotDate).isSameOrBefore(endDate)
+  );
+  if (snapshots.length === 0) return null;
+  snapshots.sort(
+    (a, b) =>
+      dayjs(b.snapshotDate).valueOf() - dayjs(a.snapshotDate).valueOf()
+  );
+  return snapshots[0];
 };
 
 // ========== QAMetrics Component ==========
@@ -353,8 +364,6 @@ export default function QAMetrics({ qaData, feedbackData }) {
     setActiveQA((prev) => ({ ...prev, [qaMember]: !prev[qaMember] }));
   };
 
-  // Inline feedback toggle is now handled directly in the onClick below.
-
   return (
     <ThemeProvider theme={openSansTheme}>
       <Box
@@ -373,6 +382,7 @@ export default function QAMetrics({ qaData, feedbackData }) {
             QA Metrics Report
           </Typography>
           <Grid container spacing={2}>
+            {/* QA Member Filter */}
             <Grid item xs={12} sm={4}>
               <FormControl fullWidth>
                 <InputLabel sx={{ color: textColor }}>QA Member</InputLabel>
@@ -396,6 +406,7 @@ export default function QAMetrics({ qaData, feedbackData }) {
                 </Select>
               </FormControl>
             </Grid>
+            {/* Start Date */}
             <Grid item xs={12} sm={4}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
@@ -409,17 +420,23 @@ export default function QAMetrics({ qaData, feedbackData }) {
                     <TextField
                       fullWidth
                       {...params}
+                      InputProps={{
+                        ...params.InputProps,
+                        style: { color: textColor }
+                      }}
+                      InputLabelProps={{
+                        ...params.InputLabelProps,
+                        style: { color: textColor }
+                      }}
                       sx={{
-                        "& .MuiOutlinedInput-root": { color: textColor },
-                        "& .MuiInputBase-input": { color: textColor },
-                        "& .MuiFormLabel-root": { color: textColor },
-                        "& .MuiFormLabel-root.Mui-focused": { color: textColor }
+                        "& .MuiOutlinedInput-root": { color: textColor }
                       }}
                     />
                   )}
                 />
               </LocalizationProvider>
             </Grid>
+            {/* End Date */}
             <Grid item xs={12} sm={4}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
@@ -433,11 +450,16 @@ export default function QAMetrics({ qaData, feedbackData }) {
                     <TextField
                       fullWidth
                       {...params}
+                      InputProps={{
+                        ...params.InputProps,
+                        style: { color: textColor }
+                      }}
+                      InputLabelProps={{
+                        ...params.InputLabelProps,
+                        style: { color: textColor }
+                      }}
                       sx={{
-                        "& .MuiOutlinedInput-root": { color: textColor },
-                        "& .MuiInputBase-input": { color: textColor },
-                        "& .MuiFormLabel-root": { color: textColor },
-                        "& .MuiFormLabel-root.Mui-focused": { color: textColor }
+                        "& .MuiOutlinedInput-root": { color: textColor }
                       }}
                     />
                   )}
@@ -462,14 +484,13 @@ export default function QAMetrics({ qaData, feedbackData }) {
               const barData = computeBarDataForMember(member, startDate, endDate);
               const currentRevisionRate =
                 member.totalCases > 0 ? (member.clientRevisionsWeek / member.totalCases) * 100 : 0;
-              const previousRevisionRate =
-                member.prevTotalCases > 0
-                  ? (member.prevClientRevisionsWeek / member.prevTotalCases) * 100
-                  : 0;
-              const revisionTrend = getTrend(currentRevisionRate, previousRevisionRate);
-              const avgCasesTrend = getTrend(member.avgCasesDay, member.prevAvgCasesDay);
+              const revisionTrend = getTrend(currentRevisionRate, 0);
+              const avgCasesTrend = getTrend(member.avgCasesDay, 0);
               return (
-                <Paper key={member.qaMember} sx={{ p: 2, mb: 2, backgroundColor: bgColor, color: textColor }}>
+                <Paper
+                  key={member.qaMember}
+                  sx={{ p: 2, mb: 2, backgroundColor: bgColor, color: textColor }}
+                >
                   <Grid container spacing={2}>
                     {/* Left Column: Stats and Bar Chart */}
                     <Grid item xs={12} sm={6}>
@@ -497,13 +518,22 @@ export default function QAMetrics({ qaData, feedbackData }) {
                           />
                         </ListItem>
                         <ListItem>
-                          <ListItemText primary={`Cases (Past 7 Days): ${member.casesPast7Days}`} sx={{ color: textColor }} />
+                          <ListItemText
+                            primary={`Cases (Past 7 Days): ${member.casesPast7Days}`}
+                            sx={{ color: textColor }}
+                          />
                         </ListItem>
                         <ListItem>
-                          <ListItemText primary={`Cases (Past 30 Days): ${member.casesPast30Days}`} sx={{ color: textColor }} />
+                          <ListItemText
+                            primary={`Cases (Past 30 Days): ${member.casesPast30Days}`}
+                            sx={{ color: textColor }}
+                          />
                         </ListItem>
                         <ListItem>
-                          <ListItemText primary={`Total Cases Submitted: ${member.totalCases}`} sx={{ color: textColor }} />
+                          <ListItemText
+                            primary={`Total Cases Submitted: ${member.totalCases}`}
+                            sx={{ color: textColor }}
+                          />
                         </ListItem>
                       </List>
                       <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, color: textColor }}>
@@ -511,7 +541,10 @@ export default function QAMetrics({ qaData, feedbackData }) {
                       </Typography>
                       <List dense>
                         <ListItem>
-                          <ListItemText primary={`Revisions Sent (Week): ${member.revisionsSentWeek}`} sx={{ color: textColor }} />
+                          <ListItemText
+                            primary={`Revisions Sent (Week): ${member.revisionsSentWeek}`}
+                            sx={{ color: textColor }}
+                          />
                         </ListItem>
                         <ListItem>
                           <Tooltip title={`(Client Revisions / Total Cases) x 100. Trend: ${revisionTrend.change}`}>
@@ -568,7 +601,9 @@ export default function QAMetrics({ qaData, feedbackData }) {
                           </ResponsiveContainer>
                         </Box>
                       ) : (
-                        <Typography sx={{ color: textColor }}>No snapshots in this date range.</Typography>
+                        <Typography sx={{ color: textColor }}>
+                          No snapshots in this date range.
+                        </Typography>
                       )}
                     </Grid>
                     {/* Right Column: Client Breakdown Pie Chart */}
@@ -588,10 +623,9 @@ export default function QAMetrics({ qaData, feedbackData }) {
                         <ResponsiveContainer width="80%" height="80%">
                           <PieChart>
                             <Pie
-                              data={Object.entries(member.breakdownByClient).map(([client, count]) => ({
-                                client,
-                                count
-                              }))}
+                              data={Object.entries(member.breakdownByClient).map(
+                                ([client, count]) => ({ client, count })
+                              )}
                               dataKey="count"
                               nameKey="client"
                               innerRadius={50}
@@ -689,7 +723,8 @@ export default function QAMetrics({ qaData, feedbackData }) {
             </Box>
           </Box>
         )}
-        {/* Combined Chart Section (Optional; remove if not needed) */}
+
+        {/* Combined Chart Section (Optional) */}
         <Paper sx={{ p: 3, borderRadius: 2, mt: 4, backgroundColor: bgColor, color: textColor }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: textColor }}>
             Combined Avg Cases/Day Trend (Past 30 Days)
