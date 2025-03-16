@@ -14,23 +14,7 @@
         },
         "revisionsSent": 4,
         "clientRevisions": 3,
-        "avgCasesDay": 5.2,
-        "feedback": [
-          {
-            "content": "Well-structured report with excellent attention to detail.",
-            "reviewer": "Michael Johnson",
-            "client": "PFR",
-            "caseID": "PFR-10203",
-            "date": "2025-03-03T10:45:00Z"
-          },
-          {
-            "content": "Missed minor formatting requirements but otherwise strong work.",
-            "reviewer": "Jane Smith",
-            "client": "Hartford",
-            "caseID": "HAR-23456",
-            "date": "2025-03-02T14:30:00Z"
-          }
-        ]
+        "avgCasesDay": 5.2
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -42,8 +26,7 @@
         },
         "revisionsSent": 5,
         "clientRevisions": 2,
-        "avgCasesDay": 4.8,
-        "feedback": []
+        "avgCasesDay": 4.8
       }
     ]
   },
@@ -61,23 +44,7 @@
         },
         "revisionsSent": 6,
         "clientRevisions": 4,
-        "avgCasesDay": 6.5,
-        "feedback": [
-          {
-            "content": "Excellent analysis, provided strong supporting rationale.",
-            "reviewer": "Emily Davis",
-            "client": "Lincoln",
-            "caseID": "LIN-30567",
-            "date": "2025-03-03T12:20:00Z"
-          },
-          {
-            "content": "Efficiency has improved, but ensure clarity in complex cases.",
-            "reviewer": "Robert Brown",
-            "client": "PFR",
-            "caseID": "PFR-19876",
-            "date": "2025-03-02T09:50:00Z"
-          }
-        ]
+        "avgCasesDay": 6.5
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -89,8 +56,7 @@
         },
         "revisionsSent": 7,
         "clientRevisions": 3,
-        "avgCasesDay": 6.1,
-        "feedback": []
+        "avgCasesDay": 6.1
       }
     ]
   },
@@ -108,23 +74,7 @@
         },
         "revisionsSent": 3,
         "clientRevisions": 5,
-        "avgCasesDay": 5.8,
-        "feedback": [
-          {
-            "content": "Comprehensive and well-researched, minor citation errors.",
-            "reviewer": "Sophia Wilson",
-            "client": "Hartford",
-            "caseID": "HAR-56789",
-            "date": "2025-03-03T15:40:00Z"
-          },
-          {
-            "content": "Client feedback suggests clearer recommendations needed.",
-            "reviewer": "John Doe",
-            "client": "Lincoln",
-            "caseID": "LIN-34578",
-            "date": "2025-03-02T11:25:00Z"
-          }
-        ]
+        "avgCasesDay": 5.8
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -136,8 +86,7 @@
         },
         "revisionsSent": 4,
         "clientRevisions": 4,
-        "avgCasesDay": 5.3,
-        "feedback": []
+        "avgCasesDay": 5.3
       }
     ]
   },
@@ -155,23 +104,7 @@
         },
         "revisionsSent": 7,
         "clientRevisions": 6,
-        "avgCasesDay": 7.2,
-        "feedback": [
-          {
-            "content": "Well-organized case, but minor revision needed for completeness.",
-            "reviewer": "Michael Johnson",
-            "client": "PFR",
-            "caseID": "PFR-40123",
-            "date": "2025-03-03T09:15:00Z"
-          },
-          {
-            "content": "Fast turnaround time and strong documentation.",
-            "reviewer": "Sophia Wilson",
-            "client": "Lincoln",
-            "caseID": "LIN-90876",
-            "date": "2025-03-02T13:50:00Z"
-          }
-        ]
+        "avgCasesDay": 7.2
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -183,8 +116,7 @@
         },
         "revisionsSent": 6,
         "clientRevisions": 5,
-        "avgCasesDay": 6.8,
-        "feedback": []
+        "avgCasesDay": 6.8
       }
     ]
   },
@@ -202,23 +134,7 @@
         },
         "revisionsSent": 5,
         "clientRevisions": 4,
-        "avgCasesDay": 5.9,
-        "feedback": [
-          {
-            "content": "Data insights are solid and the approach is methodical.",
-            "reviewer": "John Doe",
-            "client": "PFR",
-            "caseID": "PFR-55555",
-            "date": "2025-03-03T11:00:00Z"
-          },
-          {
-            "content": "Needs to improve clarity in recommendations.",
-            "reviewer": "Robert Brown",
-            "client": "Lincoln",
-            "caseID": "LIN-44444",
-            "date": "2025-03-02T16:30:00Z"
-          }
-        ]
+        "avgCasesDay": 5.9
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -230,8 +146,7 @@
         },
         "revisionsSent": 6,
         "clientRevisions": 3,
-        "avgCasesDay": 5.5,
-        "feedback": []
+        "avgCasesDay": 5.5
       }
     ]
   },
@@ -249,23 +164,7 @@
         },
         "revisionsSent": 6,
         "clientRevisions": 4,
-        "avgCasesDay": 6.2,
-        "feedback": [
-          {
-            "content": "Well-executed analysis with attention to client nuances.",
-            "reviewer": "Emily Davis",
-            "client": "Hartford",
-            "caseID": "HAR-33333",
-            "date": "2025-03-03T14:00:00Z"
-          },
-          {
-            "content": "Satisfactory report, minor improvements needed in clarity.",
-            "reviewer": "Jane Smith",
-            "client": "PFR",
-            "caseID": "PFR-22222",
-            "date": "2025-03-02T10:20:00Z"
-          }
-        ]
+        "avgCasesDay": 6.2
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -277,8 +176,7 @@
         },
         "revisionsSent": 7,
         "clientRevisions": 3,
-        "avgCasesDay": 6.0,
-        "feedback": []
+        "avgCasesDay": 6.0
       }
     ]
   },
@@ -296,23 +194,7 @@
         },
         "revisionsSent": 4,
         "clientRevisions": 5,
-        "avgCasesDay": 5.4,
-        "feedback": [
-          {
-            "content": "The report is detailed but could use more context in recommendations.",
-            "reviewer": "Emily Davis",
-            "client": "Lincoln",
-            "caseID": "LIN-77777",
-            "date": "2025-03-03T09:40:00Z"
-          },
-          {
-            "content": "Solid performance; however, minor errors in formatting were noted.",
-            "reviewer": "Robert Brown",
-            "client": "PFR",
-            "caseID": "PFR-66666",
-            "date": "2025-03-02T15:10:00Z"
-          }
-        ]
+        "avgCasesDay": 5.4
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -324,8 +206,7 @@
         },
         "revisionsSent": 5,
         "clientRevisions": 4,
-        "avgCasesDay": 5.0,
-        "feedback": []
+        "avgCasesDay": 5.0
       }
     ]
   },
@@ -343,23 +224,7 @@
         },
         "revisionsSent": 5,
         "clientRevisions": 4,
-        "avgCasesDay": 6.0,
-        "feedback": [
-          {
-            "content": "Very consistent and reliable reporting.",
-            "reviewer": "Emily Davis",
-            "client": "Hartford",
-            "caseID": "HAR-88888",
-            "date": "2025-03-03T13:00:00Z"
-          },
-          {
-            "content": "Strong performance with room for minor improvements.",
-            "reviewer": "John Doe",
-            "client": "PFR",
-            "caseID": "PFR-99999",
-            "date": "2025-03-02T11:30:00Z"
-          }
-        ]
+        "avgCasesDay": 6.0
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
@@ -371,8 +236,7 @@
         },
         "revisionsSent": 6,
         "clientRevisions": 3,
-        "avgCasesDay": 5.7,
-        "feedback": []
+        "avgCasesDay": 5.7
         }
       ]
     }
