@@ -5,11 +5,11 @@ import { Box } from "@mui/material";
 import WbSunnyIcon from "@mui/icons-material/WbSunny"; // Sun icon
 import NightlightRoundIcon from "@mui/icons-material/NightlightRound"; // Moon icon
 
-const ToggleContainer = styled(Box)(({ theme, checked }) => ({
+const ToggleContainer = styled(Box)(({ checked }) => ({
   width: 60,
   height: 30,
   borderRadius: 15,
-  backgroundColor: !checked ? "#feedc2" : "#ccc", // Lighter warm color for light mode
+  backgroundColor: !checked ? "#feedc2" : "#000", // Light mode: warm color, dark mode: black
   position: "relative",
   cursor: "pointer",
   userSelect: "none",
@@ -39,7 +39,7 @@ const ThemeToggleSwitch = ({ checked, onChange }) => {
       {/* Moon icon on left */}
       <IconWrapper sx={{ left: 6 }}>
         <NightlightRoundIcon
-          sx={{ fontSize: 18, color: "#555", opacity: checked ? 1 : 0.4 }}
+          sx={{ fontSize: 18, color: checked ? "#fff" : "#555", opacity: 1 }}
         />
       </IconWrapper>
       {/* Sun icon on right */}

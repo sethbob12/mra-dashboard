@@ -11,7 +11,6 @@ import {
   Paper,
   List,
   ListItem,
-  ListItemText,
   Collapse,
   Tooltip,
   Table,
@@ -22,6 +21,7 @@ import {
   Grid,
   TextField
 } from "@mui/material";
+import ListItemText from "@mui/material/ListItemText";
 import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -51,12 +51,22 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 dayjs.extend(utc);
 
 const openSansTheme = createTheme({
-  typography: {
-    fontFamily: "Open Sans, sans-serif"
-  }
+  typography: { fontFamily: "Open Sans, sans-serif" }
 });
 
-// ---------- Helper Functions ----------
+// ---------- QA Internal Mapping ----------
+// Map internal QA member IDs (from qaData) to full names for internal feedback.
+const qaInternalMapping = {
+  301: "Alice Cooper",
+  302: "Brian Adams",
+  303: "Carla Gomez",
+  304: "Derek Hughes",
+  305: "Evelyn Price",
+  306: "Felix Ramirez",
+  307: "Gloria Chen",
+  308: "Henry Kim"
+};
+
 const baseColors = [
   "#1E73BE",
   "#FF8042",
@@ -85,41 +95,46 @@ const getWorkdays = (start, end) => {
   return count;
 };
 
-const getSortedFeedback = (qaMember, start, end, qaData) => {
-  const member = qaData.find(x => x.qaMember === qaMember);
-  if (!member) return [];
-  let allFeedback = [];
-  member.snapshots.forEach(snap => {
-    if (Array.isArray(snap.feedback)) {
-      snap.feedback.forEach(fb => {
-        const fbDay = dayjs(fb.date);
-        if (fbDay.isSameOrAfter(start) && fbDay.isSameOrBefore(end)) {
-          allFeedback.push(fb);
-        }
-      });
-    }
-  });
-  return allFeedback.sort((a, b) => dayjs(a.date) - dayjs(b.date));
+// Returns only internal feedback items (from feedbackData) that match the full name mapping
+const getSortedFeedback = (qaMember, start, end, feedbackData) => {
+  return feedbackData
+    .filter((fb) => {
+      if (fb.feedbackType !== "internal") return false;
+      return (
+        fb.qaMember === qaInternalMapping[qaMember] &&
+        dayjs(fb.date).isSameOrAfter(start) &&
+        dayjs(fb.date).isSameOrBefore(end)
+      );
+    })
+    .sort((a, b) => dayjs(a.date) - dayjs(b.date));
 };
 
 const computeDifferenceInRange = (snapshots, metric, rangeStart, rangeEnd) => {
   if (!snapshots || !Array.isArray(snapshots)) return 0;
   const filtered = snapshots
-    .filter(snap => {
+    .filter((snap) => {
       const t = dayjs.utc(snap.snapshotDate);
-      return t.isSameOrAfter(dayjs.utc(rangeStart)) && t.isSameOrBefore(dayjs.utc(rangeEnd));
+      return (
+        t.isSameOrAfter(dayjs.utc(rangeStart)) &&
+        t.isSameOrBefore(dayjs.utc(rangeEnd))
+      );
     })
     .sort((a, b) => dayjs.utc(a.snapshotDate) - dayjs.utc(b.snapshotDate));
-  if (filtered.length >= 2) return filtered[filtered.length - 1][metric] - filtered[0][metric];
-  else if (filtered.length === 1) return filtered[0][metric];
+  if (filtered.length >= 2)
+    return filtered[filtered.length - 1][metric] - filtered[0][metric];
+  else if (filtered.length === 1)
+    return filtered[0][metric];
   return 0;
 };
 
 const computeClientBreakdown = (snapshots, rangeStart, rangeEnd) => {
   const filtered = snapshots
-    .filter(snap => {
+    .filter((snap) => {
       const t = dayjs.utc(snap.snapshotDate);
-      return t.isSameOrAfter(dayjs.utc(rangeStart)) && t.isSameOrBefore(dayjs.utc(rangeEnd));
+      return (
+        t.isSameOrAfter(dayjs.utc(rangeStart)) &&
+        t.isSameOrBefore(dayjs.utc(rangeEnd))
+      );
     })
     .sort((a, b) => dayjs.utc(a.snapshotDate) - dayjs.utc(b.snapshotDate));
   if (filtered.length < 2) return {};
@@ -128,7 +143,8 @@ const computeClientBreakdown = (snapshots, rangeStart, rangeEnd) => {
   const breakdown = {};
   for (const client in endSnapshot.breakdownByClient) {
     breakdown[client] =
-      endSnapshot.breakdownByClient[client] - (startSnapshot.breakdownByClient[client] || 0);
+      endSnapshot.breakdownByClient[client] -
+      (startSnapshot.breakdownByClient[client] || 0);
   }
   return breakdown;
 };
@@ -136,12 +152,15 @@ const computeClientBreakdown = (snapshots, rangeStart, rangeEnd) => {
 const computeBarDataForMember = (member, startDate, endDate) => {
   if (!member.snapshots) return [];
   return member.snapshots
-    .filter(snap => {
+    .filter((snap) => {
       const t = dayjs.utc(snap.snapshotDate);
-      return t.isSameOrAfter(dayjs.utc(startDate)) && t.isSameOrBefore(dayjs.utc(endDate));
+      return (
+        t.isSameOrAfter(dayjs.utc(startDate)) &&
+        t.isSameOrBefore(dayjs.utc(endDate))
+      );
     })
     .sort((a, b) => dayjs.utc(a.snapshotDate) - dayjs.utc(b.snapshotDate))
-    .map(snap => ({
+    .map((snap) => ({
       dateLabel: dayjs.utc(snap.snapshotDate).format("MMM D"),
       avgCasesDay: snap.avgCasesDay
     }));
@@ -154,8 +173,8 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
   for (let i = 0; i < days; i++) {
     const currentDay = windowStart.clone().add(i, "day");
     const point = { date: currentDay.format("MM-DD") };
-    uniqueQAMemberIDs.forEach(qaMember => {
-      const memberObj = qaData.find(x => x.qaMember === qaMember);
+    uniqueQAMemberIDs.forEach((qaMember) => {
+      const memberObj = qaData.find((x) => x.qaMember === qaMember);
       if (!memberObj || !memberObj.snapshots) {
         point[`qa_${qaMember}`] = 0;
         return;
@@ -163,7 +182,7 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
       let lastVal = 0;
       memberObj.snapshots
         .sort((a, b) => dayjs.utc(a.snapshotDate) - dayjs.utc(b.snapshotDate))
-        .forEach(snap => {
+        .forEach((snap) => {
           if (dayjs.utc(snap.snapshotDate).isSameOrBefore(currentDay)) {
             lastVal = snap.avgCasesDay;
           }
@@ -176,7 +195,7 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
 };
 
 // ========== QAMetrics Component ==========
-export default function QAMetrics({ qaData }) {
+export default function QAMetrics({ qaData, feedbackData }) {
   const theme = useTheme();
   const textColor = theme.palette.mode === "dark" ? "#fff" : "#000";
   const bgColor = theme.palette.mode === "dark" ? "#424242" : "#f9f9f9";
@@ -191,17 +210,17 @@ export default function QAMetrics({ qaData }) {
   const noData = !Array.isArray(qaData) || qaData.length === 0;
 
   const uniqueQAMemberIDs = useMemo(() => {
-    return noData ? [] : Array.from(new Set(qaData.map(item => item.qaMember)));
+    return noData ? [] : Array.from(new Set(qaData.map((item) => item.qaMember)));
   }, [noData, qaData]);
 
   const uniqueQAMembers = useMemo(() => {
-    return noData ? [] : ["All", ...qaData.map(item => `${item.qaMember} - ${item.name}`)];
+    return noData ? [] : ["All", ...qaData.map((item) => `${item.qaMember} - ${item.name}`)];
   }, [noData, qaData]);
 
   useEffect(() => {
     if (!noData) {
       const initial = {};
-      qaData.forEach(member => {
+      qaData.forEach((member) => {
         initial[member.qaMember] = true;
       });
       setActiveQA(initial);
@@ -218,8 +237,8 @@ export default function QAMetrics({ qaData }) {
     }
     let min = Infinity;
     let max = -Infinity;
-    combinedTrendData.forEach(point => {
-      uniqueQAMemberIDs.forEach(qaMember => {
+    combinedTrendData.forEach((point) => {
+      uniqueQAMemberIDs.forEach((qaMember) => {
         const val = point[`qa_${qaMember}`];
         if (val < min) min = val;
         if (val > max) max = val;
@@ -235,23 +254,32 @@ export default function QAMetrics({ qaData }) {
       return;
     }
     const result = qaData
-      .filter(member =>
-        qaMemberFilter === "All" ? true : `${member.qaMember} - ${member.name}` === qaMemberFilter
+      .filter((member) =>
+        qaMemberFilter === "All"
+          ? true
+          : `${member.qaMember} - ${member.name}` === qaMemberFilter
       )
-      .map(member => {
+      .map((member) => {
         const snapshots = member.snapshots || [];
-        const totalCases = computeDifferenceInRange(snapshots, "totalCasesSubmitted", startDate, endDate);
-
+        const totalCases = computeDifferenceInRange(
+          snapshots,
+          "totalCasesSubmitted",
+          startDate,
+          endDate
+        );
         const snapshotsInRange = snapshots
-          .filter(snap => {
+          .filter((snap) => {
             const t = dayjs.utc(snap.snapshotDate);
-            return t.isSameOrAfter(dayjs.utc(startDate)) && t.isSameOrBefore(dayjs.utc(endDate));
+            return (
+              t.isSameOrAfter(dayjs.utc(startDate)) &&
+              t.isSameOrBefore(dayjs.utc(endDate))
+            );
           })
           .sort((a, b) => dayjs.utc(a.snapshotDate) - dayjs.utc(b.snapshotDate));
-        const latestSnapshot = snapshotsInRange.length > 0 ? snapshotsInRange[snapshotsInRange.length - 1] : null;
+        const latestSnapshot =
+          snapshotsInRange.length > 0 ? snapshotsInRange[snapshotsInRange.length - 1] : null;
         const revisionsSentWeek = latestSnapshot ? latestSnapshot.revisionsSent : 0;
         const clientRevisionsWeek = latestSnapshot ? latestSnapshot.clientRevisions : 0;
-
         const workdays = getWorkdays(startDate, endDate);
         const avgCasesDayComputed = workdays > 0 ? totalCases / workdays : 0;
         const casesPast7Days = computeDifferenceInRange(
@@ -266,14 +294,6 @@ export default function QAMetrics({ qaData }) {
           endDate.clone().subtract(29, "day"),
           endDate
         );
-
-        const periodLengthDays = endDate.diff(startDate, "day") + 1;
-        const prevEndDate = startDate.clone().subtract(1, "day");
-        const prevStartDate = startDate.clone().subtract(periodLengthDays, "day");
-        const prevTotalCases = computeDifferenceInRange(snapshots, "totalCasesSubmitted", prevStartDate, prevEndDate);
-        const prevAvgCasesDay = periodLengthDays > 0 ? prevTotalCases / periodLengthDays : 0;
-        const prevClientRevisions = computeDifferenceInRange(snapshots, "clientRevisions", prevStartDate, prevEndDate);
-
         return {
           qaMember: member.qaMember,
           name: member.name,
@@ -283,9 +303,6 @@ export default function QAMetrics({ qaData }) {
           casesPast30Days,
           revisionsSentWeek,
           clientRevisionsWeek,
-          prevAvgCasesDay,
-          prevClientRevisionsWeek: prevClientRevisions,
-          prevTotalCases,
           breakdownByClient: computeClientBreakdown(snapshots, startDate, endDate),
           snapshots
         };
@@ -299,7 +316,11 @@ export default function QAMetrics({ qaData }) {
     doc.setFontSize(16);
     doc.text("QA Metrics Report", 14, 20);
     doc.setFontSize(12);
-    doc.text(`Period: ${startDate.format("YYYY-MM-DD")} to ${endDate.format("YYYY-MM-DD")}`, 14, 30);
+    doc.text(
+      `Period: ${startDate.format("YYYY-MM-DD")} to ${endDate.format("YYYY-MM-DD")}`,
+      14,
+      30
+    );
     const tableColumns = [
       "QA Member",
       "Name",
@@ -310,7 +331,7 @@ export default function QAMetrics({ qaData }) {
       "Revisions (Week)",
       "Revision Rate (%)"
     ];
-    const tableRows = report.map(member => {
+    const tableRows = report.map((member) => {
       const currentRevisionRate =
         member.totalCases > 0 ? (member.clientRevisionsWeek / member.totalCases) * 100 : 0;
       return [
@@ -328,53 +349,46 @@ export default function QAMetrics({ qaData }) {
     doc.save("qa_metrics_report.pdf");
   };
 
-  const toggleLine = qaMember => {
-    setActiveQA(prev => ({ ...prev, [qaMember]: !prev[qaMember] }));
+  const toggleLine = (qaMember) => {
+    setActiveQA((prev) => ({ ...prev, [qaMember]: !prev[qaMember] }));
   };
 
-  const handleToggleFeedback = qaMember => {
-    setExpandedFeedback(prev => ({ ...prev, [qaMember]: !prev[qaMember] }));
-  };
+  // Inline feedback toggle is now handled directly in the onClick below.
 
   return (
     <ThemeProvider theme={openSansTheme}>
-      <Box sx={{ mt: 4, mb: 4, color: textColor, backgroundColor: bgColor, p: 2, borderRadius: 2 }}>
-        <Paper
-          sx={{
-            p: 3,
-            borderRadius: 2,
-            backgroundColor: bgColor,
-            color: textColor
-          }}
-        >
+      <Box
+        sx={{
+          mt: 4,
+          mb: 4,
+          backgroundColor: bgColor,
+          p: 2,
+          borderRadius: 2,
+          color: textColor
+        }}
+      >
+        {/* Report Header */}
+        <Paper sx={{ p: 3, borderRadius: 2, backgroundColor: bgColor, color: textColor }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: textColor }}>
             QA Metrics Report
           </Typography>
-          {/* Header row using Grid for even spacing */}
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: textColor, "&.Mui-focused": { color: textColor } }}>QA Member</InputLabel>
+                <InputLabel sx={{ color: textColor }}>QA Member</InputLabel>
                 <Select
                   value={qaMemberFilter}
-                  onChange={e => setQaMemberFilter(e.target.value)}
+                  onChange={(e) => setQaMemberFilter(e.target.value)}
                   label="QA Member"
                   sx={{
                     color: textColor,
-                    "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
-                    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: textColor }
+                    "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor }
                   }}
                   MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        bgcolor: bgColor,
-                        "& .MuiMenuItem-root": { color: textColor }
-                      }
-                    }
+                    PaperProps: { sx: { bgcolor: bgColor, "& .MuiMenuItem-root": { color: textColor } } }
                   }}
                 >
-                  {uniqueQAMembers.map(member => (
+                  {uniqueQAMembers.map((member) => (
                     <MenuItem key={member} value={member} sx={{ color: textColor }}>
                       {member}
                     </MenuItem>
@@ -387,24 +401,22 @@ export default function QAMetrics({ qaData }) {
                 <DatePicker
                   label="Start Date"
                   value={startDate}
-                  onChange={newValue => {
+                  onChange={(newValue) => {
                     if (newValue && newValue.isValid()) setStartDate(newValue);
                   }}
                   inputFormat="YYYY-MM-DD"
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      sx: {
+                  renderInput={(params) => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      sx={{
                         "& .MuiOutlinedInput-root": { color: textColor },
-                        "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
-                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "& .MuiInputBase-input": { color: textColor },
                         "& .MuiFormLabel-root": { color: textColor },
                         "& .MuiFormLabel-root.Mui-focused": { color: textColor }
-                      }
-                    }
-                  }}
-                  renderInput={params => <TextField fullWidth {...params} />}
+                      }}
+                    />
+                  )}
                 />
               </LocalizationProvider>
             </Grid>
@@ -413,24 +425,22 @@ export default function QAMetrics({ qaData }) {
                 <DatePicker
                   label="End Date"
                   value={endDate}
-                  onChange={newValue => {
+                  onChange={(newValue) => {
                     if (newValue && newValue.isValid()) setEndDate(newValue);
                   }}
                   inputFormat="YYYY-MM-DD"
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      sx: {
+                  renderInput={(params) => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      sx={{
                         "& .MuiOutlinedInput-root": { color: textColor },
-                        "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
-                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "& .MuiInputBase-input": { color: textColor },
                         "& .MuiFormLabel-root": { color: textColor },
                         "& .MuiFormLabel-root.Mui-focused": { color: textColor }
-                      }
-                    }
-                  }}
-                  renderInput={params => <TextField fullWidth {...params} />}
+                      }}
+                    />
+                  )}
                 />
               </LocalizationProvider>
             </Grid>
@@ -445,16 +455,11 @@ export default function QAMetrics({ qaData }) {
           </Button>
         </Paper>
 
+        {/* Report Results */}
         {report && report.length > 0 && (
           <Box sx={{ mt: 3 }}>
-            {report.map(member => {
+            {report.map((member) => {
               const barData = computeBarDataForMember(member, startDate, endDate);
-              const sortedFeedbackList = getSortedFeedback(
-                member.qaMember,
-                startDate.clone(),
-                endDate.clone(),
-                qaData
-              );
               const currentRevisionRate =
                 member.totalCases > 0 ? (member.clientRevisionsWeek / member.totalCases) * 100 : 0;
               const previousRevisionRate =
@@ -466,7 +471,7 @@ export default function QAMetrics({ qaData }) {
               return (
                 <Paper key={member.qaMember} sx={{ p: 2, mb: 2, backgroundColor: bgColor, color: textColor }}>
                   <Grid container spacing={2}>
-                    {/* Left Column */}
+                    {/* Left Column: Stats and Bar Chart */}
                     <Grid item xs={12} sm={6}>
                       <Typography variant="h6" sx={{ mb: 1, color: textColor }}>
                         QA Member {member.qaMember} – {member.name}
@@ -474,7 +479,7 @@ export default function QAMetrics({ qaData }) {
                       <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, color: textColor }}>
                         Submission Stats
                       </Typography>
-                      <List dense sx={{ color: textColor }}>
+                      <List dense>
                         <ListItem>
                           <Tooltip title={`Change: ${avgCasesTrend.change}`}>
                             {avgCasesTrend.arrow === "↑" ? (
@@ -485,7 +490,7 @@ export default function QAMetrics({ qaData }) {
                           </Tooltip>
                           <ListItemText
                             primary={
-                              <Typography variant="body1" sx={{ fontWeight: "bold", textAlign: "left", color: textColor }}>
+                              <Typography variant="body1" sx={{ fontWeight: "bold", color: textColor }}>
                                 Avg Cases/Day: {member.avgCasesDay.toFixed(1)}
                               </Typography>
                             }
@@ -530,8 +535,12 @@ export default function QAMetrics({ qaData }) {
                               )}
                               <ListItemText
                                 primary={
-                                  <Typography variant="body1" sx={{ fontWeight: "bold", textAlign: "left", color: textColor }}>
-                                    Revision Rate: {currentRevisionRate.toFixed(1)}%
+                                  <Typography variant="body1" sx={{ fontWeight: "bold", color: textColor }}>
+                                    Revision Rate:{" "}
+                                    {member.totalCases > 0
+                                      ? (member.clientRevisionsWeek / member.totalCases * 100).toFixed(1)
+                                      : "0.0"}
+                                    %
                                   </Typography>
                                 }
                               />
@@ -539,19 +548,19 @@ export default function QAMetrics({ qaData }) {
                           </Tooltip>
                         </ListItem>
                       </List>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, mb: 1, textAlign: "left", color: textColor }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, mb: 1, color: textColor }}>
                         Avg Cases/Day by Snapshot
                       </Typography>
                       {barData.length > 0 ? (
-                        <Box sx={{ width: "100%", height: 150, textAlign: "left" }}>
+                        <Box sx={{ width: "100%", height: 150 }}>
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={barData}>
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="dateLabel" stroke={textColor} />
                               <YAxis stroke={textColor} />
                               <RechartsTooltip
-                                formatter={val => `${val.toFixed(1)} cases/day`}
-                                labelFormatter={label => `Date: ${label}`}
+                                formatter={(val) => `${val.toFixed(1)} cases/day`}
+                                labelFormatter={(label) => `Date: ${label}`}
                               />
                               <Legend />
                               <Bar dataKey="avgCasesDay" fill={baseColors[0]} barSize={30} />
@@ -562,8 +571,7 @@ export default function QAMetrics({ qaData }) {
                         <Typography sx={{ color: textColor }}>No snapshots in this date range.</Typography>
                       )}
                     </Grid>
-
-                    {/* Right Column: Larger Pie Chart */}
+                    {/* Right Column: Client Breakdown Pie Chart */}
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, textAlign: "center", color: textColor }}>
                         Client Breakdown
@@ -580,7 +588,10 @@ export default function QAMetrics({ qaData }) {
                         <ResponsiveContainer width="80%" height="80%">
                           <PieChart>
                             <Pie
-                              data={Object.entries(member.breakdownByClient).map(([client, count]) => ({ client, count }))}
+                              data={Object.entries(member.breakdownByClient).map(([client, count]) => ({
+                                client,
+                                count
+                              }))}
                               dataKey="count"
                               nameKey="client"
                               innerRadius={50}
@@ -598,12 +609,16 @@ export default function QAMetrics({ qaData }) {
                       </Box>
                     </Grid>
                   </Grid>
-
                   {/* Feedback Section */}
                   <Box sx={{ mt: 2 }}>
                     <Button
                       variant="outlined"
-                      onClick={() => handleToggleFeedback(member.qaMember)}
+                      onClick={() =>
+                        setExpandedFeedback((prev) => ({
+                          ...prev,
+                          [member.qaMember]: !prev[member.qaMember]
+                        }))
+                      }
                       sx={{
                         mb: 1,
                         borderColor: "green",
@@ -618,40 +633,43 @@ export default function QAMetrics({ qaData }) {
                         <Typography variant="subtitle1" sx={{ mb: 1, color: textColor }}>
                           Feedback (in this date range):
                         </Typography>
-                        {sortedFeedbackList.length > 0 ? (
+                        {getSortedFeedback(member.qaMember, startDate.clone(), endDate.clone(), feedbackData).length > 0 ? (
                           <Paper sx={{ overflowX: "auto", backgroundColor: bgColor }}>
                             <Table size="small">
                               <TableHead>
-                                <TableRow sx={{ backgroundColor: theme.palette.mode === "dark" ? "#555" : "#f5f5f5" }}>
+                                <TableRow
+                                  sx={{
+                                    backgroundColor:
+                                      theme.palette.mode === "dark" ? "#555" : "#f5f5f5"
+                                  }}
+                                >
                                   <TableCell sx={{ minWidth: "120px", color: textColor }}>Reviewer</TableCell>
                                   <TableCell sx={{ minWidth: "120px", color: textColor }}>Date</TableCell>
                                   <TableCell sx={{ color: textColor }}>Client</TableCell>
-                                  <TableCell sx={{ minWidth: "120px", color: textColor }}>Case ID</TableCell>
-                                  <TableCell sx={{ color: textColor }}>Feedback</TableCell>
+                                  <TableCell sx={{ minWidth: "120px", color: textColor }}>Feedback</TableCell>
                                 </TableRow>
                               </TableHead>
                               <TableBody>
-                                {sortedFeedbackList.map((fb, idx) => (
-                                  <TableRow
-                                    key={idx}
-                                    sx={{
-                                      backgroundColor:
-                                        idx % 2 === 0
-                                          ? theme.palette.mode === "dark"
-                                            ? "#555"
-                                            : "#f9f9f9"
-                                          : "inherit"
-                                    }}
-                                  >
-                                    <TableCell sx={{ color: textColor }}>{fb.reviewer}</TableCell>
-                                    <TableCell sx={{ color: textColor }}>
-                                      {dayjs(fb.date).format("YYYY-MM-DD")}
-                                    </TableCell>
-                                    <TableCell sx={{ color: textColor }}>{fb.client}</TableCell>
-                                    <TableCell sx={{ color: textColor }}>{fb.caseID}</TableCell>
-                                    <TableCell sx={{ color: textColor }}>{fb.content}</TableCell>
-                                  </TableRow>
-                                ))}
+                                {getSortedFeedback(member.qaMember, startDate.clone(), endDate.clone(), feedbackData).map(
+                                  (fb, idx) => (
+                                    <TableRow
+                                      key={idx}
+                                      sx={{
+                                        backgroundColor:
+                                          idx % 2 === 0
+                                            ? theme.palette.mode === "dark"
+                                              ? "#555"
+                                              : "#f9f9f9"
+                                            : "inherit"
+                                      }}
+                                    >
+                                      <TableCell sx={{ color: textColor }}>{fb.reviewer}</TableCell>
+                                      <TableCell sx={{ color: textColor }}>{dayjs(fb.date).format("YYYY-MM-DD")}</TableCell>
+                                      <TableCell sx={{ color: textColor }}>{fb.client}</TableCell>
+                                      <TableCell sx={{ color: textColor }}>{fb.content}</TableCell>
+                                    </TableRow>
+                                  )
+                                )}
                               </TableBody>
                             </Table>
                           </Paper>
@@ -671,8 +689,7 @@ export default function QAMetrics({ qaData }) {
             </Box>
           </Box>
         )}
-
-        {/* Combined Chart */}
+        {/* Combined Chart Section (Optional; remove if not needed) */}
         <Paper sx={{ p: 3, borderRadius: 2, mt: 4, backgroundColor: bgColor, color: textColor }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: textColor }}>
             Combined Avg Cases/Day Trend (Past 30 Days)
@@ -682,7 +699,7 @@ export default function QAMetrics({ qaData }) {
               <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1, color: textColor }}>
                 Legend
               </Typography>
-              {uniqueQAMemberIDs.map(qaMember => (
+              {uniqueQAMemberIDs.map((qaMember) => (
                 <Box
                   key={qaMember}
                   sx={{ display: "flex", alignItems: "center", cursor: "pointer", mb: 1 }}
@@ -697,8 +714,8 @@ export default function QAMetrics({ qaData }) {
                       mr: 1
                     }}
                   />
-                  <Typography sx={{ opacity: activeQA[qaMember] ? 1 : 0.3, color: textColor }} variant="body2">
-                    QA Member {qaMember} - {qaData.find(m => m.qaMember === qaMember)?.name}
+                  <Typography variant="body2" sx={{ opacity: activeQA[qaMember] ? 1 : 0.3, color: textColor }}>
+                    QA Member {qaMember} – {qaInternalMapping[qaMember] || qaMember}
                   </Typography>
                 </Box>
               ))}
@@ -710,7 +727,7 @@ export default function QAMetrics({ qaData }) {
                 <YAxis domain={[minDomain, maxDomain]} stroke={textColor} />
                 <RechartsTooltip cursor={{ strokeDasharray: "3 3", strokeWidth: 1 }} />
                 <Legend />
-                {uniqueQAMemberIDs.map(qaMember => (
+                {uniqueQAMemberIDs.map((qaMember) => (
                   <Line
                     key={qaMember}
                     type="monotone"
