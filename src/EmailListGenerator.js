@@ -52,7 +52,7 @@ const EmailListGenerator = ({ data }) => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [copiedClient, setCopiedClient] = useState(null);
 
-  // 1) If data is undefined or empty, show a placeholder
+  // If data is undefined or empty, show a placeholder.
   if (!Array.isArray(data) || data.length === 0) {
     return (
       <ThemeProvider theme={openSansTheme}>
@@ -76,7 +76,7 @@ const EmailListGenerator = ({ data }) => {
     );
   }
 
-  // 2) Group Emails by Client from the passed-in `data`.
+  // Group Emails by Client from the passed-in `data`.
   const groupedEmails = data.reduce((acc, item) => {
     if (!item.email) return acc;
     const clientsArray = item.clients.split(",").map((c) => c.trim());
@@ -87,19 +87,19 @@ const EmailListGenerator = ({ data }) => {
     return acc;
   }, {});
 
-  // 3) All unique emails across reviewers
+  // All unique emails across reviewers.
   const allEmails = [
     ...new Set(data.filter((item) => item.email).map((item) => item.email))
   ];
 
-  // 4) Build categories: "All", "Psych", plus each client
+  // Build categories: "All", "Psych", plus each client.
   const emailCategories = {
     All: allEmails,
     Psych: Object.values(psychWriters),
     ...groupedEmails
   };
 
-  // Copy to clipboard
+  // Copy to clipboard.
   const handleCopy = (client) => {
     const textToCopy = emailCategories[client].join(", ");
     navigator.clipboard.writeText(textToCopy);
@@ -107,7 +107,7 @@ const EmailListGenerator = ({ data }) => {
     setTimeout(() => setCopiedClient(null), 1000);
   };
 
-  // Compose an email in user’s default mail client
+  // Compose an email in user’s default mail client.
   const handleEmailGroup = (client) => {
     if (emailCategories[client]) {
       const addresses = emailCategories[client].join(", ");
@@ -117,12 +117,11 @@ const EmailListGenerator = ({ data }) => {
       )}&subject=${encodeURIComponent(subject)}`;
       window.location.href = mailtoLink;
     } else {
-      const mailtoLink = `mailto:?subject=${encodeURIComponent("Update -")}`;
-      window.location.href = mailtoLink;
+      window.location.href = `mailto:?subject=${encodeURIComponent("Update -")}`;
     }
   };
 
-  // Export the "All" emails as CSV
+  // Export the "All" emails as CSV.
   const handleExportEmails = () => {
     const csvContent =
       "data:text/csv;charset=utf-8,Email\n" + emailCategories["All"].join("\n");
@@ -135,7 +134,7 @@ const EmailListGenerator = ({ data }) => {
     document.body.removeChild(link);
   };
 
-  // Convert to array for mapping
+  // Convert to array for mapping.
   const categoryEntries = Object.entries(emailCategories);
 
   return (
@@ -167,7 +166,10 @@ const EmailListGenerator = ({ data }) => {
                   "&:hover": {
                     boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
                     transform: "translateY(-2px)"
-                  }
+                  },
+                  // Dark mode styles.
+                  backgroundColor: theme.palette.mode === "dark" ? "#333" : "#fff",
+                  borderColor: theme.palette.mode === "dark" ? "#555" : "inherit"
                 }}
                 onClick={() => setSelectedClient(client)}
               >
@@ -196,7 +198,8 @@ const EmailListGenerator = ({ data }) => {
                   sx={{
                     p: 2,
                     textAlign: "center",
-                    backgroundColor: "#fff"
+                    // For dark mode, a slightly lighter box for contrast.
+                    backgroundColor: theme.palette.mode === "dark" ? "#444" : "#fff"
                   }}
                 >
                   <Button
@@ -205,10 +208,10 @@ const EmailListGenerator = ({ data }) => {
                     sx={{
                       textTransform: "none",
                       fontWeight: "bold",
-                      backgroundColor: "#757575",
+                      backgroundColor: theme.palette.mode === "dark" ? "#757575" : "#757575",
                       color: "#fff",
                       "&:hover": {
-                        backgroundColor: "#616161"
+                        backgroundColor: theme.palette.mode === "dark" ? "#616161" : "#616161"
                       }
                     }}
                   >
@@ -232,7 +235,9 @@ const EmailListGenerator = ({ data }) => {
                 "&:hover": {
                   boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
                   transform: "translateY(-2px)"
-                }
+                },
+                backgroundColor: theme.palette.mode === "dark" ? "#333" : "#fff",
+                borderColor: theme.palette.mode === "dark" ? "#555" : "inherit"
               }}
               onClick={handleExportEmails}
             >
@@ -259,7 +264,7 @@ const EmailListGenerator = ({ data }) => {
                 sx={{
                   p: 2,
                   textAlign: "center",
-                  backgroundColor: "#fff"
+                  backgroundColor: theme.palette.mode === "dark" ? "#444" : "#fff"
                 }}
               >
                 <Button
@@ -268,10 +273,10 @@ const EmailListGenerator = ({ data }) => {
                   sx={{
                     textTransform: "none",
                     fontWeight: "bold",
-                    backgroundColor: "#757575",
+                    backgroundColor: theme.palette.mode === "dark" ? "#757575" : "#757575",
                     color: "#fff",
                     "&:hover": {
-                      backgroundColor: "#616161"
+                      backgroundColor: theme.palette.mode === "dark" ? "#616161" : "#616161"
                     }
                   }}
                 >
@@ -299,26 +304,27 @@ const EmailListGenerator = ({ data }) => {
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 width: { xs: "80%", md: "50%" },
-                bgcolor: "background.paper",
+                bgcolor: theme.palette.mode === "dark" ? "#424242" : "background.paper",
                 boxShadow: 24,
                 p: 4,
                 borderRadius: 2
               }}
             >
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: theme.palette.mode === "dark" ? "#fff" : "inherit" }}>
                   {selectedClient} Emails
                 </Typography>
                 <IconButton onClick={() => setSelectedClient(null)}>
-                  <CloseIcon />
+                  <CloseIcon sx={{ color: theme.palette.mode === "dark" ? "#fff" : "inherit" }} />
                 </IconButton>
               </Stack>
-              <Box sx={{ p: 2, backgroundColor: "#F5F5F5", borderRadius: 1, minHeight: 100 }}>
+              <Box sx={{ p: 2, backgroundColor: theme.palette.mode === "dark" ? "#333" : "#F5F5F5", borderRadius: 1, minHeight: 100 }}>
                 <Typography
                   sx={{
                     whiteSpace: "normal",
                     wordBreak: "break-word",
-                    fontSize: "14px"
+                    fontSize: "14px",
+                    color: theme.palette.mode === "dark" ? "#fff" : "inherit"
                   }}
                 >
                   {emailCategories[selectedClient]?.join(", ") || "No email addresses found."}

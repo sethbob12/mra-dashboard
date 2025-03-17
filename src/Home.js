@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Grid, Paper, IconButton, Tooltip } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -17,6 +18,8 @@ const cardVariants = {
 
 const Home = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const modules = [
     {
@@ -60,7 +63,9 @@ const Home = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #e0efff, #ffffff)",
+        background: isDark
+          ? "linear-gradient(135deg, #000, #1a1a1a)"
+          : "linear-gradient(135deg, #e0efff, #ffffff)",
         py: 6,
         px: { xs: 2, sm: 4, md: 8 },
         textAlign: "center",
@@ -70,7 +75,7 @@ const Home = () => {
         variant="h3"
         sx={{
           fontWeight: "bold",
-          color: "#1E73BE",
+          color: isDark ? "#fff" : "#1E73BE",
           mb: 2,
           fontFamily: "Open Sans, sans-serif",
         }}
@@ -80,7 +85,7 @@ const Home = () => {
       <Typography
         variant="h6"
         sx={{
-          color: "#555",
+          color: isDark ? "#ccc" : "#555",
           mb: 4,
           fontFamily: "Open Sans, sans-serif",
         }}
@@ -101,6 +106,7 @@ const Home = () => {
                 <Paper
                   elevation={4}
                   sx={{
+                    height: "155px",
                     p: 3,
                     display: "flex",
                     flexDirection: "column",
@@ -109,8 +115,11 @@ const Home = () => {
                     cursor: "pointer",
                     transition: "transform 0.2s ease, box-shadow 0.2s ease",
                     borderRadius: 2,
-                    background: "linear-gradient(135deg, #f7f9fc, #ffffff)",
-                    border: "1px solid #666",
+                    background: isDark
+                      ? "linear-gradient(135deg, #000, #1a1a1a)"
+                      : "linear-gradient(135deg, #f7f9fc, #ffffff)",
+                    border: isDark ? "1px solid #fff" : "1px solid #666",
+                    color: isDark ? "#fff" : "inherit",
                     "&:hover": {
                       transform: "scale(1.05)",
                       boxShadow: "0 12px 24px rgba(0, 0, 0, 0.2)",
@@ -130,10 +139,17 @@ const Home = () => {
                   >
                     {React.cloneElement(module.icon, { sx: { color: "#fff", fontSize: "large" } })}
                   </IconButton>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 600,
+                      mb: 1,
+                      color: isDark ? "#fff" : undefined,
+                    }}
+                  >
                     {module.label}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "#777" }}>
+                  <Typography variant="body2" sx={{ color: isDark ? "#ddd" : "#777" }}>
                     {module.subtitle}
                   </Typography>
                 </Paper>
@@ -143,8 +159,14 @@ const Home = () => {
         ))}
       </Grid>
 
-      <Box sx={{ mt: 6, color: "#888" }}>
-        <Typography variant="caption" sx={{ fontFamily: "Open Sans, sans-serif" }}>
+      <Box sx={{ mt: 6 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontFamily: "Open Sans, sans-serif",
+            color: isDark ? "#fff !important" : "#888",
+          }}
+        >
           © {new Date().getFullYear()} MRA Interactive Dashboard. All rights reserved.
         </Typography>
       </Box>

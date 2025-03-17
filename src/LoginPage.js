@@ -1,4 +1,4 @@
-// src/LoginPage.js /* No REFACTOR needed, currently just handles authentication locally. Fi need to move authentication to live API endpoint, will need to REFACTOR though */
+// src/LoginPage.js
 import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
@@ -11,9 +11,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTheme } from "@mui/material/styles";
 import BackgroundAnimation from "./BackgroundAnimation";
 
-// Container variants for staggering the ripple effect on hover.
+// Motion variants
 const containerVariants = {
   initial: {},
   hover: {
@@ -23,7 +24,6 @@ const containerVariants = {
   },
 };
 
-// Ripple variants for each cell. 
 const cellVariants = {
   initial: { borderColor: "transparent" },
   hover: {
@@ -39,11 +39,12 @@ export default function LoginPage() {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const inputRefs = useRef([]);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   // Valid 5-digit passwords
   const validPasswords = ["12345", "23456", "34567", "45678", "56789"];
 
-  // Auto-focus the first input on mount.
   useEffect(() => {
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
@@ -51,22 +52,19 @@ export default function LoginPage() {
   }, []);
 
   const handleChange = (element, index) => {
-    if (element.value.length > 1) return; // Only allow one character per field
+    if (element.value.length > 1) return;
     const newCode = [...code];
     newCode[index] = element.value;
     setCode(newCode);
 
-    // Increment reaction when a non-empty digit is entered.
     if (element.value !== "") {
       setReaction((prev) => prev + 1);
     }
 
-    // Move focus to next input if not the last one
     if (element.value && index < 4) {
       inputRefs.current[index + 1].focus();
     }
 
-    // Auto-trigger login when the last digit is entered and all fields are filled.
     if (index === 4 && newCode.every((val) => val !== "")) {
       handleLogin(newCode);
     }
@@ -84,7 +82,6 @@ export default function LoginPage() {
       setError("");
       setSuccess(true);
       localStorage.setItem("isAuthenticated", "true");
-      // Delay navigation to allow visual success indication
       setTimeout(() => {
         navigate("/");
       }, 300);
@@ -100,10 +97,9 @@ export default function LoginPage() {
         width: "100%",
         height: "100vh",
         overflow: "hidden",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: isDark ? "#121212" : "#f5f5f5",
       }}
     >
-      {/* Background animation layer */}
       <Box
         sx={{
           position: "absolute",
@@ -117,7 +113,6 @@ export default function LoginPage() {
         <BackgroundAnimation reaction={reaction} />
       </Box>
 
-      {/* Foreground content (login card) */}
       <Box
         sx={{
           position: "relative",
@@ -129,12 +124,30 @@ export default function LoginPage() {
           height: "100%",
         }}
       >
-        <Card sx={{ width: 320, boxShadow: 3, borderRadius: 2 }}>
+        <Card
+          sx={{
+            width: 320,
+            boxShadow: 3,
+            borderRadius: 2,
+            backgroundColor: isDark ? "#2c2c2c" : "#fff",
+            color: isDark ? "#fff" : "inherit",
+          }}
+        >
           <CardContent sx={{ p: 2 }}>
-            <Typography variant="h5" align="center" gutterBottom>
+            <Typography
+              variant="h5"
+              align="center"
+              gutterBottom
+              sx={{ color: isDark ? "#fff" : "inherit" }}
+            >
               Welcome
             </Typography>
-            <Typography variant="body2" align="center" gutterBottom>
+            <Typography
+              variant="body2"
+              align="center"
+              gutterBottom
+              sx={{ color: isDark ? "#ccc" : "inherit" }}
+            >
               Please enter the 5-digit passcode to access the dashboard.
             </Typography>
             {error && (
@@ -142,7 +155,6 @@ export default function LoginPage() {
                 {error}
               </Alert>
             )}
-            {/* Container for input cells with hover-triggered ripple effect */}
             <motion.div
               variants={containerVariants}
               initial="initial"
@@ -177,12 +189,24 @@ export default function LoginPage() {
                         textAlign: "center",
                         fontSize: "1.5rem",
                         padding: "0.5rem",
+                        color: isDark ? "#fff" : "#000",
                       },
                     }}
                     sx={{
                       width: "3rem",
-                      backgroundColor: "transparent",
-                      "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                      backgroundColor: isDark ? "#3a3a3a" : "transparent",
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "8px",
+                        "& fieldset": {
+                          borderColor: isDark ? "#777" : undefined,
+                        },
+                        "&:hover fieldset": {
+                          borderColor: isDark ? "#bbb" : undefined,
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: isDark ? "#fff" : undefined,
+                        },
+                      },
                     }}
                     inputRef={(el) => (inputRefs.current[index] = el)}
                   />
@@ -196,6 +220,7 @@ export default function LoginPage() {
               sx={{
                 mt: 3,
                 backgroundColor: success ? "green" : "#0C3B70",
+                color: isDark ? "#fff" : "#fff", // Ensure white text
                 "&:hover": { backgroundColor: success ? "darkgreen" : "#092a55" },
               }}
             >
