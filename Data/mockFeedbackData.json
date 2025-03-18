@@ -358,5 +358,185 @@
     "date": "2025-03-20T16:05:00Z",
     "caseID": "MCK-901678",
     "qaMember": "Derek Hughes"
+  },
+  {
+    "reviewer": "John Doe",
+    "feedbackType": "client",
+    "client": "PFR",
+    "content": "Great insights, but consider adding more statistical analysis.",
+    "date": "2025-03-01T09:15:30Z",
+    "caseID": "PFR-100001",
+    "qaMember": "Alice Cooper"
+  },
+  {
+    "reviewer": "Jane Smith",
+    "feedbackType": "internal",
+    "client": "Lincoln",
+    "content": "Formatting is consistent; minor improvements needed in data presentation.",
+    "date": "2025-03-02T10:20:00Z",
+    "caseID": "LIN-100002",
+    "qaMember": "Brian Adams"
+  },
+  {
+    "reviewer": "Michael Johnson",
+    "feedbackType": "client",
+    "client": "Hartford",
+    "content": "Clear and concise report, but turnaround time could be faster.",
+    "date": "2025-03-03T11:05:00Z",
+    "caseID": "HAR-100003",
+    "qaMember": "Carla Gomez"
+  },
+  {
+    "reviewer": "Emily Davis",
+    "feedbackType": "internal",
+    "client": "Telco",
+    "content": "Strong analysis with good attention to detail.",
+    "date": "2025-03-04T12:30:00Z",
+    "caseID": "TEL-100004",
+    "qaMember": "Derek Hughes"
+  },
+  {
+    "reviewer": "Robert Brown",
+    "feedbackType": "client",
+    "client": "NYL",
+    "content": "Excellent work, but minor typos were noticed.",
+    "date": "2025-03-05T08:45:00Z",
+    "caseID": "NYL-100005",
+    "qaMember": "Evelyn Price"
+  },
+  {
+    "reviewer": "Sophia Wilson",
+    "feedbackType": "internal",
+    "client": "PFR",
+    "content": "Analysis is thorough; consider a deeper dive into revision trends.",
+    "date": "2025-03-06T09:50:00Z",
+    "caseID": "PFR-100006",
+    "qaMember": "Felix Ramirez"
+  },
+  {
+    "reviewer": "Fiona Gold",
+    "feedbackType": "client",
+    "client": "Peer Review",
+    "content": "Report structure is good, but references could be enhanced.",
+    "date": "2025-03-07T10:15:00Z",
+    "caseID": "PR-100007",
+    "qaMember": "Gloria Chen"
+  },
+  {
+    "reviewer": "Daniel Red",
+    "feedbackType": "internal",
+    "client": "Muckleshoot",
+    "content": "Timeliness and efficiency are excellent, just slight formatting issues.",
+    "date": "2025-03-08T11:00:00Z",
+    "caseID": "MCK-100008",
+    "qaMember": "Henry Kim"
+  },
+  {
+    "reviewer": "Catherine Blue",
+    "feedbackType": "client",
+    "client": "Hartford",
+    "content": "Good overall performance with room for improvement in accuracy.",
+    "date": "2025-03-09T12:00:00Z",
+    "caseID": "HAR-100009",
+    "qaMember": "Alice Cooper"
+  },
+  {
+    "reviewer": "Laura White",
+    "feedbackType": "internal",
+    "client": "NYL",
+    "content": "Data visualization is strong; minor revisions needed for clarity.",
+    "date": "2025-03-10T13:30:00Z",
+    "caseID": "NYL-100010",
+    "qaMember": "Brian Adams"
+  },
+  {
+    "reviewer": "Andrew Green",
+    "feedbackType": "client",
+    "client": "Standard",
+    "content": "Consistent formatting and reliable analysis, well done.",
+    "date": "2025-03-11T14:15:00Z",
+    "caseID": "STD-100011",
+    "qaMember": "Carla Gomez"
+  },
+  {
+    "reviewer": "David Miller",
+    "feedbackType": "internal",
+    "client": "Telco",
+    "content": "Good structure, but consider reducing revision errors.",
+    "date": "2025-03-12T15:20:00Z",
+    "caseID": "TEL-100012",
+    "qaMember": "Derek Hughes"
+  },
+  {
+    "reviewer": "Olivia Martin",
+    "feedbackType": "client",
+    "client": "Lincoln",
+    "content": "Great clarity and detailed breakdown, impressive work.",
+    "date": "2025-03-13T16:00:00Z",
+    "caseID": "LIN-100013",
+    "qaMember": "Evelyn Price"
+  },
+  {
+    "reviewer": "Ethan Rivera",
+    "feedbackType": "internal",
+    "client": "PFR",
+    "content": "The case volume is well managed; minor improvements needed in revision process.",
+    "date": "2025-03-14T09:40:00Z",
+    "caseID": "PFR-100014",
+    "qaMember": "Felix Ramirez"
+  },
+  {
+    "reviewer": "Isabella Cruz",
+    "feedbackType": "client",
+    "client": "Peer Review",
+    "content": "High quality reports, though efficiency can be improved slightly.",
+    "date": "2025-03-15T10:25:00Z",
+    "caseID": "PR-100015",
+    "qaMember": "Gloria Chen"
+  },
+  {
+    "reviewer": "Liam Parker",
+    "feedbackType": "internal",
+    "client": "NYL",
+    "content": "Performance is consistent and well-documented.",
+    "date": "2025-03-16T11:10:00Z",
+    "caseID": "NYL-100016",
+    "qaMember": "Henry Kim"
+  },
+  {
+    "reviewer": "Ava Richardson",
+    "feedbackType": "client",
+    "client": "Standard",
+    "content": "Concise and clear, but consider a more robust data breakdown.",
+    "date": "2025-03-17T12:05:00Z",
+    "caseID": "STD-100017",
+    "qaMember": "Alice Cooper"
+  },
+  {
+    "reviewer": "Noah Bennett",
+    "feedbackType": "internal",
+    "client": "Hartford",
+    "content": "Accurate and timely, though revision rates can be lowered slightly.",
+    "date": "2025-03-18T13:50:00Z",
+    "caseID": "HAR-100018",
+    "qaMember": "Brian Adams"
+  },
+  {
+    "reviewer": "Grace Foster",
+    "feedbackType": "client",
+    "client": "Telco",
+    "content": "Excellent overall structure with clear data insights.",
+    "date": "2025-03-19T14:30:00Z",
+    "caseID": "TEL-100019",
+    "qaMember": "Carla Gomez"
+  },
+  {
+    "reviewer": "Benjamin Lee",
+    "feedbackType": "internal",
+    "client": "PFR",
+    "content": "Strong reviewer with consistent case volumes; some improvements needed in timeliness.",
+    "date": "2025-03-20T15:15:00Z",
+    "caseID": "PFR-100020",
+    "qaMember": "Derek Hughes"
   }
 ]

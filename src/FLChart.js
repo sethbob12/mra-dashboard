@@ -643,57 +643,63 @@ const FLChart = ({ data }) => {
 
       <Grid container spacing={3}>
         {/* CARD 1: Quality Scores */}
-        <Grid item xs={12} md={expandedPanels["panel1"] ? 12 : 4}>
-          <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
-            <CardHeader
-              avatar={<BarChartIcon sx={{ color: "#fff" }} />}
-              title={
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
-                  Quality Scores
-                </Typography>
-              }
-              subheader={
-                <Typography sx={{ color: "black" }}>
-                  (Stacked Bar Chart)
-                </Typography>
-              }
-              sx={{
-                background: "linear-gradient(to right, #E3F2FD, #90CAF9)",
-                borderBottom: "1px solid #0D47A1",
-                cursor: "pointer"
-              }}
-              onClick={(e) => togglePanel("panel1", e)}
-            />
-            {!expandedPanels["panel1"] && (
-              <CardContent>
-                <MiniImage src={QABarChartImg} alt="Mini preview of Quality Scores" />
-              </CardContent>
-            )}
-            <Collapse in={expandedPanels["panel1"]} timeout="auto" unmountOnExit>
-              {/* Change background color for quality scores content in dark mode */}
-              <CardContent id="qualityScoresRef" sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff", p: 2 }}>
-                <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 2, color: textColor }}>
-                    This stacked bar chart shows each reviewer’s overall quality scores based on their latest snapshot.
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-                  <InteractiveStackedBarChart data={qualityData} />
-                  <Typography variant="caption" display="block" sx={{ mt: 1, color: textColor }}>
-                    *Methodology: Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (20%)*<br />
-                    *Hover for cost comparison info.*
-                  </Typography>
-                </Paper>
-              </CardContent>
-              <CardActions sx={{ justifyContent: "flex-end" }}>
-                <MuiTooltip title="Export Quality Scores to PDF">
-                  <IconButton onClick={(e) => handleExportPDF("qualityScoresRef", "Quality Scores", e)}>
-                    <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
-                  </IconButton>
-                </MuiTooltip>
-              </CardActions>
-            </Collapse>
-          </Card>
-        </Grid>
+<Grid item xs={12} md={expandedPanels["panel1"] ? 12 : 4}>
+  <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
+    <CardHeader
+      avatar={<BarChartIcon sx={{ color: "#fff" }} />}
+      title={
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
+          Quality Scores
+        </Typography>
+      }
+      subheader={
+        <Typography sx={{ color: "black" }}>
+          (Stacked Bar Chart)
+        </Typography>
+      }
+      sx={{
+        background: "linear-gradient(to right, #E3F2FD, #90CAF9)",
+        borderBottom: "1px solid #0D47A1",
+        cursor: "pointer"
+      }}
+      onClick={(e) => togglePanel("panel1", e)}
+    />
+    {!expandedPanels["panel1"] && (
+      <CardContent>
+        <MiniImage src={QABarChartImg} alt="Mini preview of Quality Scores" />
+      </CardContent>
+    )}
+    <Collapse in={expandedPanels["panel1"]} timeout="auto" unmountOnExit>
+      {/* Change background color for quality scores content in dark mode */}
+      <CardContent
+        id="qualityScoresRef"
+        sx={{
+          backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff",
+          p: 2
+        }}
+      >
+        <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2, color: textColor }}>
+            This stacked bar chart shows each reviewer’s overall quality scores based on their latest snapshot.
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          <InteractiveStackedBarChart data={qualityData} />
+          <Typography variant="caption" display="block" sx={{ mt: 1, color: textColor }}>
+            *Methodology: Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (6%) + Type (4%)*<br />
+            *Hover for cost comparison info.*
+          </Typography>
+        </Paper>
+      </CardContent>
+      <CardActions sx={{ justifyContent: "flex-end" }}>
+        <MuiTooltip title="Export Quality Scores to PDF">
+          <IconButton onClick={(e) => handleExportPDF("qualityScoresRef", "Quality Scores", e)}>
+            <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
+          </IconButton>
+        </MuiTooltip>
+      </CardActions>
+    </Collapse>
+  </Card>
+</Grid>
 
         {/* CARD 2: Reviewer Distribution */}
         <Grid item xs={12} md={expandedPanels["panel2"] ? 12 : 4}>

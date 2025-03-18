@@ -134,7 +134,9 @@ function buildSankeyData(row) {
     ]
   };
 }
-const renderSankeyNode = ({ x, y, width, height, payload }) => {
+
+// Updated renderSankeyNode to adjust text fill based on dark mode.
+function renderSankeyNode({ x, y, width, height, payload }, darkMode) {
   const infoText =
     payload.name === "Received" || payload.name === "Completed"
       ? `${payload.value || 0}`
@@ -143,14 +145,25 @@ const renderSankeyNode = ({ x, y, width, height, payload }) => {
     <Tooltip title={`${payload.name}: ${infoText}`} arrow>
       <g>
         <rect x={x} y={y} width={width} height={height} fill={payload.color || "#8884d8"} stroke="#fff" strokeWidth={2} />
-        <text x={x + width / 2} y={y + height / 2} textAnchor="middle" fill="#000" fontSize={12} fontWeight="bold" dy={4}>
+        <text
+          x={x + width / 2}
+          y={y + height / 2}
+          textAnchor="middle"
+          fill={darkMode ? "#fff" : "#000"}
+          fontSize={12}
+          fontWeight="bold"
+          dy={4}
+        >
           {payload.name}
         </text>
       </g>
     </Tooltip>
   );
-};
+}
+
 function FullSankeyModal({ open, onClose, rowData }) {
+  const theme = useTheme();
+  const darkMode = theme.palette.mode === "dark";
   if (!open || !rowData) return null;
   const sankeyData = buildSankeyData(rowData);
   return (
@@ -169,7 +182,7 @@ function FullSankeyModal({ open, onClose, rowData }) {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: 600,
-            bgcolor: "background.paper",
+            bgcolor: theme.palette.mode === "dark" ? "#424242" : "background.paper",
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
@@ -188,7 +201,7 @@ function FullSankeyModal({ open, onClose, rowData }) {
                 nodePadding={10}
                 margin={{ top: 20, bottom: 20, left: 50, right: 50 }}
                 link={{ stroke: "#8884d8", strokeWidth: 2 }}
-                node={renderSankeyNode}
+                node={(props) => renderSankeyNode(props, darkMode)}
               >
                 <RechartsTooltip />
               </Sankey>
@@ -227,12 +240,25 @@ function KPICard({ title, value, tooltip, color }) {
   );
 }
 
+/** ---------- Helper: Render header label with default tooltip if needed ---------- */
+function renderHeaderLabel(column) {
+  if (React.isValidElement(column.label)) {
+    return column.label;
+  } else {
+    return (
+      <Tooltip title={`Sort by ${column.label}`} arrow>
+        <span>{column.label}</span>
+      </Tooltip>
+    );
+  }
+}
+
 /** ---------- FLTable Component ---------- */
 export default function FLTable({ data }) {
   const theme = useTheme();
   const darkMode = theme.palette.mode === "dark";
   
-  // Header: blue gradient with black text
+  // Header: blue gradient with black text (default)
   const headerBg = "linear-gradient(45deg, #1E73BE, #1565C0)";
   const headerText = "#000";
   // Row backgrounds for dark mode
@@ -241,7 +267,7 @@ export default function FLTable({ data }) {
   const nameTextColor = darkMode ? "#fff" : "black";
   
   const [order, setOrder] = useState("desc");
-  const [orderBy, setOrderBy] = useState("qualityScore");
+  const [orderBy, setOrderBy] = useState("computedQualityScore");
   const [sankeyOpen, setSankeyOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const navigate = useNavigate();
@@ -268,7 +294,7 @@ export default function FLTable({ data }) {
 
   // Build columns.
   const columns = [
-    { id: "qualityScore", label: "Quality Score", align: "center" },
+    { id: "computedQualityScore", label: "Quality Score", align: "center" },
     { id: "name", label: "Name", align: "left", width: 250 },
     { id: "workflow", label: "Workflow", align: "center", width: 120 },
     {
@@ -319,14 +345,20 @@ export default function FLTable({ data }) {
   ];
 
   // Process data from snapshots using the latest snapshot for key metrics.
+  // Also compute computedQualityScore using the new formula:
+  // Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (min(clientCount,6)) + Type (if caseType === "Both" then 4 else 2)
   const processedData = data.map((row) => {
     const latest = getLatestSnapshot(row);
+    // Use snapshot values if available; otherwise, fallback to row properties
+    const accuracy = latest ? latest.accuracyScore : row.accuracyScore;
+    const timeliness = latest ? latest.timelinessScore : row.timelinessScore;
+    const efficiency = latest ? latest.efficiencyScore : row.efficiencyScore;
     return {
       ...row,
       qualityScore: latest ? latest.qualityScore : row.qualityScore,
-      accuracyScore: latest ? latest.accuracyScore : row.accuracyScore,
-      timelinessScore: latest ? latest.timelinessScore : row.timelinessScore,
-      efficiencyScore: latest ? latest.efficiencyScore : row.efficiencyScore,
+      accuracyScore: accuracy,
+      timelinessScore: timeliness,
+      efficiencyScore: efficiency,
       revisionRate: latest ? latest.revisionRate : row.revisionRate,
       lateCasePercentage: latest ? latest.lateCasePercentage : row.lateCasePercentage,
       avgCasesPerDay: latest ? (latest.avgCasesPerDay || latest.avgCasesDay) : (row.avgCasesPerDay || row.avgCasesDay),
@@ -336,7 +368,7 @@ export default function FLTable({ data }) {
     };
   });
 
-  // Sort data and add local time info
+  // Sort data and add local time and client count info
   const sortedDataMemo = useMemo(() => {
     const processed = processedData.map((row) => {
       let clientList = [];
@@ -350,12 +382,22 @@ export default function FLTable({ data }) {
       const localTime = localTimeObj.format("h:mm A");
       const localHour = localTimeObj.hour();
       const isDay = localHour >= 6 && localHour < 18;
+      // Compute new quality score based on the updated methodology.
+      const coveragePoints = Math.min(clientList.length, 6);
+      const typePoints = row.caseType === "Both" ? 4 : 2;
+      const computedQualityScore =
+        (row.accuracyScore || 0) * 0.60 +
+        (row.timelinessScore || 0) * 0.20 +
+        (row.efficiencyScore || 0) * 0.10 +
+        coveragePoints +
+        typePoints;
       return {
         ...row,
         clientList,
         clientCount: clientList.length,
         localTime,
-        isDay
+        isDay,
+        computedQualityScore
       };
     });
     let sortKey;
@@ -365,29 +407,7 @@ export default function FLTable({ data }) {
     return stableSort(processed, getComparator(order, sortKey));
   }, [processedData, order, orderBy]);
 
-  // Compute KPI averages for header row
-  let minAccuracy = Infinity,
-    maxAccuracy = -Infinity,
-    minTimeliness = Infinity,
-    maxTimeliness = -Infinity,
-    minEfficiency = Infinity,
-    maxEfficiency = -Infinity,
-    minQuality = Infinity,
-    maxQuality = -Infinity;
-  sortedDataMemo.forEach((r) => {
-    const acc = r.accuracyScore || 0;
-    const tim = r.timelinessScore || 0;
-    const eff = r.efficiencyScore || 0;
-    const qua = r.qualityScore || 0;
-    if (acc < minAccuracy) minAccuracy = acc;
-    if (acc > maxAccuracy) maxAccuracy = acc;
-    if (tim < minTimeliness) minTimeliness = tim;
-    if (tim > maxTimeliness) maxTimeliness = tim;
-    if (eff < minEfficiency) minEfficiency = eff;
-    if (eff > maxEfficiency) maxEfficiency = eff;
-    if (qua < minQuality) minQuality = qua;
-    if (qua > maxQuality) maxQuality = qua;
-  });
+  // Compute KPI averages for header row based on computedQualityScore
   const totalReviewers = sortedDataMemo.length;
   let totalAccuracy = 0,
     totalTimeliness = 0,
@@ -397,7 +417,7 @@ export default function FLTable({ data }) {
     totalAccuracy += row.accuracyScore || 0;
     totalTimeliness += row.timelinessScore || 0;
     totalEfficiency += row.efficiencyScore || 0;
-    totalQualityScore += row.qualityScore || 0;
+    totalQualityScore += row.computedQualityScore || 0;
   });
   const avgAccuracy = totalReviewers ? totalAccuracy / totalReviewers : 0;
   const avgTimeliness = totalReviewers ? totalTimeliness / totalReviewers : 0;
@@ -407,12 +427,14 @@ export default function FLTable({ data }) {
 
   /** ---------- Export CSV/PDF ---------- */
   const handleExportCSV = () => {
-    const headers = columns.map((col) => col.label);
+    const headers = columns.map((col) =>
+      typeof col.label === "string" ? col.label : ""
+    ); // For CSV, use plain text labels
     const rows = sortedDataMemo.map((row) => {
       const status = row.name === "Next Reviewer" ? "unavailable" : row.status;
       const clientNames = row.clientList ? row.clientList.join(", ") : "";
       return [
-        `${row.qualityScore?.toFixed(1) || 0}%`,
+        `${row.computedQualityScore?.toFixed(1) || 0}%`,
         `"${row.name}"`,
         `"${clientNames}"`,
         row.avgCasesPerDay?.toFixed(1) || 0,
@@ -483,21 +505,21 @@ export default function FLTable({ data }) {
           <KPICard
             title="Avg Accuracy"
             value={`${avgAccuracy.toFixed(1)}%`}
-            tooltip={`Accuracy range: ${minAccuracy.toFixed(1)}% - ${maxAccuracy.toFixed(1)}%.`}
+            tooltip={`Accuracy range: N/A`}
           />
         </Grid>
         <Grid item>
           <KPICard
             title="Avg Timeliness"
             value={`${avgTimeliness.toFixed(1)}%`}
-            tooltip={`Timeliness range: ${minTimeliness.toFixed(1)}% - ${maxTimeliness.toFixed(1)}%.`}
+            tooltip={`Timeliness range: N/A`}
           />
         </Grid>
         <Grid item>
           <KPICard
             title="Avg Efficiency"
             value={`${avgEfficiency.toFixed(1)}%`}
-            tooltip={`Efficiency range: ${minEfficiency.toFixed(1)}% - ${maxEfficiency.toFixed(1)}%.`}
+            tooltip={`Efficiency range: N/A`}
           />
         </Grid>
         <Grid item>
@@ -509,9 +531,7 @@ export default function FLTable({ data }) {
                 <KeyboardArrowUpIcon sx={{ fontSize: 18, color: "green" }} />
               </>
             }
-            tooltip={`Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (20%).\nRange: ${minQuality.toFixed(
-              1
-            )}% - ${maxQuality.toFixed(1)}%.\nTrend: ${avgQualityTrend}`}
+            tooltip={`Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (6%) + Type (4%).\nTrend: ${avgQualityTrend}`}
           />
         </Grid>
       </Grid>
@@ -543,7 +563,7 @@ export default function FLTable({ data }) {
                     onClick={(e) => handleRequestSort(e, column.id)}
                     sx={{ color: headerText, "&:hover": { color: "#f0f0f0" } }}
                   >
-                    {column.label}
+                    {renderHeaderLabel(column)}
                   </TableSortLabel>
                 </TableCell>
               ))}
@@ -552,7 +572,7 @@ export default function FLTable({ data }) {
 
           <TableBody>
             {sortedDataMemo.map((row, idx) => {
-              const qscore = row.qualityScore || 0;
+              const qscore = row.computedQualityScore || 0;
               let qualityBg = "#EF9A9A";
               if (qscore >= 90) qualityBg = "#A5D6A7";
               else if (qscore >= 80) qualityBg = "#FFF59D";
@@ -590,22 +610,43 @@ export default function FLTable({ data }) {
                     "&:hover": { backgroundColor: darkMode ? "#555" : "#e6f2ff" }
                   }}
                 >
-                  {/* Quality Score */}
-                  <TableCell sx={{ textAlign: "center", backgroundColor: qualityBg, fontWeight: "bold" }}>
-                    <Tooltip
-                      title={
-                        <>
-                          Accuracy: {row.accuracyScore || 0}%<br />
-                          Timeliness: {row.timelinessScore || 0}%<br />
-                          Efficiency: {row.efficiencyScore || 0}%<br />
-                          Trend: Stable
-                        </>
-                      }
-                      arrow
-                    >
-                      <span>{qscore.toFixed(1)}%</span>
-                    </Tooltip>
-                  </TableCell>
+                  {
+  /* Quality Score */
+}
+<TableCell
+  sx={{ textAlign: "center", backgroundColor: qualityBg, fontWeight: "bold" }}
+>
+  <Tooltip
+    title={
+      (() => {
+        // Derive the type points (2 or 4) and a short description
+        const typePoints = row.caseType === "Both" ? 4 : 2;
+        const typeDescription =
+          row.caseType === "Both"
+            ? "Both"
+            : row.caseType === "Psych"
+            ? "Psych only"
+            : "Non-Psych only";
+
+        return (
+          <>
+            Accuracy: {row.accuracyScore || 0}%<br />
+            Timeliness: {row.timelinessScore || 0}%<br />
+            Efficiency: {row.efficiencyScore || 0}%<br />
+            Coverage: {Math.min(row.clientCount, 6)} (#Clients)
+            <br />
+            Type: {typePoints} ({typeDescription})
+            <br />
+            Trend: Stable
+          </>
+        );
+      })()
+    }
+    arrow
+  >
+    <span>{qscore.toFixed(1)}%</span>
+  </Tooltip>
+</TableCell>
 
                   {/* Name */}
                   <TableCell
@@ -637,11 +678,11 @@ export default function FLTable({ data }) {
 
                   {/* Workflow Funnel */}
                   <TableCell sx={{ textAlign: "center" }}>
-                    <WorkflowFunnelTooltip row={row}>
+                    <Tooltip title="Click to view detailed workflow" arrow>
                       <Box onClick={() => { setSelectedRow(row); setSankeyOpen(true); }}>
                         <WorkflowFunnel row={row} />
                       </Box>
-                    </WorkflowFunnelTooltip>
+                    </Tooltip>
                   </TableCell>
 
                   {/* Clients & Cost */}
@@ -662,12 +703,12 @@ export default function FLTable({ data }) {
                   </TableCell>
 
                   {/* Late % */}
-                  <TableCell sx={{ textAlign: "center", color: (row.lateCasePercentage || 0) <= 5.0 ? "green" : "red" }}>
+                  <TableCell sx={{ textAlign: "center", color: (row.lateCasePercentage || 0) <= 7.0 ? "green" : "red" }}>
                     {(row.lateCasePercentage || 0).toFixed(1)}%
                   </TableCell>
 
                   {/* Rev Rate % */}
-                  <TableCell sx={{ textAlign: "center", color: revisionRate <= 10.0 ? "green" : "red" }}>
+                  <TableCell sx={{ textAlign: "center", color: revisionRate <= 15.0 ? "green" : "red" }}>
                     {revisionRate.toFixed(1)}%
                   </TableCell>
 
@@ -730,21 +771,27 @@ export default function FLTable({ data }) {
                           background: row.isDay
                             ? "linear-gradient(45deg, rgba(255,213,79,0.2), rgba(255,179,0,0.3))"
                             : "rgba(33,33,33,0.3)",
-                          color: row.isDay ? "inherit" : "black",
+                          color: darkMode ? "#fff" : (row.isDay ? "inherit" : "black"),
                           padding: "4px",
                           borderRadius: 1,
                           width: "100%",
                           textAlign: "center",
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center"
+                          justifyContent: "center",
+                          border: darkMode ? "1px solid silver" : "none"
                         }}
                       >
                         <Box
                           component="img"
                           src={row.isDay ? brightnessIcon : nightModeIcon}
                           alt={row.isDay ? "Sun Icon" : "Moon Icon"}
-                          sx={{ width: 16, height: 16, mr: 0.5 }}
+                          sx={{ 
+                            width: 16, 
+                            height: 16, 
+                            mr: 0.5,
+                            filter: darkMode && !row.isDay ? "invert(75%)" : "none" 
+                          }}
                         />
                         {row.localTime || ""}
                       </Box>

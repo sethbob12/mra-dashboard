@@ -2,969 +2,1036 @@
   "mockQAData": [
     {
       "qaMember": 301,
-    "name": "Alice Cooper",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 545,
-        "breakdownByClient": {
-          "PFR": 175,
-          "Lincoln": 185,
-          "Hartford": 185
+      "name": "Alice Cooper",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 545,
+          "breakdownByClient": {
+            "PFR": 175,
+            "Lincoln": 185,
+            "Hartford": 185
+          },
+          "revisionsSent": 8,
+          "clientRevisions": 3,
+          "avgCasesDay": 35.2
         },
-        "revisionsSent": 8,
-        "clientRevisions": 3,
-        "avgCasesDay": 35.2
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted": 535,
-        "breakdownByClient": {
-          "PFR": 170,
-          "Lincoln": 180,
-          "Hartford": 185
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted": 535,
+          "breakdownByClient": {
+            "PFR": 170,
+            "Lincoln": 180,
+            "Hartford": 185
+          },
+          "revisionsSent": 15,
+          "clientRevisions": 2,
+          "avgCasesDay": 34.8
+        }
+      ]
+    },
+    {
+      "qaMember": 302,
+      "name": "Brian Adams",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 612,
+          "breakdownByClient": {
+            "PFR": 212,
+            "Lincoln": 200,
+            "Hartford": 200
+          },
+          "revisionsSent": 26,
+          "clientRevisions": 14,
+          "avgCasesDay": 46.5
         },
-        "revisionsSent": 15,
-        "clientRevisions": 2,
-        "avgCasesDay": 34.8
-      }
-    ]
-  },
-  {
-    "qaMember": 302,
-    "name": "Brian Adams",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 612,
-        "breakdownByClient": {
-          "PFR": 212,
-          "Lincoln": 200,
-          "Hartford": 200
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted": 605,
+          "breakdownByClient": {
+            "PFR": 210,
+            "Lincoln": 195,
+            "Hartford": 200
+          },
+          "revisionsSent": 17,
+          "clientRevisions": 13,
+          "avgCasesDay": 46.1
+        }
+      ]
+    },
+    {
+      "qaMember": 303,
+      "name": "Carla Gomez",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 279,
+          "breakdownByClient": {
+            "PFR": 92,
+            "Lincoln": 95,
+            "Hartford": 92
+          },
+          "revisionsSent": 3,
+          "clientRevisions": 5,
+          "avgCasesDay": 25.8
         },
-        "revisionsSent": 26,
-        "clientRevisions": 14,
-        "avgCasesDay": 46.5
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted": 605,
-        "breakdownByClient": {
-          "PFR": 210,
-          "Lincoln": 195,
-          "Hartford": 200
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted": 270,
+          "breakdownByClient": {
+            "PFR": 90,
+            "Lincoln": 93,
+            "Hartford": 87
+          },
+          "revisionsSent": 4,
+          "clientRevisions": 4,
+          "avgCasesDay": 25.3
+        }
+      ]
+    },
+    {
+      "qaMember": 304,
+      "name": "Derek Hughes",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 731,
+          "breakdownByClient": {
+            "PFR": 305,
+            "Lincoln": 210,
+            "Hartford": 216
+          },
+          "revisionsSent": 7,
+          "clientRevisions": 6,
+          "avgCasesDay": 27.2
         },
-        "revisionsSent": 17,
-        "clientRevisions": 13,
-        "avgCasesDay": 46.1
-      }
-    ]
-  },
-  {
-    "qaMember": 303,
-    "name": "Carla Gomez",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 279,
-        "breakdownByClient": {
-          "PFR": 92,
-          "Lincoln": 95,
-          "Hartford": 92
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted": 720,
+          "breakdownByClient": {
+            "PFR": 300,
+            "Lincoln": 205,
+            "Hartford": 215
+          },
+          "revisionsSent": 16,
+          "clientRevisions": 5,
+          "avgCasesDay": 26.8
+        }
+      ]
+    },
+    {
+      "qaMember": 305,
+      "name": "Evelyn Price",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 290,
+          "breakdownByClient": {
+            "PFR": 95,
+            "Lincoln": 100,
+            "Hartford": 95
+          },
+          "revisionsSent": 5,
+          "clientRevisions": 4,
+          "avgCasesDay": 25.9
         },
-        "revisionsSent": 3,
-        "clientRevisions": 5,
-        "avgCasesDay": 25.8
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted": 270,
-        "breakdownByClient": {
-          "PFR": 90,
-          "Lincoln": 93,
-          "Hartford": 87
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted": 280,
+          "breakdownByClient": {
+            "PFR": 90,
+            "Lincoln": 95,
+            "Hartford": 95
+          },
+          "revisionsSent": 6,
+          "clientRevisions": 3,
+          "avgCasesDay": 25.5
+        }
+      ]
+    },
+    {
+      "qaMember": 306,
+      "name": "Felix Ramirez",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 1310,
+          "breakdownByClient": {
+            "PFR": 505,
+            "Lincoln": 500,
+            "Hartford": 305
+          },
+          "revisionsSent": 16,
+          "clientRevisions": 4,
+          "avgCasesDay": 66.2
         },
-        "revisionsSent": 4,
-        "clientRevisions": 4,
-        "avgCasesDay": 25.3
-      }
-    ]
-  },
-  {
-    "qaMember": 304,
-    "name": "Derek Hughes",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 731,
-        "breakdownByClient": {
-          "PFR": 305,
-          "Lincoln": 210,
-          "Hartford": 216
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted":1300,
+          "breakdownByClient": {
+            "PFR": 600,
+            "Lincoln":495,
+            "Hartford": 205
+          },
+          "revisionsSent": 27,
+          "clientRevisions": 13,
+          "avgCasesDay": 76.0
+        }
+      ]
+    },
+    {
+      "qaMember": 307,
+      "name": "Gloria Chen",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 665,
+          "breakdownByClient": {
+            "PFR":280,
+            "Lincoln":290,
+            "Hartford":295
+          },
+          "revisionsSent": 14,
+          "clientRevisions": 5,
+          "avgCasesDay": 45.4
         },
-        "revisionsSent": 7,
-        "clientRevisions": 6,
-        "avgCasesDay": 27.2
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted": 720,
-        "breakdownByClient": {
-          "PFR": 300,
-          "Lincoln": 205,
-          "Hartford": 215
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted": 660,
+          "breakdownByClient": {
+            "PFR":278,
+            "Lincoln":288,
+            "Hartford":294
+          },
+          "revisionsSent": 5,
+          "clientRevisions": 4,
+          "avgCasesDay": 45.0
+        }
+      ]
+    },
+    {
+      "qaMember": 308,
+      "name": "Henry Kim",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-04T00:00:00Z",
+          "totalCasesSubmitted": 600,
+          "breakdownByClient": {
+            "PFR": 400,
+            "Lincoln":195,
+            "Hartford": 205
+          },
+          "revisionsSent": 25,
+          "clientRevisions": 24,
+          "avgCasesDay": 36.0
         },
-        "revisionsSent": 16,
-        "clientRevisions": 5,
-        "avgCasesDay": 26.8
-      }
-    ]
-  },
-  {
-    "qaMember": 305,
-    "name": "Evelyn Price",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 290,
-        "breakdownByClient": {
-          "PFR": 95,
-          "Lincoln": 100,
-          "Hartford": 95
-        },
-        "revisionsSent": 5,
-        "clientRevisions": 4,
-        "avgCasesDay": 25.9
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted": 280,
-        "breakdownByClient": {
-          "PFR": 90,
-          "Lincoln": 95,
-          "Hartford": 95
-        },
-        "revisionsSent": 6,
-        "clientRevisions": 3,
-        "avgCasesDay": 25.5
-      }
-    ]
-  },
-  {
-    "qaMember": 306,
-    "name": "Felix Ramirez",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 1310,
-        "breakdownByClient": {
-          "PFR": 505,
-          "Lincoln": 500,
-          "Hartford": 305
-        },
-        "revisionsSent": 16,
-        "clientRevisions": 4,
-        "avgCasesDay": 66.2
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted":1300,
-        "breakdownByClient": {
-          "PFR": 600,
-          "Lincoln":495,
-          "Hartford": 205
-        },
-        "revisionsSent": 27,
-        "clientRevisions": 13,
-        "avgCasesDay": 76.0
-      }
-    ]
-  },
-  {
-    "qaMember": 307,
-    "name": "Gloria Chen",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 265,
-        "breakdownByClient": {
-          "PFR": 80,
-          "Lincoln": 90,
-          "Hartford": 95
-        },
-        "revisionsSent": 4,
-        "clientRevisions": 5,
-        "avgCasesDay": 5.4
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted": 260,
-        "breakdownByClient": {
-          "PFR": 78,
-          "Lincoln": 88,
-          "Hartford": 94
-        },
-        "revisionsSent": 5,
-        "clientRevisions": 4,
-        "avgCasesDay": 5.0
-      }
-    ]
-  },
-  {
-    "qaMember": 308,
-    "name": "Henry Kim",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-04T00:00:00Z",
-        "totalCasesSubmitted": 300,
-        "breakdownByClient": {
-          "PFR": 100,
-          "Lincoln": 95,
-          "Hartford": 105
-        },
-        "revisionsSent": 5,
-        "clientRevisions": 4,
-        "avgCasesDay": 6.0
-      },
-      {
-        "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted": 290,
-        "breakdownByClient": {
-          "PFR": 95,
-          "Lincoln": 90,
-          "Hartford": 105
-        },
-        "revisionsSent": 6,
-        "clientRevisions": 3,
-        "avgCasesDay": 5.7
+        {
+          "snapshotDate": "2025-02-25T00:00:00Z",
+          "totalCasesSubmitted": 590,
+          "breakdownByClient": {
+            "PFR":295,
+            "Lincoln":190,
+            "Hartford": 105
+          },
+          "revisionsSent":16,
+          "clientRevisions": 3,
+          "avgCasesDay": 25.7
         }
       ]
     }
   ],
   "mockFLData": [
     {
+      
       "mra_id": 101,
-    "name": "John Doe",
-    "clients": "PFR, Lincoln",
-    "email": "john.doe@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 250,
-        "casesPast30Days": 45,
-        "casesPast60Days": 90,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 12,
-        "clientRevisionsPast60": 20,
-        "lateCasePercentage": 8.5,
-        "avgCasesDay": 3.2,
-        "revisionRate": 4.2,
-        "timelinessScore": 88,
-        "efficiencyScore": 92,
-        "accuracyScore": 95,
-        "qualityScore": 90,
-        "notes": "Strong reviewer, occasionally late on cases.",
-        "costPerCase": {
-          "PFR": 45,
-          "NYL": 50,
-          "LTC": 40,
-          "Telco": 38,
-          "Lincoln": 47,
-          "Hartford": 42,
-          "Peer Review": 55,
-          "Muckleshoot": 50,
-          "Standard": 48
+      "name": "John Doe",
+      "clients": "PFR, Lincoln",
+      "email": "john.doe@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 250,
+          "casesPast30Days": 45,
+          "casesPast60Days": 90,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 12,
+          "clientRevisionsPast60": 20,
+          "lateCasePercentage": 8.5,
+          "avgCasesDay": 3.2,
+          "revisionRate": 14.2,
+          "timelinessScore": 88,
+          "efficiencyScore": 92,
+          "accuracyScore": 85.8,
+          "qualityScore": 87.5,
+          "notes": "Strong reviewer, occasionally late on cases.",
+          "costPerCase": {
+            "PFR": 45,
+            "NYL": 50,
+            "LTC": 40,
+            "Telco": 38,
+            "Lincoln": 47,
+            "Hartford": 42,
+            "Peer Review": 55,
+            "Muckleshoot": 50,
+            "Standard": 48
+          },
+          "caseType": "Non-Psych"
         },
-        "caseType": "Non-Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 240,
-        "casesPast30Days": 42,
-        "casesPast60Days": 88,
-        "clientRevisionsWeek": 2,
-        "clientRevisionsMonth": 11,
-        "clientRevisionsPast60": 19,
-        "lateCasePercentage": 9.0,
-        "avgCasesDay": 3.0,
-        "revisionRate": 4.0,
-        "timelinessScore": 87,
-        "efficiencyScore": 91,
-        "accuracyScore": 94,
-        "qualityScore": 89,
-        "notes": "Slightly lower performance than last snapshot.",
-        "costPerCase": {
-          "PFR": 44,
-          "NYL": 49,
-          "LTC": 39,
-          "Telco": 37,
-          "Lincoln": 46,
-          "Hartford": 41,
-          "Peer Review": 54,
-          "Muckleshoot": 49,
-          "Standard": 47
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 240,
+          "casesPast30Days": 42,
+          "casesPast60Days": 88,
+          "clientRevisionsWeek": 2,
+          "clientRevisionsMonth": 11,
+          "clientRevisionsPast60": 19,
+          "lateCasePercentage": 9.0,
+          "avgCasesDay": 3.0,
+          "revisionRate": 4.0,
+          "timelinessScore": 87,
+          "efficiencyScore": 91,
+          "accuracyScore": 96,
+          "qualityScore": 93.2,
+          "notes": "Slightly lower performance than last snapshot.",
+          "costPerCase": {
+            "PFR": 44,
+            "NYL": 49,
+            "LTC": 39,
+            "Telco": 37,
+            "Lincoln": 46,
+            "Hartford": 41,
+            "Peer Review": 54,
+            "Muckleshoot": 49,
+            "Standard": 47
+          },
+          "caseType": "Non-Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 102,
+      "name": "Jane Smith",
+      "clients": "NYL, Hartford",
+      "email": "jane.smith@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 180,
+          "casesPast30Days": 30,
+          "casesPast60Days": 70,
+          "clientRevisionsWeek": 4,
+          "clientRevisionsMonth": 10,
+          "clientRevisionsPast60": 18,
+          "lateCasePercentage": 5.2,
+          "avgCasesDay": 2.8,
+          "revisionRate": 13.9,
+          "timelinessScore": 85,
+          "efficiencyScore": 80,
+          "accuracyScore": 75,
+          "qualityScore": 78.0,
+          "notes": "Highly efficient, low revision rate.",
+          "costPerCase": {
+            "PFR": 40,
+            "NYL": 52,
+            "LTC": 38,
+            "Telco": 36,
+            "Lincoln": 45,
+            "Hartford": 50,
+            "Peer Review": 58,
+            "Muckleshoot": 47,
+            "Standard": 49
+          },
+          "caseType": "Psych"
         },
-        "caseType": "Non-Psych"
-      }
-    ]
-  },
-  {
-    "mra_id": 102,
-    "name": "Jane Smith",
-    "clients": "NYL, Hartford",
-    "email": "jane.smith@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 180,
-        "casesPast30Days": 30,
-        "casesPast60Days": 70,
-        "clientRevisionsWeek": 4,
-        "clientRevisionsMonth": 10,
-        "clientRevisionsPast60": 18,
-        "lateCasePercentage": 5.2,
-        "avgCasesDay": 2.8,
-        "revisionRate": 3.9,
-        "timelinessScore": 92,
-        "efficiencyScore": 89,
-        "accuracyScore": 97,
-        "qualityScore": 91,
-        "notes": "Highly efficient, low revision rate.",
-        "costPerCase": {
-          "PFR": 40,
-          "NYL": 52,
-          "LTC": 38,
-          "Telco": 36,
-          "Lincoln": 45,
-          "Hartford": 50,
-          "Peer Review": 58,
-          "Muckleshoot": 47,
-          "Standard": 49
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 175,
+          "casesPast30Days": 28,
+          "casesPast60Days": 68,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 9,
+          "clientRevisionsPast60": 17,
+          "lateCasePercentage": 5.5,
+          "avgCasesDay": 2.7,
+          "revisionRate": 3.7,
+          "timelinessScore": 91,
+          "efficiencyScore": 88,
+          "accuracyScore": 96,
+          "qualityScore": 93.4,
+          "notes": "Consistent performance, slight dip in efficiency.",
+          "costPerCase": {
+            "PFR": 39,
+            "NYL": 51,
+            "LTC": 37,
+            "Telco": 35,
+            "Lincoln": 44,
+            "Hartford": 49,
+            "Peer Review": 57,
+            "Muckleshoot": 46,
+            "Standard": 48
+          },
+          "caseType": "Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 103,
+      "name": "Michael Johnson",
+      "clients": "LTC, Peer Review",
+      "email": "michael.johnson@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 200,
+          "casesPast30Days": 40,
+          "casesPast60Days": 80,
+          "clientRevisionsWeek": 5,
+          "clientRevisionsMonth": 15,
+          "clientRevisionsPast60": 22,
+          "lateCasePercentage": 6.8,
+          "avgCasesDay": 3.5,
+          "revisionRate": 4.5,
+          "timelinessScore": 75,
+          "efficiencyScore": 90,
+          "accuracyScore": 92,
+          "qualityScore": 88.2,
+          "notes": "Good quality, but needs improvement in timeliness.",
+          "costPerCase": {
+            "PFR": 48,
+            "NYL": 55,
+            "LTC": 42,
+            "Telco": 40,
+            "Lincoln": 50,
+            "Hartford": 45,
+            "Peer Review": 60,
+            "Muckleshoot": 53,
+            "Standard": 51
+          },
+          "caseType": "Non-Psych"
         },
-        "caseType": "Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 175,
-        "casesPast30Days": 28,
-        "casesPast60Days": 68,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 9,
-        "clientRevisionsPast60": 17,
-        "lateCasePercentage": 5.5,
-        "avgCasesDay": 2.7,
-        "revisionRate": 3.7,
-        "timelinessScore": 91,
-        "efficiencyScore": 88,
-        "accuracyScore": 96,
-        "qualityScore": 90,
-        "notes": "Consistent performance, slight dip in efficiency.",
-        "costPerCase": {
-          "PFR": 39,
-          "NYL": 51,
-          "LTC": 37,
-          "Telco": 35,
-          "Lincoln": 44,
-          "Hartford": 49,
-          "Peer Review": 57,
-          "Muckleshoot": 46,
-          "Standard": 48
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 195,
+          "casesPast30Days": 38,
+          "casesPast60Days": 78,
+          "clientRevisionsWeek": 4,
+          "clientRevisionsMonth": 14,
+          "clientRevisionsPast60": 21,
+          "lateCasePercentage": 7.0,
+          "avgCasesDay": 3.4,
+          "revisionRate": 24.3,
+          "timelinessScore": 80,
+          "efficiencyScore": 85,
+          "accuracyScore": 70,
+          "qualityScore": 75.0,
+          "notes": "Slight drop in performance compared to recent snapshot.",
+          "costPerCase": {
+            "PFR": 47,
+            "NYL": 54,
+            "LTC": 41,
+            "Telco": 39,
+            "Lincoln": 49,
+            "Hartford": 44,
+            "Peer Review": 59,
+            "Muckleshoot": 52,
+            "Standard": 50
+          },
+          "caseType": "Non-Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 104,
+      "name": "Emily Davis",
+      "clients": "Telco, Muckleshoot",
+      "email": "emily.davis@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 220,
+          "casesPast30Days": 35,
+          "casesPast60Days": 75,
+          "clientRevisionsWeek": 6,
+          "clientRevisionsMonth": 14,
+          "clientRevisionsPast60": 21,
+          "lateCasePercentage": 7.4,
+          "avgCasesDay": 3.1,
+          "revisionRate": 14.0,
+          "timelinessScore": 87,
+          "efficiencyScore": 88,
+          "accuracyScore": 93,
+          "qualityScore": 90.8,
+          "notes": "Balanced performer, strong accuracy.",
+          "costPerCase": {
+            "PFR": 46,
+            "NYL": 53,
+            "LTC": 41,
+            "Telco": 39,
+            "Lincoln": 48,
+            "Hartford": 44,
+            "Peer Review": 57,
+            "Muckleshoot": 52,
+            "Standard": 50
+          },
+          "caseType": "Both"
         },
-        "caseType": "Psych"
-      }
-    ]
-  },
-  {
-    "mra_id": 103,
-    "name": "Michael Johnson",
-    "clients": "LTC, Peer Review",
-    "email": "michael.johnson@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 200,
-        "casesPast30Days": 40,
-        "casesPast60Days": 80,
-        "clientRevisionsWeek": 5,
-        "clientRevisionsMonth": 15,
-        "clientRevisionsPast60": 22,
-        "lateCasePercentage": 6.8,
-        "avgCasesDay": 3.5,
-        "revisionRate": 4.5,
-        "timelinessScore": 85,
-        "efficiencyScore": 90,
-        "accuracyScore": 92,
-        "qualityScore": 88,
-        "notes": "Good quality, but needs improvement in timeliness.",
-        "costPerCase": {
-          "PFR": 48,
-          "NYL": 55,
-          "LTC": 42,
-          "Telco": 40,
-          "Lincoln": 50,
-          "Hartford": 45,
-          "Peer Review": 60,
-          "Muckleshoot": 53,
-          "Standard": 51
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 215,
+          "casesPast30Days": 33,
+          "casesPast60Days": 72,
+          "clientRevisionsWeek": 5,
+          "clientRevisionsMonth": 13,
+          "clientRevisionsPast60": 20,
+          "lateCasePercentage": 7.8,
+          "avgCasesDay": 3.0,
+          "revisionRate": 3.9,
+          "timelinessScore": 86,
+          "efficiencyScore": 87,
+          "accuracyScore": 92,
+          "qualityScore": 89.8,
+          "notes": "Slightly reduced numbers in previous snapshot.",
+          "costPerCase": {
+            "PFR": 45,
+            "NYL": 52,
+            "LTC": 40,
+            "Telco": 38,
+            "Lincoln": 47,
+            "Hartford": 43,
+            "Peer Review": 56,
+            "Muckleshoot": 51,
+            "Standard": 49
+          },
+          "caseType": "Both"
+        }
+      ]
+    },
+    {
+      "mra_id": 105,
+      "name": "Robert Brown",
+      "clients": "Standard, Lincoln",
+      "email": "robert.brown@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 190,
+          "casesPast30Days": 32,
+          "casesPast60Days": 68,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 11,
+          "clientRevisionsPast60": 19,
+          "lateCasePercentage": 4.9,
+          "avgCasesDay": 12.9,
+          "revisionRate": 3.8,
+          "timelinessScore": 90,
+          "efficiencyScore": 91,
+          "accuracyScore": 96,
+          "qualityScore": 93.8,
+          "notes": "Very efficient, rarely late.",
+          "costPerCase": {
+            "PFR": 42,
+            "NYL": 51,
+            "LTC": 39,
+            "Telco": 37,
+            "Lincoln": 46,
+            "Hartford": 41,
+            "Peer Review": 56,
+            "Muckleshoot": 49,
+            "Standard": 48
+          },
+          "caseType": "Non-Psych"
         },
-        "caseType": "Non-Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 195,
-        "casesPast30Days": 38,
-        "casesPast60Days": 78,
-        "clientRevisionsWeek": 4,
-        "clientRevisionsMonth": 14,
-        "clientRevisionsPast60": 21,
-        "lateCasePercentage": 7.0,
-        "avgCasesDay": 3.4,
-        "revisionRate": 4.3,
-        "timelinessScore": 84,
-        "efficiencyScore": 89,
-        "accuracyScore": 91,
-        "qualityScore": 87,
-        "notes": "Slight drop in performance compared to recent snapshot.",
-        "costPerCase": {
-          "PFR": 47,
-          "NYL": 54,
-          "LTC": 41,
-          "Telco": 39,
-          "Lincoln": 49,
-          "Hartford": 44,
-          "Peer Review": 59,
-          "Muckleshoot": 52,
-          "Standard": 50
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 185,
+          "casesPast30Days": 30,
+          "casesPast60Days": 65,
+          "clientRevisionsWeek": 2,
+          "clientRevisionsMonth": 10,
+          "clientRevisionsPast60": 18,
+          "lateCasePercentage": 5.1,
+          "avgCasesDay": 2.8,
+          "revisionRate": 3.7,
+          "timelinessScore": 89,
+          "efficiencyScore": 90,
+          "accuracyScore": 95,
+          "qualityScore": 92.8,
+          "notes": "Slightly lower performance than recent snapshot.",
+          "costPerCase": {
+            "PFR": 41,
+            "NYL": 50,
+            "LTC": 38,
+            "Telco": 36,
+            "Lincoln": 45,
+            "Hartford": 40,
+            "Peer Review": 55,
+            "Muckleshoot": 48,
+            "Standard": 47
+          },
+          "caseType": "Non-Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 106,
+      "name": "Sophia Wilson",
+      "clients": "NYL, PFR",
+      "email": "sophia.wilson@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 210,
+          "casesPast30Days": 38,
+          "casesPast60Days": 78,
+          "clientRevisionsWeek": 5,
+          "clientRevisionsMonth": 13,
+          "clientRevisionsPast60": 23,
+          "lateCasePercentage": 6.2,
+          "avgCasesDay": 3.3,
+          "revisionRate": 28.1,
+          "timelinessScore": 89,
+          "efficiencyScore": 90,
+          "accuracyScore": 72,
+          "qualityScore": 79.0,
+          "notes": "Reliable, maintains high quality work.",
+          "costPerCase": {
+            "PFR": 47,
+            "NYL": 54,
+            "LTC": 43,
+            "Telco": 41,
+            "Lincoln": 49,
+            "Hartford": 46,
+            "Peer Review": 59,
+            "Muckleshoot": 51,
+            "Standard": 50
+          },
+          "caseType": "Both"
         },
-        "caseType": "Non-Psych"
-      }
-    ]
-  },
-  {
-    "mra_id": 104,
-    "name": "Emily Davis",
-    "clients": "Telco, Muckleshoot",
-    "email": "emily.davis@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 220,
-        "casesPast30Days": 35,
-        "casesPast60Days": 75,
-        "clientRevisionsWeek": 6,
-        "clientRevisionsMonth": 14,
-        "clientRevisionsPast60": 21,
-        "lateCasePercentage": 7.4,
-        "avgCasesDay": 3.1,
-        "revisionRate": 4.0,
-        "timelinessScore": 87,
-        "efficiencyScore": 88,
-        "accuracyScore": 93,
-        "qualityScore": 89,
-        "notes": "Balanced performer, strong accuracy.",
-        "costPerCase": {
-          "PFR": 46,
-          "NYL": 53,
-          "LTC": 41,
-          "Telco": 39,
-          "Lincoln": 48,
-          "Hartford": 44,
-          "Peer Review": 57,
-          "Muckleshoot": 52,
-          "Standard": 50
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 205,
+          "casesPast30Days": 36,
+          "casesPast60Days": 75,
+          "clientRevisionsWeek": 4,
+          "clientRevisionsMonth": 12,
+          "clientRevisionsPast60": 22,
+          "lateCasePercentage": 6.5,
+          "avgCasesDay": 3.2,
+          "revisionRate": 4.0,
+          "timelinessScore": 88,
+          "efficiencyScore": 89,
+          "accuracyScore": 72,
+          "qualityScore": 78.6,
+          "notes": "Slight dip in performance.",
+          "costPerCase": {
+            "PFR": 46,
+            "NYL": 53,
+            "LTC": 42,
+            "Telco": 40,
+            "Lincoln": 48,
+            "Hartford": 45,
+            "Peer Review": 58,
+            "Muckleshoot": 50,
+            "Standard": 49
+          },
+          "caseType": "Both"
+        }
+      ]
+    },
+    {
+      "mra_id": 107,
+      "name": "Fiona Gold",
+      "clients": "PFR, NYL",
+      "email": "fiona.gold@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 230,
+          "casesPast30Days": 34,
+          "casesPast60Days": 70,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 10,
+          "clientRevisionsPast60": 18,
+          "lateCasePercentage": 6.0,
+          "avgCasesDay": 3.0,
+          "revisionRate": 13.8,
+          "timelinessScore": 90,
+          "efficiencyScore": 92,
+          "accuracyScore": 95,
+          "qualityScore": 93.4,
+          "notes": "Consistent performance with steady improvement.",
+          "costPerCase": {
+            "PFR": 43,
+            "NYL": 52,
+            "LTC": 40,
+            "Telco": 38,
+            "Lincoln": 47,
+            "Hartford": 42,
+            "Peer Review": 55,
+            "Muckleshoot": 50,
+            "Standard": 48
+          },
+          "caseType": "Non-Psych"
         },
-        "caseType": "Both"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 215,
-        "casesPast30Days": 33,
-        "casesPast60Days": 72,
-        "clientRevisionsWeek": 5,
-        "clientRevisionsMonth": 13,
-        "clientRevisionsPast60": 20,
-        "lateCasePercentage": 7.8,
-        "avgCasesDay": 3.0,
-        "revisionRate": 3.9,
-        "timelinessScore": 86,
-        "efficiencyScore": 87,
-        "accuracyScore": 92,
-        "qualityScore": 88,
-        "notes": "Slightly reduced numbers in previous snapshot.",
-        "costPerCase": {
-          "PFR": 45,
-          "NYL": 52,
-          "LTC": 40,
-          "Telco": 38,
-          "Lincoln": 47,
-          "Hartford": 43,
-          "Peer Review": 56,
-          "Muckleshoot": 51,
-          "Standard": 49
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 225,
+          "casesPast30Days": 32,
+          "casesPast60Days": 68,
+          "clientRevisionsWeek": 2,
+          "clientRevisionsMonth": 9,
+          "clientRevisionsPast60": 17,
+          "lateCasePercentage": 6.5,
+          "avgCasesDay": 2.9,
+          "revisionRate": 3.7,
+          "timelinessScore": 89,
+          "efficiencyScore": 91,
+          "accuracyScore": 87,
+          "qualityScore": 88.2,
+          "notes": "Minor fluctuations in performance noted.",
+          "costPerCase": {
+            "PFR": 42,
+            "NYL": 51,
+            "LTC": 39,
+            "Telco": 37,
+            "Lincoln": 46,
+            "Hartford": 41,
+            "Peer Review": 54,
+            "Muckleshoot": 49,
+            "Standard": 47
+          },
+          "caseType": "Non-Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 108,
+      "name": "Daniel Red",
+      "clients": "Lincoln, Telco",
+      "email": "daniel.red@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 260,
+          "casesPast30Days": 48,
+          "casesPast60Days": 95,
+          "clientRevisionsWeek": 4,
+          "clientRevisionsMonth": 13,
+          "clientRevisionsPast60": 21,
+          "lateCasePercentage": 7.2,
+          "avgCasesDay": 3.3,
+          "revisionRate": 4.3,
+          "timelinessScore": 88,
+          "efficiencyScore": 90,
+          "accuracyScore": 93,
+          "qualityScore": 91.4,
+          "notes": "Solid performance, occasional delays.",
+          "costPerCase": {
+            "PFR": 45,
+            "NYL": 53,
+            "LTC": 41,
+            "Telco": 39,
+            "Lincoln": 48,
+            "Hartford": 43,
+            "Peer Review": 57,
+            "Muckleshoot": 52,
+            "Standard": 50
+          },
+          "caseType": "Non-Psych"
         },
-        "caseType": "Both"
-      }
-    ]
-  },
-  {
-    "mra_id": 105,
-    "name": "Robert Brown",
-    "clients": "Standard, Lincoln",
-    "email": "robert.brown@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 190,
-        "casesPast30Days": 32,
-        "casesPast60Days": 68,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 11,
-        "clientRevisionsPast60": 19,
-        "lateCasePercentage": 4.9,
-        "avgCasesDay": 2.9,
-        "revisionRate": 3.8,
-        "timelinessScore": 90,
-        "efficiencyScore": 91,
-        "accuracyScore": 96,
-        "qualityScore": 92,
-        "notes": "Very efficient, rarely late.",
-        "costPerCase": {
-          "PFR": 42,
-          "NYL": 51,
-          "LTC": 39,
-          "Telco": 37,
-          "Lincoln": 46,
-          "Hartford": 41,
-          "Peer Review": 56,
-          "Muckleshoot": 49,
-          "Standard": 48
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 255,
+          "casesPast30Days": 46,
+          "casesPast60Days": 92,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 12,
+          "clientRevisionsPast60": 20,
+          "lateCasePercentage": 7.0,
+          "avgCasesDay": 3.2,
+          "revisionRate": 4.2,
+          "timelinessScore": 87,
+          "efficiencyScore": 89,
+          "accuracyScore": 88,
+          "qualityScore": 88.0,
+          "notes": "Consistent with previous snapshot.",
+          "costPerCase": {
+            "PFR": 44,
+            "NYL": 52,
+            "LTC": 40,
+            "Telco": 38,
+            "Lincoln": 47,
+            "Hartford": 42,
+            "Peer Review": 56,
+            "Muckleshoot": 51,
+            "Standard": 49
+          },
+          "caseType": "Non-Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 109,
+      "name": "Catherine Blue",
+      "clients": "Hartford, PFR",
+      "email": "catherine.blue@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 205,
+          "casesPast30Days": 37,
+          "casesPast60Days": 80,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 11,
+          "clientRevisionsPast60": 19,
+          "lateCasePercentage": 5.8,
+          "avgCasesDay": 3.1,
+          "revisionRate": 33.8,
+          "timelinessScore": 92,
+          "efficiencyScore": 90,
+          "accuracyScore": 96,
+          "qualityScore": 94.0,
+          "notes": "High accuracy and efficiency.",
+          "costPerCase": {
+            "PFR": 42,
+            "NYL": 50,
+            "LTC": 40,
+            "Telco": 38,
+            "Lincoln": 46,
+            "Hartford": 44,
+            "Peer Review": 55,
+            "Muckleshoot": 50,
+            "Standard": 48
+          },
+          "caseType": "Psych"
         },
-        "caseType": "Non-Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 185,
-        "casesPast30Days": 30,
-        "casesPast60Days": 65,
-        "clientRevisionsWeek": 2,
-        "clientRevisionsMonth": 10,
-        "clientRevisionsPast60": 18,
-        "lateCasePercentage": 5.1,
-        "avgCasesDay": 2.8,
-        "revisionRate": 3.7,
-        "timelinessScore": 89,
-        "efficiencyScore": 90,
-        "accuracyScore": 95,
-        "qualityScore": 91,
-        "notes": "Slightly lower performance than recent snapshot.",
-        "costPerCase": {
-          "PFR": 41,
-          "NYL": 50,
-          "LTC": 38,
-          "Telco": 36,
-          "Lincoln": 45,
-          "Hartford": 40,
-          "Peer Review": 55,
-          "Muckleshoot": 48,
-          "Standard": 47
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 200,
+          "casesPast30Days": 35,
+          "casesPast60Days": 78,
+          "clientRevisionsWeek": 2,
+          "clientRevisionsMonth": 10,
+          "clientRevisionsPast60": 18,
+          "lateCasePercentage": 6.0,
+          "avgCasesDay": 13.0,
+          "revisionRate": 3.7,
+          "timelinessScore": 91,
+          "efficiencyScore": 89,
+          "accuracyScore": 85,
+          "qualityScore": 87.0,
+          "notes": "Consistent performance with minor variations.",
+          "costPerCase": {
+            "PFR": 41,
+            "NYL": 49,
+            "LTC": 39,
+            "Telco": 37,
+            "Lincoln": 45,
+            "Hartford": 43,
+            "Peer Review": 54,
+            "Muckleshoot": 49,
+            "Standard": 47
+          },
+          "caseType": "Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 110,
+      "name": "Laura White",
+      "clients": "Muckleshoot, Telco",
+      "email": "laura.white@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 215,
+          "casesPast30Days": 33,
+          "casesPast60Days": 70,
+          "clientRevisionsWeek": 4,
+          "clientRevisionsMonth": 12,
+          "clientRevisionsPast60": 20,
+          "lateCasePercentage": 6.4,
+          "avgCasesDay": 3.0,
+          "revisionRate": 4.0,
+          "timelinessScore": 90,
+          "efficiencyScore": 91,
+          "accuracyScore": 94,
+          "qualityScore": 92.6,
+          "notes": "Steady and reliable performance.",
+          "costPerCase": {
+            "PFR": 43,
+            "NYL": 52,
+            "LTC": 41,
+            "Telco": 39,
+            "Lincoln": 47,
+            "Hartford": 42,
+            "Peer Review": 56,
+            "Muckleshoot": 51,
+            "Standard": 49
+          },
+          "caseType": "Both"
         },
-        "caseType": "Non-Psych"
-      }
-    ]
-  },
-  {
-    "mra_id": 106,
-    "name": "Sophia Wilson",
-    "clients": "NYL, PFR",
-    "email": "sophia.wilson@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 210,
-        "casesPast30Days": 38,
-        "casesPast60Days": 78,
-        "clientRevisionsWeek": 5,
-        "clientRevisionsMonth": 13,
-        "clientRevisionsPast60": 23,
-        "lateCasePercentage": 6.2,
-        "avgCasesDay": 3.3,
-        "revisionRate": 4.1,
-        "timelinessScore": 89,
-        "efficiencyScore": 90,
-        "accuracyScore": 94,
-        "qualityScore": 91,
-        "notes": "Reliable, maintains high quality work.",
-        "costPerCase": {
-          "PFR": 47,
-          "NYL": 54,
-          "LTC": 43,
-          "Telco": 41,
-          "Lincoln": 49,
-          "Hartford": 46,
-          "Peer Review": 59,
-          "Muckleshoot": 51,
-          "Standard": 50
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 210,
+          "casesPast30Days": 31,
+          "casesPast60Days": 68,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 11,
+          "clientRevisionsPast60": 19,
+          "lateCasePercentage": 6.6,
+          "avgCasesDay": 2.9,
+          "revisionRate": 3.9,
+          "timelinessScore": 89,
+          "efficiencyScore": 90,
+          "accuracyScore": 93,
+          "qualityScore": 91.6,
+          "notes": "Slightly lower numbers than recent snapshot.",
+          "costPerCase": {
+            "PFR": 42,
+            "NYL": 51,
+            "LTC": 40,
+            "Telco": 38,
+            "Lincoln": 46,
+            "Hartford": 41,
+            "Peer Review": 55,
+            "Muckleshoot": 50,
+            "Standard": 48
+          },
+          "caseType": "Both"
+        }
+      ]
+    },
+    {
+      "mra_id": 111,
+      "name": "Andrew Green",
+      "clients": "PFR, Standard",
+      "email": "andrew.green@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 240,
+          "casesPast30Days": 40,
+          "casesPast60Days": 85,
+          "clientRevisionsWeek": 4,
+          "clientRevisionsMonth": 12,
+          "clientRevisionsPast60": 20,
+          "lateCasePercentage": 6.9,
+          "avgCasesDay": 3.2,
+          "revisionRate": 24.1,
+          "timelinessScore": 68,
+          "efficiencyScore": 90,
+          "accuracyScore": 93,
+          "qualityScore": 87.4,
+          "notes": "Strong performer with consistent metrics.",
+          "costPerCase": {
+            "PFR": 44,
+            "NYL": 53,
+            "LTC": 42,
+            "Telco": 40,
+            "Lincoln": 48,
+            "Hartford": 43,
+            "Peer Review": 57,
+            "Muckleshoot": 52,
+            "Standard": 50
+          },
+          "caseType": "Non-Psych"
         },
-        "caseType": "Both"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 205,
-        "casesPast30Days": 36,
-        "casesPast60Days": 75,
-        "clientRevisionsWeek": 4,
-        "clientRevisionsMonth": 12,
-        "clientRevisionsPast60": 22,
-        "lateCasePercentage": 6.5,
-        "avgCasesDay": 3.2,
-        "revisionRate": 4.0,
-        "timelinessScore": 88,
-        "efficiencyScore": 89,
-        "accuracyScore": 93,
-        "qualityScore": 90,
-        "notes": "Slight dip in performance.",
-        "costPerCase": {
-          "PFR": 46,
-          "NYL": 53,
-          "LTC": 42,
-          "Telco": 40,
-          "Lincoln": 48,
-          "Hartford": 45,
-          "Peer Review": 58,
-          "Muckleshoot": 50,
-          "Standard": 49
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 235,
+          "casesPast30Days": 38,
+          "casesPast60Days": 82,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 11,
+          "clientRevisionsPast60": 19,
+          "lateCasePercentage": 7.0,
+          "avgCasesDay": 3.1,
+          "revisionRate": 34.0,
+          "timelinessScore": 87,
+          "efficiencyScore": 89,
+          "accuracyScore": 92,
+          "qualityScore": 90.4,
+          "notes": "Maintains steady performance over time.",
+          "costPerCase": {
+            "PFR": 43,
+            "NYL": 52,
+            "LTC": 41,
+            "Telco": 39,
+            "Lincoln": 47,
+            "Hartford": 42,
+            "Peer Review": 56,
+            "Muckleshoot": 51,
+            "Standard": 49
+          },
+          "caseType": "Non-Psych"
+        }
+      ]
+    },
+    {
+      "mra_id": 112,
+      "name": "David Miller",
+      "clients": "Telco, Standard",
+      "email": "david.miller@example.com",
+      "snapshots": [
+        {
+          "snapshotDate": "2025-03-09T12:34:56Z",
+          "totalCases": 225,
+          "casesPast30Days": 37,
+          "casesPast60Days": 72,
+          "clientRevisionsWeek": 3,
+          "clientRevisionsMonth": 10,
+          "clientRevisionsPast60": 18,
+          "lateCasePercentage": 5.7,
+          "avgCasesDay": 3.0,
+          "revisionRate": 3.9,
+          "timelinessScore": 91,
+          "efficiencyScore": 90,
+          "accuracyScore": 95,
+          "qualityScore": 93.2,
+          "notes": "Steady performance, great accuracy.",
+          "costPerCase": {
+            "PFR": 41,
+            "NYL": 50,
+            "LTC": 39,
+            "Telco": 37,
+            "Lincoln": 46,
+            "Hartford": 41,
+            "Peer Review": 55,
+            "Muckleshoot": 50,
+            "Standard": 48
+          },
+          "caseType": "Non-Psych"
         },
-        "caseType": "Both"
-      }
-    ]
-  },
-  {
-    "mra_id": 107,
-    "name": "Fiona Gold",
-    "clients": "PFR, NYL",
-    "email": "fiona.gold@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 230,
-        "casesPast30Days": 34,
-        "casesPast60Days": 70,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 10,
-        "clientRevisionsPast60": 18,
-        "lateCasePercentage": 6.0,
-        "avgCasesDay": 3.0,
-        "revisionRate": 3.8,
-        "timelinessScore": 90,
-        "efficiencyScore": 92,
-        "accuracyScore": 95,
-        "qualityScore": 91,
-        "notes": "Consistent performance with steady improvement.",
-        "costPerCase": {
-          "PFR": 43,
-          "NYL": 52,
-          "LTC": 40,
-          "Telco": 38,
-          "Lincoln": 47,
-          "Hartford": 42,
-          "Peer Review": 55,
-          "Muckleshoot": 50,
-          "Standard": 48
-        },
-        "caseType": "Non-Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 225,
-        "casesPast30Days": 32,
-        "casesPast60Days": 68,
-        "clientRevisionsWeek": 2,
-        "clientRevisionsMonth": 9,
-        "clientRevisionsPast60": 17,
-        "lateCasePercentage": 6.5,
-        "avgCasesDay": 2.9,
-        "revisionRate": 3.7,
-        "timelinessScore": 89,
-        "efficiencyScore": 91,
-        "accuracyScore": 94,
-        "qualityScore": 90,
-        "notes": "Minor fluctuations in performance noted.",
-        "costPerCase": {
-          "PFR": 42,
-          "NYL": 51,
-          "LTC": 39,
-          "Telco": 37,
-          "Lincoln": 46,
-          "Hartford": 41,
-          "Peer Review": 54,
-          "Muckleshoot": 49,
-          "Standard": 47
-        },
-        "caseType": "Non-Psych"
-      }
-    ]
-  },
-  {
-    "mra_id": 108,
-    "name": "Daniel Red",
-    "clients": "Lincoln, Telco",
-    "email": "daniel.red@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 260,
-        "casesPast30Days": 48,
-        "casesPast60Days": 95,
-        "clientRevisionsWeek": 4,
-        "clientRevisionsMonth": 13,
-        "clientRevisionsPast60": 21,
-        "lateCasePercentage": 7.2,
-        "avgCasesDay": 3.3,
-        "revisionRate": 4.3,
-        "timelinessScore": 88,
-        "efficiencyScore": 90,
-        "accuracyScore": 93,
-        "qualityScore": 89,
-        "notes": "Solid performance, occasional delays.",
-        "costPerCase": {
-          "PFR": 45,
-          "NYL": 53,
-          "LTC": 41,
-          "Telco": 39,
-          "Lincoln": 48,
-          "Hartford": 43,
-          "Peer Review": 57,
-          "Muckleshoot": 52,
-          "Standard": 50
-        },
-        "caseType": "Non-Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 255,
-        "casesPast30Days": 46,
-        "casesPast60Days": 92,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 12,
-        "clientRevisionsPast60": 20,
-        "lateCasePercentage": 7.0,
-        "avgCasesDay": 3.2,
-        "revisionRate": 4.2,
-        "timelinessScore": 87,
-        "efficiencyScore": 89,
-        "accuracyScore": 92,
-        "qualityScore": 88,
-        "notes": "Consistent with previous snapshot.",
-        "costPerCase": {
-          "PFR": 44,
-          "NYL": 52,
-          "LTC": 40,
-          "Telco": 38,
-          "Lincoln": 47,
-          "Hartford": 42,
-          "Peer Review": 56,
-          "Muckleshoot": 51,
-          "Standard": 49
-        },
-        "caseType": "Non-Psych"
-      }
-    ]
-  },
-  {
-    "mra_id": 109,
-    "name": "Catherine Blue",
-    "clients": "Hartford, PFR",
-    "email": "catherine.blue@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 205,
-        "casesPast30Days": 37,
-        "casesPast60Days": 80,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 11,
-        "clientRevisionsPast60": 19,
-        "lateCasePercentage": 5.8,
-        "avgCasesDay": 3.1,
-        "revisionRate": 3.8,
-        "timelinessScore": 92,
-        "efficiencyScore": 90,
-        "accuracyScore": 96,
-        "qualityScore": 93,
-        "notes": "High accuracy and efficiency.",
-        "costPerCase": {
-          "PFR": 42,
-          "NYL": 50,
-          "LTC": 40,
-          "Telco": 38,
-          "Lincoln": 46,
-          "Hartford": 44,
-          "Peer Review": 55,
-          "Muckleshoot": 50,
-          "Standard": 48
-        },
-        "caseType": "Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 200,
-        "casesPast30Days": 35,
-        "casesPast60Days": 78,
-        "clientRevisionsWeek": 2,
-        "clientRevisionsMonth": 10,
-        "clientRevisionsPast60": 18,
-        "lateCasePercentage": 6.0,
-        "avgCasesDay": 3.0,
-        "revisionRate": 3.7,
-        "timelinessScore": 91,
-        "efficiencyScore": 89,
-        "accuracyScore": 95,
-        "qualityScore": 92,
-        "notes": "Consistent performance with minor variations.",
-        "costPerCase": {
-          "PFR": 41,
-          "NYL": 49,
-          "LTC": 39,
-          "Telco": 37,
-          "Lincoln": 45,
-          "Hartford": 43,
-          "Peer Review": 54,
-          "Muckleshoot": 49,
-          "Standard": 47
-        },
-        "caseType": "Psych"
-      }
-    ]
-  },
-  {
-    "mra_id": 110,
-    "name": "Laura White",
-    "clients": "Muckleshoot, Telco",
-    "email": "laura.white@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 215,
-        "casesPast30Days": 33,
-        "casesPast60Days": 70,
-        "clientRevisionsWeek": 4,
-        "clientRevisionsMonth": 12,
-        "clientRevisionsPast60": 20,
-        "lateCasePercentage": 6.4,
-        "avgCasesDay": 3.0,
-        "revisionRate": 4.0,
-        "timelinessScore": 90,
-        "efficiencyScore": 91,
-        "accuracyScore": 94,
-        "qualityScore": 90,
-        "notes": "Steady and reliable performance.",
-        "costPerCase": {
-          "PFR": 43,
-          "NYL": 52,
-          "LTC": 41,
-          "Telco": 39,
-          "Lincoln": 47,
-          "Hartford": 42,
-          "Peer Review": 56,
-          "Muckleshoot": 51,
-          "Standard": 49
-        },
-        "caseType": "Both"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 210,
-        "casesPast30Days": 31,
-        "casesPast60Days": 68,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 11,
-        "clientRevisionsPast60": 19,
-        "lateCasePercentage": 6.6,
-        "avgCasesDay": 2.9,
-        "revisionRate": 3.9,
-        "timelinessScore": 89,
-        "efficiencyScore": 90,
-        "accuracyScore": 93,
-        "qualityScore": 89,
-        "notes": "Slightly lower numbers than recent snapshot.",
-        "costPerCase": {
-          "PFR": 42,
-          "NYL": 51,
-          "LTC": 40,
-          "Telco": 38,
-          "Lincoln": 46,
-          "Hartford": 41,
-          "Peer Review": 55,
-          "Muckleshoot": 50,
-          "Standard": 48
-        },
-        "caseType": "Both"
-      }
-    ]
-  },
-  {
-    "mra_id": 111,
-    "name": "Andrew Green",
-    "clients": "PFR, Standard",
-    "email": "andrew.green@example.com",
-    "snapshots": [
-      {
-        "snapshotDate": "2025-03-09T12:34:56Z",
-        "totalCases": 240,
-        "casesPast30Days": 40,
-        "casesPast60Days": 85,
-        "clientRevisionsWeek": 4,
-        "clientRevisionsMonth": 12,
-        "clientRevisionsPast60": 20,
-        "lateCasePercentage": 6.9,
-        "avgCasesDay": 3.2,
-        "revisionRate": 4.1,
-        "timelinessScore": 88,
-        "efficiencyScore": 90,
-        "accuracyScore": 93,
-        "qualityScore": 89,
-        "notes": "Strong performer with consistent metrics.",
-        "costPerCase": {
-          "PFR": 44,
-          "NYL": 53,
-          "LTC": 42,
-          "Telco": 40,
-          "Lincoln": 48,
-          "Hartford": 43,
-          "Peer Review": 57,
-          "Muckleshoot": 52,
-          "Standard": 50
-        },
-        "caseType": "Non-Psych"
-      },
-      {
-        "snapshotDate": "2025-02-20T12:34:56Z",
-        "totalCases": 235,
-        "casesPast30Days": 38,
-        "casesPast60Days": 82,
-        "clientRevisionsWeek": 3,
-        "clientRevisionsMonth": 11,
-        "clientRevisionsPast60": 19,
-        "lateCasePercentage": 7.0,
-        "avgCasesDay": 3.1,
-        "revisionRate": 4.0,
-        "timelinessScore": 87,
-        "efficiencyScore": 89,
-        "accuracyScore": 92,
-        "qualityScore": 88,
-        "notes": "Maintains steady performance over time.",
-        "costPerCase": {
-          "PFR": 43,
-          "NYL": 52,
-          "LTC": 41,
-          "Telco": 39,
-          "Lincoln": 47,
-          "Hartford": 42,
-          "Peer Review": 56,
-          "Muckleshoot": 51,
-          "Standard": 49
-        },
-        "caseType": "Non-Psych"
+        {
+          "snapshotDate": "2025-02-20T12:34:56Z",
+          "totalCases": 220,
+          "casesPast30Days": 35,
+          "casesPast60Days": 70,
+          "clientRevisionsWeek": 2,
+          "clientRevisionsMonth": 9,
+          "clientRevisionsPast60": 17,
+          "lateCasePercentage": 5.9,
+          "avgCasesDay": 2.9,
+          "revisionRate": 3.8,
+          "timelinessScore": 90,
+          "efficiencyScore": 89,
+          "accuracyScore": 94,
+          "qualityScore": 92.2,
+          "notes": "Slight dip in performance from previous snapshot.",
+          "costPerCase": {
+            "PFR": 40,
+            "NYL": 49,
+            "LTC": 38,
+            "Telco": 36,
+            "Lincoln": 45,
+            "Hartford": 40,
+            "Peer Review": 54,
+            "Muckleshoot": 49,
+            "Standard": 47
+          },
+          "caseType": "Non-Psych"
       }
     ]
   },
@@ -984,7 +1051,7 @@
         "clientRevisionsPast60": 18,
         "lateCasePercentage": 5.7,
         "avgCasesDay": 3.0,
-        "revisionRate": 3.9,
+        "revisionRate": 33.9,
         "timelinessScore": 91,
         "efficiencyScore": 90,
         "accuracyScore": 95,
@@ -1013,7 +1080,7 @@
         "clientRevisionsPast60": 17,
         "lateCasePercentage": 5.9,
         "avgCasesDay": 2.9,
-        "revisionRate": 3.8,
+        "revisionRate": 13.8,
         "timelinessScore": 90,
         "efficiencyScore": 89,
         "accuracyScore": 94,
@@ -1031,6 +1098,534 @@
           "Standard": 47
         },
         "caseType": "Non-Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 113,
+    "name": "Olivia Martin",
+    "clients": "Lincoln, Hartford, PFR",
+    "email": "olivia.martin@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 300,
+        "casesPast30Days": 55,
+        "casesPast60Days": 110,
+        "clientRevisionsWeek": 7,
+        "clientRevisionsMonth": 16,
+        "clientRevisionsPast60": 25,
+        "lateCasePercentage": 7.5,
+        "avgCasesDay": 4.0,
+        "revisionRate": 15.0,
+        "timelinessScore": 90,
+        "efficiencyScore": 93,
+        "accuracyScore": 98,
+        "qualityScore": 92,
+        "notes": "Improving performance, strong case volume.",
+        "costPerCase": {
+          "PFR": 47,
+          "NYL": 53,
+          "LTC": 42,
+          "Telco": 40,
+          "Lincoln": 48,
+          "Hartford": 44,
+          "Peer Review": 57,
+          "Muckleshoot": 52,
+          "Standard": 50
+        },
+        "caseType": "Non-Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 280,
+        "casesPast30Days": 50,
+        "casesPast60Days": 105,
+        "clientRevisionsWeek": 6,
+        "clientRevisionsMonth": 15,
+        "clientRevisionsPast60": 23,
+        "lateCasePercentage": 8.0,
+        "avgCasesDay": 3.8,
+        "revisionRate": 4.8,
+        "timelinessScore": 89,
+        "efficiencyScore": 92,
+        "accuracyScore": 96,
+        "qualityScore": 91,
+        "notes": "Solid performance with high case volume.",
+        "costPerCase": {
+          "PFR": 46,
+          "NYL": 52,
+          "LTC": 41,
+          "Telco": 39,
+          "Lincoln": 47,
+          "Hartford": 43,
+          "Peer Review": 56,
+          "Muckleshoot": 51,
+          "Standard": 49
+        },
+        "caseType": "Non-Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 114,
+    "name": "Ethan Rivera",
+    "clients": "NYL, Telco",
+    "email": "ethan.rivera@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 320,
+        "casesPast30Days": 60,
+        "casesPast60Days": 120,
+        "clientRevisionsWeek": 8,
+        "clientRevisionsMonth": 18,
+        "clientRevisionsPast60": 26,
+        "lateCasePercentage": 6.0,
+        "avgCasesDay": 4.2,
+        "revisionRate": 5.5,
+        "timelinessScore": 73,
+        "efficiencyScore": 95,
+        "accuracyScore": 90,
+        "qualityScore": 94,
+        "notes": "High case volume, great efficiency.",
+        "costPerCase": {
+          "PFR": 50,
+          "NYL": 55,
+          "LTC": 45,
+          "Telco": 42,
+          "Lincoln": 50,
+          "Hartford": 46,
+          "Peer Review": 60,
+          "Muckleshoot": 55,
+          "Standard": 53
+        },
+        "caseType": "Non-Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 310,
+        "casesPast30Days": 58,
+        "casesPast60Days": 115,
+        "clientRevisionsWeek": 7,
+        "clientRevisionsMonth": 17,
+        "clientRevisionsPast60": 25,
+        "lateCasePercentage": 6.5,
+        "avgCasesDay": 4.1,
+        "revisionRate": 15.3,
+        "timelinessScore": 92,
+        "efficiencyScore": 94,
+        "accuracyScore": 89,
+        "qualityScore": 93,
+        "notes": "Very consistent, slightly lower revisions.",
+        "costPerCase": {
+          "PFR": 49,
+          "NYL": 54,
+          "LTC": 44,
+          "Telco": 41,
+          "Lincoln": 49,
+          "Hartford": 45,
+          "Peer Review": 59,
+          "Muckleshoot": 54,
+          "Standard": 52
+        },
+        "caseType": "Non-Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 115,
+    "name": "Isabella Cruz",
+    "clients": "Lincoln, Peer Review",
+    "email": "isabella.cruz@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 270,
+        "casesPast30Days": 42,
+        "casesPast60Days": 84,
+        "clientRevisionsWeek": 5,
+        "clientRevisionsMonth": 13,
+        "clientRevisionsPast60": 20,
+        "lateCasePercentage": 7.0,
+        "avgCasesDay": 13.4,
+        "revisionRate": 4.8,
+        "timelinessScore": 91,
+        "efficiencyScore": 90,
+        "accuracyScore": 98,
+        "qualityScore": 92,
+        "notes": "Very high accuracy and consistent performance.",
+        "costPerCase": {
+          "PFR": 44,
+          "NYL": 50,
+          "LTC": 40,
+          "Telco": 38,
+          "Lincoln": 46,
+          "Hartford": 42,
+          "Peer Review": 55,
+          "Muckleshoot": 50,
+          "Standard": 48
+        },
+        "caseType": "Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 265,
+        "casesPast30Days": 40,
+        "casesPast60Days": 82,
+        "clientRevisionsWeek": 4,
+        "clientRevisionsMonth": 12,
+        "clientRevisionsPast60": 19,
+        "lateCasePercentage": 7.3,
+        "avgCasesDay": 3.3,
+        "revisionRate": 24.6,
+        "timelinessScore": 90,
+        "efficiencyScore": 89,
+        "accuracyScore": 97,
+        "qualityScore": 91,
+        "notes": "Stable with excellent accuracy.",
+        "costPerCase": {
+          "PFR": 43,
+          "NYL": 49,
+          "LTC": 39,
+          "Telco": 37,
+          "Lincoln": 45,
+          "Hartford": 41,
+          "Peer Review": 54,
+          "Muckleshoot": 49,
+          "Standard": 47
+        },
+        "caseType": "Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 116,
+    "name": "Liam Parker",
+    "clients": "NYL, Hartford, Telco",
+    "email": "liam.parker@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 340,
+        "casesPast30Days": 65,
+        "casesPast60Days": 130,
+        "clientRevisionsWeek": 9,
+        "clientRevisionsMonth": 20,
+        "clientRevisionsPast60": 28,
+        "lateCasePercentage": 8.0,
+        "avgCasesDay": 4.5,
+        "revisionRate": 16.0,
+        "timelinessScore": 87,
+        "efficiencyScore": 94,
+        "accuracyScore": 90,
+        "qualityScore": 93,
+        "notes": "High volume and dynamic performance.",
+        "costPerCase": {
+          "PFR": 51,
+          "NYL": 57,
+          "LTC": 47,
+          "Telco": 44,
+          "Lincoln": 52,
+          "Hartford": 48,
+          "Peer Review": 62,
+          "Muckleshoot": 57,
+          "Standard": 55
+        },
+        "caseType": "Non-Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 330,
+        "casesPast30Days": 63,
+        "casesPast60Days": 125,
+        "clientRevisionsWeek": 8,
+        "clientRevisionsMonth": 19,
+        "clientRevisionsPast60": 27,
+        "lateCasePercentage": 8.5,
+        "avgCasesDay": 4.4,
+        "revisionRate": 45.8,
+        "timelinessScore": 86,
+        "efficiencyScore": 93,
+        "accuracyScore": 89,
+        "qualityScore": 92,
+        "notes": "Slight drop, but still high volume.",
+        "costPerCase": {
+          "PFR": 50,
+          "NYL": 56,
+          "LTC": 46,
+          "Telco": 43,
+          "Lincoln": 51,
+          "Hartford": 47,
+          "Peer Review": 61,
+          "Muckleshoot": 56,
+          "Standard": 54
+        },
+        "caseType": "Non-Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 117,
+    "name": "Ava Richardson",
+    "clients": "PFR, Standard, Lincoln",
+    "email": "ava.richardson@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 290,
+        "casesPast30Days": 50,
+        "casesPast60Days": 100,
+        "clientRevisionsWeek": 5,
+        "clientRevisionsMonth": 14,
+        "clientRevisionsPast60": 21,
+        "lateCasePercentage": 7.0,
+        "avgCasesDay": 13.6,
+        "revisionRate": 4.2,
+        "timelinessScore": 63,
+        "efficiencyScore": 90,
+        "accuracyScore": 98,
+        "qualityScore": 92,
+        "notes": "Consistent with high accuracy.",
+        "costPerCase": {
+          "PFR": 44,
+          "NYL": 50,
+          "LTC": 40,
+          "Telco": 38,
+          "Lincoln": 46,
+          "Hartford": 42,
+          "Peer Review": 55,
+          "Muckleshoot": 50,
+          "Standard": 48
+        },
+        "caseType": "Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 280,
+        "casesPast30Days": 48,
+        "casesPast60Days": 95,
+        "clientRevisionsWeek": 4,
+        "clientRevisionsMonth": 13,
+        "clientRevisionsPast60": 20,
+        "lateCasePercentage": 7.2,
+        "avgCasesDay": 3.5,
+        "revisionRate": 4.0,
+        "timelinessScore": 92,
+        "efficiencyScore": 89,
+        "accuracyScore": 97,
+        "qualityScore": 91,
+        "notes": "Stable performance with slight variation.",
+        "costPerCase": {
+          "PFR": 43,
+          "NYL": 49,
+          "LTC": 39,
+          "Telco": 37,
+          "Lincoln": 45,
+          "Hartford": 41,
+          "Peer Review": 54,
+          "Muckleshoot": 49,
+          "Standard": 47
+        },
+        "caseType": "Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 118,
+    "name": "Noah Bennett",
+    "clients": "Hartford, Telco, PFR",
+    "email": "noah.bennett@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 310,
+        "casesPast30Days": 55,
+        "casesPast60Days": 115,
+        "clientRevisionsWeek": 6,
+        "clientRevisionsMonth": 16,
+        "clientRevisionsPast60": 24,
+        "lateCasePercentage": 7.8,
+        "avgCasesDay": 23.8,
+        "revisionRate": 4.7,
+        "timelinessScore": 88,
+        "efficiencyScore": 91,
+        "accuracyScore": 90,
+        "qualityScore": 89,
+        "notes": "Moderate volume with steady performance.",
+        "costPerCase": {
+          "PFR": 46,
+          "NYL": 53,
+          "LTC": 42,
+          "Telco": 40,
+          "Lincoln": 47,
+          "Hartford": 44,
+          "Peer Review": 56,
+          "Muckleshoot": 51,
+          "Standard": 50
+        },
+        "caseType": "Non-Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 300,
+        "casesPast30Days": 53,
+        "casesPast60Days": 110,
+        "clientRevisionsWeek": 5,
+        "clientRevisionsMonth": 15,
+        "clientRevisionsPast60": 23,
+        "lateCasePercentage": 8.0,
+        "avgCasesDay": 3.7,
+        "revisionRate": 14.5,
+        "timelinessScore": 87,
+        "efficiencyScore": 90,
+        "accuracyScore": 89,
+        "qualityScore": 88,
+        "notes": "Slightly lower efficiency in previous snapshot.",
+        "costPerCase": {
+          "PFR": 45,
+          "NYL": 52,
+          "LTC": 41,
+          "Telco": 39,
+          "Lincoln": 46,
+          "Hartford": 43,
+          "Peer Review": 55,
+          "Muckleshoot": 50,
+          "Standard": 48
+        },
+        "caseType": "Non-Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 119,
+    "name": "Grace Foster",
+    "clients": "PFR, Lincoln, NYL",
+    "email": "grace.foster@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 270,
+        "casesPast30Days": 48,
+        "casesPast60Days": 96,
+        "clientRevisionsWeek": 5,
+        "clientRevisionsMonth": 14,
+        "clientRevisionsPast60": 21,
+        "lateCasePercentage": 6.5,
+        "avgCasesDay": 3.4,
+        "revisionRate": 4.0,
+        "timelinessScore": 90,
+        "efficiencyScore": 92,
+        "accuracyScore": 97,
+        "qualityScore": 93,
+        "notes": "Consistent with a slight uptick in quality.",
+        "costPerCase": {
+          "PFR": 44,
+          "NYL": 51,
+          "LTC": 40,
+          "Telco": 38,
+          "Lincoln": 46,
+          "Hartford": 42,
+          "Peer Review": 55,
+          "Muckleshoot": 50,
+          "Standard": 48
+        },
+        "caseType": "Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 265,
+        "casesPast30Days": 46,
+        "casesPast60Days": 94,
+        "clientRevisionsWeek": 4,
+        "clientRevisionsMonth": 13,
+        "clientRevisionsPast60": 20,
+        "lateCasePercentage": 6.8,
+        "avgCasesDay": 3.3,
+        "revisionRate": 8.9,
+        "timelinessScore": 89,
+        "efficiencyScore": 91,
+        "accuracyScore": 96,
+        "qualityScore": 92,
+        "notes": "Steady performance with consistent metrics.",
+        "costPerCase": {
+          "PFR": 43,
+          "NYL": 50,
+          "LTC": 39,
+          "Telco": 37,
+          "Lincoln": 45,
+          "Hartford": 41,
+          "Peer Review": 54,
+          "Muckleshoot": 49,
+          "Standard": 47
+        },
+        "caseType": "Psych"
+      }
+    ]
+  },
+  {
+    "mra_id": 120,
+    "name": "Benjamin Lee",
+    "clients": "NYL, Telco, Standard",
+    "email": "benjamin.lee@example.com",
+    "snapshots": [
+      {
+        "snapshotDate": "2025-03-09T12:34:56Z",
+        "totalCases": 350,
+        "casesPast30Days": 70,
+        "casesPast60Days": 140,
+        "clientRevisionsWeek": 9,
+        "clientRevisionsMonth": 20,
+        "clientRevisionsPast60": 30,
+        "lateCasePercentage": 9.0,
+        "avgCasesDay": 4.8,
+        "revisionRate": 12.5,
+        "timelinessScore": 86,
+        "efficiencyScore": 95,
+        "accuracyScore": 88,
+        "qualityScore": 90,
+        "notes": "Very high case volume with varied performance.",
+        "costPerCase": {
+          "PFR": 52,
+          "NYL": 57,
+          "LTC": 47,
+          "Telco": 44,
+          "Lincoln": 52,
+          "Hartford": 48,
+          "Peer Review": 62,
+          "Muckleshoot": 57,
+          "Standard": 55
+        },
+        "caseType": "Non-Psych"
+      },
+      {
+        "snapshotDate": "2025-02-20T12:34:56Z",
+        "totalCases": 340,
+        "casesPast30Days": 68,
+        "casesPast60Days": 135,
+        "clientRevisionsWeek": 8,
+        "clientRevisionsMonth": 19,
+        "clientRevisionsPast60": 29,
+        "lateCasePercentage": 9.5,
+        "avgCasesDay": 4.7,
+        "revisionRate": 14.3,
+        "timelinessScore": 85,
+        "efficiencyScore": 94,
+        "accuracyScore": 87,
+        "qualityScore": 89,
+        "notes": "Slight drop in timeliness, but high volume overall.",
+        "costPerCase": {
+          "PFR": 51,
+          "NYL": 56,
+          "LTC": 46,
+          "Telco": 43,
+          "Lincoln": 51,
+          "Hartford": 47,
+          "Peer Review": 61,
+          "Muckleshoot": 56,
+          "Standard": 54
+        },
+        "caseType": "Non-Psych"
         }
       ]
     }
@@ -1038,363 +1633,829 @@
   "mockFeedbackData": [
     {
       "reviewer": "Andrew Green",
-    "feedbackType": "client",
-    "client": "PFR",
-    "content": "Excellent analysis, but might need more data visuals.",
-    "date": "2025-03-01T09:15:30Z",
-    "caseID": "PFR-123456",
-    "qaMember": "ClientQA - Michael Brown"
-  },
-  {
-    "reviewer": "Catherine Blue",
-    "feedbackType": "internal",
-    "client": "Lincoln",
-    "content": "Great thoroughness, keep consistent formatting.",
-    "date": "2025-03-01T11:20:10Z",
-    "caseID": "LIN-654321",
-    "qaMember": "Alice Cooper"
-  },
-  {
-    "reviewer": "Daniel Red",
-    "feedbackType": "client",
-    "client": "Hartford",
-    "content": "Clear, concise, but a bit slow in TAT.",
-    "date": "2025-03-02T08:05:00Z",
-    "caseID": "HAR-234567",
-    "qaMember": "ClientQA - Linda Green"
-  },
-  {
-    "reviewer": "David Miller",
-    "feedbackType": "internal",
-    "client": "Telco",
-    "content": "Quality check was excellent, minimal revisions needed.",
-    "date": "2025-03-02T14:40:00Z",
-    "caseID": "TEL-345678",
-    "qaMember": "Brian Adams"
-  },
-  {
-    "reviewer": "Emily Davis",
-    "feedbackType": "client",
-    "client": "NYL",
-    "content": "Thorough job, watch for minor typos.",
-    "date": "2025-03-03T10:15:00Z",
-    "caseID": "NYL-456789",
-    "qaMember": "ClientQA - Samuel Johnson"
-  },
-  {
-    "reviewer": "Fiona Gold",
-    "feedbackType": "internal",
-    "client": "Standard",
-    "content": "Consider adding more examples in the summary.",
-    "date": "2025-03-03T16:25:00Z",
-    "caseID": "STD-567890",
-    "qaMember": "Carla Gomez"
-  },
-  {
-    "reviewer": "Jane Smith",
-    "feedbackType": "client",
-    "client": "Peer Review",
-    "content": "Good overall structure, might benefit from more references.",
-    "date": "2025-03-04T07:50:00Z",
-    "caseID": "PR-678901",
-    "qaMember": "ClientQA - Olivia White"
-  },
-  {
-    "reviewer": "John Doe",
-    "feedbackType": "internal",
-    "client": "Muckleshoot",
-    "content": "Watch for referencing style, otherwise strong job.",
-    "date": "2025-03-04T12:35:00Z",
-    "caseID": "MCK-789012",
-    "qaMember": "Derek Hughes"
-  },
-  {
-    "reviewer": "Laura White",
-    "feedbackType": "client",
-    "client": "PFR",
-    "content": "Slightly rushed, but acceptable detail.",
-    "date": "2025-03-05T09:45:00Z",
-    "caseID": "PFR-890123",
-    "qaMember": "ClientQA - William Black"
-  },
-  {
-    "reviewer": "Michael Johnson",
-    "feedbackType": "internal",
-    "client": "Lincoln",
-    "content": "Performance is stable, consider peer review next time.",
-    "date": "2025-03-05T15:05:00Z",
-    "caseID": "LIN-901234",
-    "qaMember": "Evelyn Price"
-  },
-  {
-    "reviewer": "Robert Brown",
-    "feedbackType": "client",
-    "client": "Hartford",
-    "content": "Well-organized, client was satisfied with clarity.",
-    "date": "2025-03-06T08:20:00Z",
-    "caseID": "HAR-012345",
-    "qaMember": "ClientQA - Emma Stone"
-  },
-  {
-    "reviewer": "Sophia Wilson",
-    "feedbackType": "internal",
-    "client": "Telco",
-    "content": "Well done, only minor comments on data verification.",
-    "date": "2025-03-06T14:10:00Z",
-    "caseID": "TEL-123450",
-    "qaMember": "Felix Ramirez"
-  },
-  {
-    "reviewer": "Andrew Green",
-    "feedbackType": "client",
-    "client": "NYL",
-    "content": "Strong performance, minor improvements suggested.",
-    "date": "2025-03-07T07:30:00Z",
-    "caseID": "NYL-234561",
-    "qaMember": "ClientQA - James Clark"
-  },
-  {
-    "reviewer": "Catherine Blue",
-    "feedbackType": "internal",
-    "client": "Standard",
-    "content": "Ensure consistent usage of abbreviations across sections.",
-    "date": "2025-03-07T13:55:00Z",
-    "caseID": "STD-345612",
-    "qaMember": "Gloria Chen"
-  },
-  {
-    "reviewer": "Daniel Red",
-    "feedbackType": "client",
-    "client": "Peer Review",
-    "content": "Detailed approach, timeliness could be improved.",
-    "date": "2025-03-08T09:05:00Z",
-    "caseID": "PR-456123",
-    "qaMember": "ClientQA - Maria Davis"
-  },
-  {
-    "reviewer": "David Miller",
-    "feedbackType": "internal",
-    "client": "Muckleshoot",
-    "content": "Strong logic, could add more clarifying statements.",
-    "date": "2025-03-08T16:15:00Z",
-    "caseID": "MCK-567234",
-    "qaMember": "Henry Kim"
-  },
-  {
-    "reviewer": "Emily Davis",
-    "feedbackType": "client",
-    "client": "PFR",
-    "content": "Excellent analysis, but might need more data visuals.",
-    "date": "2025-03-09T10:25:00Z",
-    "caseID": "PFR-678345",
-    "qaMember": "ClientQA - Michael Brown"
-  },
-  {
-    "reviewer": "Fiona Gold",
-    "feedbackType": "internal",
-    "client": "Lincoln",
-    "content": "Quality check was excellent, minimal revisions needed.",
-    "date": "2025-03-09T14:50:00Z",
-    "caseID": "LIN-789456",
-    "qaMember": "Alice Cooper"
-  },
-  {
-    "reviewer": "Jane Smith",
-    "feedbackType": "client",
-    "client": "Hartford",
-    "content": "Clear, concise, but a bit slow in TAT.",
-    "date": "2025-03-10T08:40:00Z",
-    "caseID": "HAR-890567",
-    "qaMember": "ClientQA - Linda Green"
-  },
-  {
-    "reviewer": "John Doe",
-    "feedbackType": "internal",
-    "client": "Telco",
-    "content": "Consider adding more examples in the summary.",
-    "date": "2025-03-10T13:35:00Z",
-    "caseID": "TEL-901678",
-    "qaMember": "Brian Adams"
-  },
-  {
-    "reviewer": "Laura White",
-    "feedbackType": "client",
-    "client": "NYL",
-    "content": "Thorough job, watch for minor typos.",
-    "date": "2025-03-11T09:10:00Z",
-    "caseID": "NYL-012789",
-    "qaMember": "ClientQA - Samuel Johnson"
-  },
-  {
-    "reviewer": "Michael Johnson",
-    "feedbackType": "internal",
-    "client": "Standard",
-    "content": "Watch for referencing style, otherwise strong job.",
-    "date": "2025-03-11T15:25:00Z",
-    "caseID": "STD-123890",
-    "qaMember": "Carla Gomez"
-  },
-  {
-    "reviewer": "Robert Brown",
-    "feedbackType": "client",
-    "client": "Peer Review",
-    "content": "Good overall structure, might benefit from more references.",
-    "date": "2025-03-12T10:05:00Z",
-    "caseID": "PR-234901",
-    "qaMember": "ClientQA - Olivia White"
-  },
-  {
-    "reviewer": "Sophia Wilson",
-    "feedbackType": "internal",
-    "client": "Muckleshoot",
-    "content": "Performance is stable, consider peer review next time.",
-    "date": "2025-03-12T16:45:00Z",
-    "caseID": "MCK-345012",
-    "qaMember": "Derek Hughes"
-  },
-  {
-    "reviewer": "Andrew Green",
-    "feedbackType": "client",
-    "client": "PFR",
-    "content": "Slightly rushed, but acceptable detail.",
-    "date": "2025-03-13T09:55:00Z",
-    "caseID": "PFR-456123",
-    "qaMember": "ClientQA - William Black"
-  },
-  {
-    "reviewer": "Catherine Blue",
-    "feedbackType": "internal",
-    "client": "Lincoln",
-    "content": "Well done, only minor comments on data verification.",
-    "date": "2025-03-13T14:20:00Z",
-    "caseID": "LIN-567234",
-    "qaMember": "Evelyn Price"
-  },
-  {
-    "reviewer": "Daniel Red",
-    "feedbackType": "client",
-    "client": "Hartford",
-    "content": "Well-organized, client was satisfied with clarity.",
-    "date": "2025-03-14T07:15:00Z",
-    "caseID": "HAR-678345",
-    "qaMember": "ClientQA - Emma Stone"
-  },
-  {
-    "reviewer": "David Miller",
-    "feedbackType": "internal",
-    "client": "Telco",
-    "content": "Ensure consistent usage of abbreviations across sections.",
-    "date": "2025-03-14T11:40:00Z",
-    "caseID": "TEL-789456",
-    "qaMember": "Felix Ramirez"
-  },
-  {
-    "reviewer": "Emily Davis",
-    "feedbackType": "client",
-    "client": "NYL",
-    "content": "Strong performance, minor improvements suggested.",
-    "date": "2025-03-15T08:25:00Z",
-    "caseID": "NYL-890567",
-    "qaMember": "ClientQA - James Clark"
-  },
-  {
-    "reviewer": "Fiona Gold",
-    "feedbackType": "internal",
-    "client": "Standard",
-    "content": "Strong logic, could add more clarifying statements.",
-    "date": "2025-03-15T13:05:00Z",
-    "caseID": "STD-901678",
-    "qaMember": "Gloria Chen"
-  },
-  {
-    "reviewer": "Jane Smith",
-    "feedbackType": "client",
-    "client": "Peer Review",
-    "content": "Detailed approach, timeliness could be improved.",
-    "date": "2025-03-16T10:55:00Z",
-    "caseID": "PR-012789",
-    "qaMember": "ClientQA - Maria Davis"
-  },
-  {
-    "reviewer": "John Doe",
-    "feedbackType": "internal",
-    "client": "Muckleshoot",
-    "content": "Great thoroughness, keep consistent formatting.",
-    "date": "2025-03-16T15:35:00Z",
-    "caseID": "MCK-123890",
-    "qaMember": "Henry Kim"
-  },
-  {
-    "reviewer": "Laura White",
-    "feedbackType": "client",
-    "client": "PFR",
-    "content": "Excellent analysis, but might need more data visuals.",
-    "date": "2025-03-17T09:05:00Z",
-    "caseID": "PFR-234901",
-    "qaMember": "ClientQA - Michael Brown"
-  },
-  {
-    "reviewer": "Michael Johnson",
-    "feedbackType": "internal",
-    "client": "Lincoln",
-    "content": "Quality check was excellent, minimal revisions needed.",
-    "date": "2025-03-17T13:55:00Z",
-    "caseID": "LIN-345012",
-    "qaMember": "Alice Cooper"
-  },
-  {
-    "reviewer": "Robert Brown",
-    "feedbackType": "client",
-    "client": "Hartford",
-    "content": "Clear, concise, but a bit slow in TAT.",
-    "date": "2025-03-18T08:45:00Z",
-    "caseID": "HAR-456123",
-    "qaMember": "ClientQA - Linda Green"
-  },
-  {
-    "reviewer": "Sophia Wilson",
-    "feedbackType": "internal",
-    "client": "Telco",
-    "content": "Consider adding more examples in the summary.",
-    "date": "2025-03-18T14:10:00Z",
-    "caseID": "TEL-567234",
-    "qaMember": "Brian Adams"
-  },
-  {
-    "reviewer": "Andrew Green",
-    "feedbackType": "client",
-    "client": "NYL",
-    "content": "Thorough job, watch for minor typos.",
-    "date": "2025-03-19T07:20:00Z",
-    "caseID": "NYL-678345",
-    "qaMember": "ClientQA - Samuel Johnson"
-  },
-  {
-    "reviewer": "Catherine Blue",
-    "feedbackType": "internal",
-    "client": "Standard",
-    "content": "Watch for referencing style, otherwise strong job.",
-    "date": "2025-03-19T11:50:00Z",
-    "caseID": "STD-789456",
-    "qaMember": "Carla Gomez"
-  },
-  {
-    "reviewer": "Daniel Red",
-    "feedbackType": "client",
-    "client": "Peer Review",
-    "content": "Good overall structure, might benefit from more references.",
-    "date": "2025-03-20T09:35:00Z",
-    "caseID": "PR-890567",
-    "qaMember": "ClientQA - Olivia White"
-  },
-  {
-    "reviewer": "David Miller",
-    "feedbackType": "internal",
-    "client": "Muckleshoot",
-    "content": "Performance is stable, consider peer review next time.",
-    "date": "2025-03-20T16:05:00Z",
-    "caseID": "MCK-901678",
-    "qaMember": "Derek Hughes"
+      "feedbackType": "client",
+      "client": "PFR",
+      "content": "Analysis is solid, but the summary could be more concise.",
+      "date": "2025-03-01T08:10:00Z",
+      "caseID": "PFR-102030",
+      "qaMember": "ClientQA - Alice Cooper"
+    },
+    {
+      "reviewer": "Andrew Green",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Overall performance is consistent, but watch the timeliness scores.",
+      "date": "2025-03-02T10:45:00Z",
+      "caseID": "STD-102031",
+      "qaMember": "Brian Adams"
+    },
+  
+    {
+      "reviewer": "Ava Richardson",
+      "feedbackType": "internal",
+      "client": "Hartford",
+      "content": "Thorough approach, consider adding more supporting data in the summary.",
+      "date": "2025-03-03T09:05:00Z",
+      "caseID": "HAR-202030",
+      "qaMember": "Carla Gomez"
+    },
+    {
+      "reviewer": "Ava Richardson",
+      "feedbackType": "client",
+      "client": "Telco",
+      "content": "Excellent structure, but a bit slow in final submission.",
+      "date": "2025-03-04T11:15:00Z",
+      "caseID": "TEL-202031",
+      "qaMember": "ClientQA - Evelyn Price"
+    },
+  
+    {
+      "reviewer": "Catherine Blue",
+      "feedbackType": "client",
+      "client": "Lincoln",
+      "content": "Review is well organized; client is pleased with clarity.",
+      "date": "2025-03-05T08:25:00Z",
+      "caseID": "LIN-304050",
+      "qaMember": "ClientQA - Henry Kim"
+    },
+    {
+      "reviewer": "Catherine Blue",
+      "feedbackType": "internal",
+      "client": "Peer Review",
+      "content": "Great use of references, keep consistent formatting in future.",
+      "date": "2025-03-06T14:10:00Z",
+      "caseID": "PR-304051",
+      "qaMember": "Gloria Chen"
+    },
+  
+    {
+      "reviewer": "Daniel Red",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Minimal revisions needed; overall strong logic.",
+      "date": "2025-03-02T14:50:00Z",
+      "caseID": "MCK-111222",
+      "qaMember": "Felix Ramirez"
+    },
+    {
+      "reviewer": "Daniel Red",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Clear, concise, but a bit slow in TAT.",
+      "date": "2025-03-03T09:05:00Z",
+      "caseID": "HAR-234567",
+      "qaMember": "ClientQA - Linda Green"
+    },
+  
+    {
+      "reviewer": "David Miller",
+      "feedbackType": "client",
+      "client": "Telco",
+      "content": "Quality check was excellent, minimal revisions needed.",
+      "date": "2025-03-02T14:40:00Z",
+      "caseID": "TEL-345678",
+      "qaMember": "ClientQA - Brian Adams"
+    },
+    {
+      "reviewer": "David Miller",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Consistent performance, watch out for minor late submissions.",
+      "date": "2025-03-06T10:20:00Z",
+      "caseID": "STD-444444",
+      "qaMember": "Fiona Gold"
+    },
+  
+    {
+      "reviewer": "Emily Davis",
+      "feedbackType": "client",
+      "client": "Telco",
+      "content": "Performance metrics are well presented, but consider additional breakdowns.",
+      "date": "2025-03-05T13:30:00Z",
+      "caseID": "TEL-333333",
+      "qaMember": "ClientQA - Evelyn Price"
+    },
+    {
+      "reviewer": "Emily Davis",
+      "feedbackType": "internal",
+      "client": "NYL",
+      "content": "Strong logic, but referencing style could be more consistent.",
+      "date": "2025-03-07T15:00:00Z",
+      "caseID": "NYL-888999",
+      "qaMember": "Carla Gomez"
+    },
+  
+    {
+      "reviewer": "Ethan Rivera",
+      "feedbackType": "internal",
+      "client": "PFR",
+      "content": "Overall good coverage, but consider verifying older data references.",
+      "date": "2025-03-08T11:45:00Z",
+      "caseID": "PFR-101112",
+      "qaMember": "Derek Hughes"
+    },
+    {
+      "reviewer": "Ethan Rivera",
+      "feedbackType": "client",
+      "client": "LTC",
+      "content": "Excellent turnaround time, client satisfied with final product.",
+      "date": "2025-03-09T16:20:00Z",
+      "caseID": "LTC-131415",
+      "qaMember": "ClientQA - Alice Cooper"
+    },
+  
+    {
+      "reviewer": "Fiona Gold",
+      "feedbackType": "internal",
+      "client": "PFR",
+      "content": "Great client handling, but consider diversifying case types.",
+      "date": "2025-03-07T12:45:00Z",
+      "caseID": "PFR-666666",
+      "qaMember": "Alice Cooper"
+    },
+    {
+      "reviewer": "Fiona Gold",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "The final summary was concise and accurate, client is happy.",
+      "date": "2025-03-10T09:30:00Z",
+      "caseID": "NYL-789101",
+      "qaMember": "ClientQA - Brian Adams"
+    },
+  
+    {
+      "reviewer": "Grace Foster",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Impressive detail in the analysis, but formatting could be cleaner.",
+      "date": "2025-03-11T08:20:00Z",
+      "caseID": "HAR-616263",
+      "qaMember": "ClientQA - Gloria Chen"
+    },
+    {
+      "reviewer": "Grace Foster",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Well-structured content, keep consistent referencing style.",
+      "date": "2025-03-12T10:50:00Z",
+      "caseID": "STD-626364",
+      "qaMember": "Felix Ramirez"
+    },
+  
+    {
+      "reviewer": "Isabella Ortiz",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Minimal comments from QA, strong performance overall.",
+      "date": "2025-03-12T14:30:00Z",
+      "caseID": "TEL-777888",
+      "qaMember": "Evelyn Price"
+    },
+    {
+      "reviewer": "Isabella Ortiz",
+      "feedbackType": "client",
+      "client": "LTC",
+      "content": "Slightly delayed submission, but well-received by the client.",
+      "date": "2025-03-13T09:40:00Z",
+      "caseID": "LTC-888999",
+      "qaMember": "ClientQA - Derek Hughes"
+    },
+  
+    {
+      "reviewer": "Jane Smith",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Clear and concise performance report, but could improve data integration.",
+      "date": "2025-03-03T11:00:00Z",
+      "caseID": "HAR-111111",
+      "qaMember": "ClientQA - Carla Gomez"
+    },
+    {
+      "reviewer": "Jane Smith",
+      "feedbackType": "internal",
+      "client": "NYL",
+      "content": "Highly efficient, low revision rate. Keep it up.",
+      "date": "2025-03-04T14:00:00Z",
+      "caseID": "NYL-222222",
+      "qaMember": "Brian Adams"
+    },
+  
+    {
+      "reviewer": "John Doe",
+      "feedbackType": "internal",
+      "client": "PFR",
+      "content": "Strong reviewer, occasionally late on cases.",
+      "date": "2025-03-06T08:15:00Z",
+      "caseID": "PFR-333444",
+      "qaMember": "Felix Ramirez"
+    },
+    {
+      "reviewer": "John Doe",
+      "feedbackType": "client",
+      "client": "Lincoln",
+      "content": "Slightly lower performance than last snapshot, but still acceptable.",
+      "date": "2025-03-07T10:20:00Z",
+      "caseID": "LIN-444555",
+      "qaMember": "ClientQA - Henry Kim"
+    },
+  
+    {
+      "reviewer": "Liam Parker",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Review was thorough, minor improvements in referencing needed.",
+      "date": "2025-03-09T11:00:00Z",
+      "caseID": "MCK-909192",
+      "qaMember": "Alice Cooper"
+    },
+    {
+      "reviewer": "Liam Parker",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "Excellent logic, might benefit from more case examples.",
+      "date": "2025-03-10T13:45:00Z",
+      "caseID": "PR-919293",
+      "qaMember": "ClientQA - Evelyn Price"
+    },
+  
+    {
+      "reviewer": "Laura White",
+      "feedbackType": "client",
+      "client": "Muckleshoot",
+      "content": "Detailed analysis and robust performance metrics; very informative.",
+      "date": "2025-03-07T14:30:00Z",
+      "caseID": "MCK-777777",
+      "qaMember": "ClientQA - Brian Adams"
+    },
+    {
+      "reviewer": "Laura White",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Steady and reliable, but consider clarifying a few ambiguous points.",
+      "date": "2025-03-09T10:50:00Z",
+      "caseID": "TEL-878788",
+      "qaMember": "Gloria Chen"
+    },
+  
+    {
+      "reviewer": "Olivia Martin",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Revision rate slightly above average, but well explained in notes.",
+      "date": "2025-03-11T14:00:00Z",
+      "caseID": "STD-939495",
+      "qaMember": "Derek Hughes"
+    },
+    {
+      "reviewer": "Olivia Martin",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Well-structured, clear references, client is happy.",
+      "date": "2025-03-12T09:35:00Z",
+      "caseID": "HAR-949596",
+      "qaMember": "ClientQA - Alice Cooper"
+    },
+  
+    {
+      "reviewer": "Robert Brown",
+      "feedbackType": "client",
+      "client": "Standard",
+      "content": "Consistent quality but revisions seem higher than average.",
+      "date": "2025-03-06T10:20:00Z",
+      "caseID": "STD-444444",
+      "qaMember": "ClientQA - Fiona Gold"
+    },
+    {
+      "reviewer": "Robert Brown",
+      "feedbackType": "internal",
+      "client": "Lincoln",
+      "content": "Rarely late, but watch efficiency during peak periods.",
+      "date": "2025-03-09T15:10:00Z",
+      "caseID": "LIN-454647",
+      "qaMember": "Henry Kim"
+    },
+  
+    {
+      "reviewer": "Sophia Wilson",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "The report is visually engaging, though the accuracy numbers could be clarified.",
+      "date": "2025-03-06T15:00:00Z",
+      "caseID": "NYL-555555",
+      "qaMember": "ClientQA - Henry Kim"
+    },
+    {
+      "reviewer": "Sophia Wilson",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Consider adding more examples in the summary for clarity.",
+      "date": "2025-03-08T16:15:00Z",
+      "caseID": "TEL-567234",
+      "qaMember": "Brian Adams"
+    },
+    {
+      "reviewer": "Emily Davis",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "Thorough job, watch for minor typos.",
+      "date": "2025-03-03T10:15:00Z",
+      "caseID": "NYL-456789",
+      "qaMember": "ClientQA - Samuel Johnson"
+    },
+    {
+      "reviewer": "Fiona Gold",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Consider adding more examples in the summary.",
+      "date": "2025-03-03T16:25:00Z",
+      "caseID": "STD-567890",
+      "qaMember": "Carla Gomez"
+    },
+    {
+      "reviewer": "Jane Smith",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "Good overall structure, might benefit from more references.",
+      "date": "2025-03-04T07:50:00Z",
+      "caseID": "PR-678901",
+      "qaMember": "ClientQA - Olivia White"
+    },
+    {
+      "reviewer": "John Doe",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Watch for referencing style, otherwise strong job.",
+      "date": "2025-03-04T12:35:00Z",
+      "caseID": "MCK-789012",
+      "qaMember": "Derek Hughes"
+    },
+    {
+      "reviewer": "Laura White",
+      "feedbackType": "client",
+      "client": "PFR",
+      "content": "Slightly rushed, but acceptable detail.",
+      "date": "2025-03-05T09:45:00Z",
+      "caseID": "PFR-890123",
+      "qaMember": "ClientQA - William Black"
+    },
+    {
+      "reviewer": "Michael Johnson",
+      "feedbackType": "internal",
+      "client": "Lincoln",
+      "content": "Performance is stable, consider peer review next time.",
+      "date": "2025-03-05T15:05:00Z",
+      "caseID": "LIN-901234",
+      "qaMember": "Evelyn Price"
+    },
+    {
+      "reviewer": "Robert Brown",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Well-organized, client was satisfied with clarity.",
+      "date": "2025-03-06T08:20:00Z",
+      "caseID": "HAR-012345",
+      "qaMember": "ClientQA - Emma Stone"
+    },
+    {
+      "reviewer": "Sophia Wilson",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Well done, only minor comments on data verification.",
+      "date": "2025-03-06T14:10:00Z",
+      "caseID": "TEL-123450",
+      "qaMember": "Felix Ramirez"
+    },
+    {
+      "reviewer": "Andrew Green",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "Strong performance, minor improvements suggested.",
+      "date": "2025-03-07T07:30:00Z",
+      "caseID": "NYL-234561",
+      "qaMember": "ClientQA - James Clark"
+    },
+    {
+      "reviewer": "Catherine Blue",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Ensure consistent usage of abbreviations across sections.",
+      "date": "2025-03-07T13:55:00Z",
+      "caseID": "STD-345612",
+      "qaMember": "Gloria Chen"
+    },
+    {
+      "reviewer": "Daniel Red",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "Detailed approach, timeliness could be improved.",
+      "date": "2025-03-08T09:05:00Z",
+      "caseID": "PR-456123",
+      "qaMember": "ClientQA - Maria Davis"
+    },
+    {
+      "reviewer": "David Miller",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Strong logic, could add more clarifying statements.",
+      "date": "2025-03-08T16:15:00Z",
+      "caseID": "MCK-567234",
+      "qaMember": "Henry Kim"
+    },
+    {
+      "reviewer": "Emily Davis",
+      "feedbackType": "client",
+      "client": "PFR",
+      "content": "Excellent analysis, but might need more data visuals.",
+      "date": "2025-03-09T10:25:00Z",
+      "caseID": "PFR-678345",
+      "qaMember": "ClientQA - Michael Brown"
+    },
+    {
+      "reviewer": "Fiona Gold",
+      "feedbackType": "internal",
+      "client": "Lincoln",
+      "content": "Quality check was excellent, minimal revisions needed.",
+      "date": "2025-03-09T14:50:00Z",
+      "caseID": "LIN-789456",
+      "qaMember": "Alice Cooper"
+    },
+    {
+      "reviewer": "Jane Smith",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Clear, concise, but a bit slow in TAT.",
+      "date": "2025-03-10T08:40:00Z",
+      "caseID": "HAR-890567",
+      "qaMember": "ClientQA - Linda Green"
+    },
+    {
+      "reviewer": "John Doe",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Consider adding more examples in the summary.",
+      "date": "2025-03-10T13:35:00Z",
+      "caseID": "TEL-901678",
+      "qaMember": "Brian Adams"
+    },
+    {
+      "reviewer": "Laura White",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "Thorough job, watch for minor typos.",
+      "date": "2025-03-11T09:10:00Z",
+      "caseID": "NYL-012789",
+      "qaMember": "ClientQA - Samuel Johnson"
+    },
+    {
+      "reviewer": "Michael Johnson",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Watch for referencing style, otherwise strong job.",
+      "date": "2025-03-11T15:25:00Z",
+      "caseID": "STD-123890",
+      "qaMember": "Carla Gomez"
+    },
+    {
+      "reviewer": "Robert Brown",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "Good overall structure, might benefit from more references.",
+      "date": "2025-03-12T10:05:00Z",
+      "caseID": "PR-234901",
+      "qaMember": "ClientQA - Olivia White"
+    },
+    {
+      "reviewer": "Sophia Wilson",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Performance is stable, consider peer review next time.",
+      "date": "2025-03-12T16:45:00Z",
+      "caseID": "MCK-345012",
+      "qaMember": "Derek Hughes"
+    },
+    {
+      "reviewer": "Andrew Green",
+      "feedbackType": "client",
+      "client": "PFR",
+      "content": "Slightly rushed, but acceptable detail.",
+      "date": "2025-03-13T09:55:00Z",
+      "caseID": "PFR-456123",
+      "qaMember": "ClientQA - William Black"
+    },
+    {
+      "reviewer": "Catherine Blue",
+      "feedbackType": "internal",
+      "client": "Lincoln",
+      "content": "Well done, only minor comments on data verification.",
+      "date": "2025-03-13T14:20:00Z",
+      "caseID": "LIN-567234",
+      "qaMember": "Evelyn Price"
+    },
+    {
+      "reviewer": "Daniel Red",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Well-organized, client was satisfied with clarity.",
+      "date": "2025-03-14T07:15:00Z",
+      "caseID": "HAR-678345",
+      "qaMember": "ClientQA - Emma Stone"
+    },
+    {
+      "reviewer": "David Miller",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Ensure consistent usage of abbreviations across sections.",
+      "date": "2025-03-14T11:40:00Z",
+      "caseID": "TEL-789456",
+      "qaMember": "Felix Ramirez"
+    },
+    {
+      "reviewer": "Emily Davis",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "Strong performance, minor improvements suggested.",
+      "date": "2025-03-15T08:25:00Z",
+      "caseID": "NYL-890567",
+      "qaMember": "ClientQA - James Clark"
+    },
+    {
+      "reviewer": "Fiona Gold",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Strong logic, could add more clarifying statements.",
+      "date": "2025-03-15T13:05:00Z",
+      "caseID": "STD-901678",
+      "qaMember": "Gloria Chen"
+    },
+    {
+      "reviewer": "Jane Smith",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "Detailed approach, timeliness could be improved.",
+      "date": "2025-03-16T10:55:00Z",
+      "caseID": "PR-012789",
+      "qaMember": "ClientQA - Maria Davis"
+    },
+    {
+      "reviewer": "John Doe",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Great thoroughness, keep consistent formatting.",
+      "date": "2025-03-16T15:35:00Z",
+      "caseID": "MCK-123890",
+      "qaMember": "Henry Kim"
+    },
+    {
+      "reviewer": "Laura White",
+      "feedbackType": "client",
+      "client": "PFR",
+      "content": "Excellent analysis, but might need more data visuals.",
+      "date": "2025-03-17T09:05:00Z",
+      "caseID": "PFR-234901",
+      "qaMember": "ClientQA - Michael Brown"
+    },
+    {
+      "reviewer": "Michael Johnson",
+      "feedbackType": "internal",
+      "client": "Lincoln",
+      "content": "Quality check was excellent, minimal revisions needed.",
+      "date": "2025-03-17T13:55:00Z",
+      "caseID": "LIN-345012",
+      "qaMember": "Alice Cooper"
+    },
+    {
+      "reviewer": "Robert Brown",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Clear, concise, but a bit slow in TAT.",
+      "date": "2025-03-18T08:45:00Z",
+      "caseID": "HAR-456123",
+      "qaMember": "ClientQA - Linda Green"
+    },
+    {
+      "reviewer": "Sophia Wilson",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Consider adding more examples in the summary.",
+      "date": "2025-03-18T14:10:00Z",
+      "caseID": "TEL-567234",
+      "qaMember": "Brian Adams"
+    },
+    {
+      "reviewer": "Andrew Green",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "Thorough job, watch for minor typos.",
+      "date": "2025-03-19T07:20:00Z",
+      "caseID": "NYL-678345",
+      "qaMember": "ClientQA - Samuel Johnson"
+    },
+    {
+      "reviewer": "Catherine Blue",
+      "feedbackType": "internal",
+      "client": "Standard",
+      "content": "Watch for referencing style, otherwise strong job.",
+      "date": "2025-03-19T11:50:00Z",
+      "caseID": "STD-789456",
+      "qaMember": "Carla Gomez"
+    },
+    {
+      "reviewer": "Daniel Red",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "Good overall structure, might benefit from more references.",
+      "date": "2025-03-20T09:35:00Z",
+      "caseID": "PR-890567",
+      "qaMember": "ClientQA - Olivia White"
+    },
+    {
+      "reviewer": "David Miller",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Performance is stable, consider peer review next time.",
+      "date": "2025-03-20T16:05:00Z",
+      "caseID": "MCK-901678",
+      "qaMember": "Derek Hughes"
+    },
+    {
+      "reviewer": "John Doe",
+      "feedbackType": "client",
+      "client": "PFR",
+      "content": "Great insights, but consider adding more statistical analysis.",
+      "date": "2025-03-01T09:15:30Z",
+      "caseID": "PFR-100001",
+      "qaMember": "Alice Cooper"
+    },
+    {
+      "reviewer": "Jane Smith",
+      "feedbackType": "internal",
+      "client": "Lincoln",
+      "content": "Formatting is consistent; minor improvements needed in data presentation.",
+      "date": "2025-03-02T10:20:00Z",
+      "caseID": "LIN-100002",
+      "qaMember": "Brian Adams"
+    },
+    {
+      "reviewer": "Michael Johnson",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Clear and concise report, but turnaround time could be faster.",
+      "date": "2025-03-03T11:05:00Z",
+      "caseID": "HAR-100003",
+      "qaMember": "Carla Gomez"
+    },
+    {
+      "reviewer": "Emily Davis",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Strong analysis with good attention to detail.",
+      "date": "2025-03-04T12:30:00Z",
+      "caseID": "TEL-100004",
+      "qaMember": "Derek Hughes"
+    },
+    {
+      "reviewer": "Robert Brown",
+      "feedbackType": "client",
+      "client": "NYL",
+      "content": "Excellent work, but minor typos were noticed.",
+      "date": "2025-03-05T08:45:00Z",
+      "caseID": "NYL-100005",
+      "qaMember": "Evelyn Price"
+    },
+    {
+      "reviewer": "Sophia Wilson",
+      "feedbackType": "internal",
+      "client": "PFR",
+      "content": "Analysis is thorough; consider a deeper dive into revision trends.",
+      "date": "2025-03-06T09:50:00Z",
+      "caseID": "PFR-100006",
+      "qaMember": "Felix Ramirez"
+    },
+    {
+      "reviewer": "Fiona Gold",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "Report structure is good, but references could be enhanced.",
+      "date": "2025-03-07T10:15:00Z",
+      "caseID": "PR-100007",
+      "qaMember": "Gloria Chen"
+    },
+    {
+      "reviewer": "Daniel Red",
+      "feedbackType": "internal",
+      "client": "Muckleshoot",
+      "content": "Timeliness and efficiency are excellent, just slight formatting issues.",
+      "date": "2025-03-08T11:00:00Z",
+      "caseID": "MCK-100008",
+      "qaMember": "Henry Kim"
+    },
+    {
+      "reviewer": "Catherine Blue",
+      "feedbackType": "client",
+      "client": "Hartford",
+      "content": "Good overall performance with room for improvement in accuracy.",
+      "date": "2025-03-09T12:00:00Z",
+      "caseID": "HAR-100009",
+      "qaMember": "Alice Cooper"
+    },
+    {
+      "reviewer": "Laura White",
+      "feedbackType": "internal",
+      "client": "NYL",
+      "content": "Data visualization is strong; minor revisions needed for clarity.",
+      "date": "2025-03-10T13:30:00Z",
+      "caseID": "NYL-100010",
+      "qaMember": "Brian Adams"
+    },
+    {
+      "reviewer": "Andrew Green",
+      "feedbackType": "client",
+      "client": "Standard",
+      "content": "Consistent formatting and reliable analysis, well done.",
+      "date": "2025-03-11T14:15:00Z",
+      "caseID": "STD-100011",
+      "qaMember": "Carla Gomez"
+    },
+    {
+      "reviewer": "David Miller",
+      "feedbackType": "internal",
+      "client": "Telco",
+      "content": "Good structure, but consider reducing revision errors.",
+      "date": "2025-03-12T15:20:00Z",
+      "caseID": "TEL-100012",
+      "qaMember": "Derek Hughes"
+    },
+    {
+      "reviewer": "Olivia Martin",
+      "feedbackType": "client",
+      "client": "Lincoln",
+      "content": "Great clarity and detailed breakdown, impressive work.",
+      "date": "2025-03-13T16:00:00Z",
+      "caseID": "LIN-100013",
+      "qaMember": "Evelyn Price"
+    },
+    {
+      "reviewer": "Ethan Rivera",
+      "feedbackType": "internal",
+      "client": "PFR",
+      "content": "The case volume is well managed; minor improvements needed in revision process.",
+      "date": "2025-03-14T09:40:00Z",
+      "caseID": "PFR-100014",
+      "qaMember": "Felix Ramirez"
+    },
+    {
+      "reviewer": "Isabella Cruz",
+      "feedbackType": "client",
+      "client": "Peer Review",
+      "content": "High quality reports, though efficiency can be improved slightly.",
+      "date": "2025-03-15T10:25:00Z",
+      "caseID": "PR-100015",
+      "qaMember": "Gloria Chen"
+    },
+    {
+      "reviewer": "Liam Parker",
+      "feedbackType": "internal",
+      "client": "NYL",
+      "content": "Performance is consistent and well-documented.",
+      "date": "2025-03-16T11:10:00Z",
+      "caseID": "NYL-100016",
+      "qaMember": "Henry Kim"
+    },
+    {
+      "reviewer": "Ava Richardson",
+      "feedbackType": "client",
+      "client": "Standard",
+      "content": "Concise and clear, but consider a more robust data breakdown.",
+      "date": "2025-03-17T12:05:00Z",
+      "caseID": "STD-100017",
+      "qaMember": "Alice Cooper"
+    },
+    {
+      "reviewer": "Noah Bennett",
+      "feedbackType": "internal",
+      "client": "Hartford",
+      "content": "Accurate and timely, though revision rates can be lowered slightly.",
+      "date": "2025-03-18T13:50:00Z",
+      "caseID": "HAR-100018",
+      "qaMember": "Brian Adams"
+    },
+    {
+      "reviewer": "Grace Foster",
+      "feedbackType": "client",
+      "client": "Telco",
+      "content": "Excellent overall structure with clear data insights.",
+      "date": "2025-03-19T14:30:00Z",
+      "caseID": "TEL-100019",
+      "qaMember": "Carla Gomez"
+    },
+    {
+      "reviewer": "Benjamin Lee",
+      "feedbackType": "internal",
+      "client": "PFR",
+      "content": "Strong reviewer with consistent case volumes; some improvements needed in timeliness.",
+      "date": "2025-03-20T15:15:00Z",
+      "caseID": "PFR-100020",
+      "qaMember": "Derek Hughes"
     }
   ]
 }
