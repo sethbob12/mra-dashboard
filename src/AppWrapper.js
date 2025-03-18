@@ -6,7 +6,6 @@ import MatrixRain from './MatrixRain';
 
 const AppWrapper = ({ children }) => {
   const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
 
   useEffect(() => {
     console.log("Theme mode:", theme.palette.mode);

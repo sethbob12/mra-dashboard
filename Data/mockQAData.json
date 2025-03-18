@@ -26,6 +26,18 @@
         "revisionsSent": 15,
         "clientRevisions": 2,
         "avgCasesDay": 34.8
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 525,
+        "breakdownByClient": {
+          "PFR": 168,
+          "Lincoln": 175,
+          "Hartford": 182
+        },
+        "revisionsSent": 10,
+        "clientRevisions": 4,
+        "avgCasesDay": 34.5
       }
     ]
   },
@@ -56,6 +68,18 @@
         "revisionsSent": 17,
         "clientRevisions": 13,
         "avgCasesDay": 46.1
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 600,
+        "breakdownByClient": {
+          "PFR": 208,
+          "Lincoln": 192,
+          "Hartford": 200
+        },
+        "revisionsSent": 20,
+        "clientRevisions": 12,
+        "avgCasesDay": 45.9
       }
     ]
   },
@@ -86,6 +110,18 @@
         "revisionsSent": 4,
         "clientRevisions": 4,
         "avgCasesDay": 25.3
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 265,
+        "breakdownByClient": {
+          "PFR": 89,
+          "Lincoln": 92,
+          "Hartford": 88
+        },
+        "revisionsSent": 3,
+        "clientRevisions": 4,
+        "avgCasesDay": 25.0
       }
     ]
   },
@@ -116,6 +152,18 @@
         "revisionsSent": 16,
         "clientRevisions": 5,
         "avgCasesDay": 26.8
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 710,
+        "breakdownByClient": {
+          "PFR": 295,
+          "Lincoln": 202,
+          "Hartford": 214
+        },
+        "revisionsSent": 10,
+        "clientRevisions": 6,
+        "avgCasesDay": 26.5
       }
     ]
   },
@@ -146,6 +194,18 @@
         "revisionsSent": 6,
         "clientRevisions": 3,
         "avgCasesDay": 25.5
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 275,
+        "breakdownByClient": {
+          "PFR": 88,
+          "Lincoln": 93,
+          "Hartford": 93
+        },
+        "revisionsSent": 5,
+        "clientRevisions": 3,
+        "avgCasesDay": 25.4
       }
     ]
   },
@@ -167,15 +227,27 @@
       },
       {
         "snapshotDate": "2025-02-25T00:00:00Z",
-        "totalCasesSubmitted":1300,
+        "totalCasesSubmitted": 1300,
         "breakdownByClient": {
           "PFR": 600,
-          "Lincoln":495,
+          "Lincoln": 495,
           "Hartford": 205
         },
         "revisionsSent": 27,
         "clientRevisions": 13,
         "avgCasesDay": 76.0
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 1295,
+        "breakdownByClient": {
+          "PFR": 598,
+          "Lincoln": 490,
+          "Hartford": 210
+        },
+        "revisionsSent": 20,
+        "clientRevisions": 8,
+        "avgCasesDay": 70.0
       }
     ]
   },
@@ -187,9 +259,9 @@
         "snapshotDate": "2025-03-04T00:00:00Z",
         "totalCasesSubmitted": 665,
         "breakdownByClient": {
-          "PFR":280,
-          "Lincoln":290,
-          "Hartford":295
+          "PFR": 280,
+          "Lincoln": 290,
+          "Hartford": 295
         },
         "revisionsSent": 14,
         "clientRevisions": 5,
@@ -199,13 +271,25 @@
         "snapshotDate": "2025-02-25T00:00:00Z",
         "totalCasesSubmitted": 660,
         "breakdownByClient": {
-          "PFR":278,
-          "Lincoln":288,
-          "Hartford":294
+          "PFR": 278,
+          "Lincoln": 288,
+          "Hartford": 294
         },
         "revisionsSent": 5,
         "clientRevisions": 4,
         "avgCasesDay": 45.0
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 655,
+        "breakdownByClient": {
+          "PFR": 275,
+          "Lincoln": 285,
+          "Hartford": 292
+        },
+        "revisionsSent": 8,
+        "clientRevisions": 4,
+        "avgCasesDay": 44.8
       }
     ]
   },
@@ -218,7 +302,7 @@
         "totalCasesSubmitted": 600,
         "breakdownByClient": {
           "PFR": 400,
-          "Lincoln":195,
+          "Lincoln": 195,
           "Hartford": 205
         },
         "revisionsSent": 25,
@@ -229,13 +313,25 @@
         "snapshotDate": "2025-02-25T00:00:00Z",
         "totalCasesSubmitted": 590,
         "breakdownByClient": {
-          "PFR":295,
-          "Lincoln":190,
+          "PFR": 295,
+          "Lincoln": 190,
           "Hartford": 105
         },
-        "revisionsSent":16,
+        "revisionsSent": 16,
         "clientRevisions": 3,
         "avgCasesDay": 25.7
+      },
+      {
+        "snapshotDate": "2025-02-11T00:00:00Z",
+        "totalCasesSubmitted": 585,
+        "breakdownByClient": {
+          "PFR": 293,
+          "Lincoln": 192,
+          "Hartford": 100
+        },
+        "revisionsSent": 18,
+        "clientRevisions": 4,
+        "avgCasesDay": 26.0
       }
     ]
   }
