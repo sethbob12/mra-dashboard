@@ -5,7 +5,7 @@ import { Box, CssBaseline, Button, Tooltip } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-import liveIcon from "./assets/liveIcon.png"; // Example live icon
+import liveIcon from "./assets/liveIcon.gif"; // Example live icon
 
 import Navbar from "./Navbar";
 import Home from "./Home";

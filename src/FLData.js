@@ -1,5 +1,24 @@
 // src/FLData.js
-/* no REFACTORING needed, just static mock data that mimics eventual JSON structure from live API */
+/* 
+  This file provides static mock data for Frontline Reviewer (FLData) testing.
+  The data structure conforms to the updated live API schema as defined in db.json,
+  which includes the following fields for each reviewer:
+  
+  - id: Unique identifier for the record.
+  - mra_id: Unique reviewer identifier.
+  - name: Reviewer's full name.
+  - clients: A comma-separated list of clients the reviewer works with.
+  - email: The reviewer's email address.
+  - notes: Any additional comments.
+  - costPerCase: An object mapping client names to cost per case.
+  - caseType: The type of cases handled ("Psych", "Non-Psych", or "Both").
+  - snapshots: An array of snapshot objects. Each snapshot includes:
+      - snapshotDate (ISO 8601 string)
+      - totalCases, casesPast30Days, casesPast60Days,
+      - clientRevisionsWeek, clientRevisionsMonth, clientRevisionsPast60,
+      - lateCasePercentage, avgCasesPerDay, revisionRate,
+      - timelinessScore, efficiencyScore, accuracyScore, qualityScore
+*/
 
 const FLData = [
   {
@@ -1290,7 +1309,7 @@ const FLData = [
         "timelinessScore": 97,
         "efficiencyScore": 87.25,
         "accuracyScore": 94.2,
-        "qualityScore": 93.37
+        "qualityScore": 93.17
       }
     ]
   },

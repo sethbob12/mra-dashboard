@@ -1,82 +1,89 @@
 // src/apiService.js
-import FLData from "./FLData";      // Mock Data
-import QAData from "./QAData";
-import FeedbackData from "./FeedbackData";
 
-// Optional: simulate a short delay for mock calls
-const simulateDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// Import mock data as fallback
+import FLData from "./FLData";         // Frontline Reviewer Data (Mock)
+import QAData from "./QAData";           // Quality Assurance Data (Mock)
+import FeedbackData from "./FeedbackData"; // Feedback Data (Mock)
 
-// Toggle between mock and live (used if you want a forced fallback)
+// Toggle to force using mock data (for debugging/fallback)
 const USE_MOCK_DATA = false;
 
-// Reviewer Data
+// ===================================================================
+// Future Integration with Tableau Cloud:
+// Replace the endpoint URLs below with the corresponding Tableau Cloud API endpoints.
+// ===================================================================
+
+// Fetch Reviewer Data (Frontline Reviewer Data)
 export const fetchReviewerData = async (forceMock = false) => {
   try {
     if (USE_MOCK_DATA || forceMock) {
       console.log("Using MOCK data for Reviewer Data.");
-      await simulateDelay(500);
       return FLData;
     } else {
-      console.log("Fetching LIVE Reviewer Data from Render...");
-      const response = await fetch("https://my-json-server-9oad.onrender.com/mockFLData"); //THIS IS WHERE LIVE API ENDPOINT WILL GO//
+      // TODO: Replace the URL below with the Tableau Cloud endpoint for Frontline Reviewer Data.
+      const endpointUrl = "https://my-json-server-9oad.onrender.com/mockFLData";
+      console.log("Fetching Reviewer Data from Tableau Cloud endpoint...");
+      const response = await fetch(endpointUrl);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Live Reviewer Data Loaded.");
+      console.log("Reviewer Data successfully loaded.");
       return data;
     }
   } catch (error) {
-    console.error("Error fetching reviewer data:", error);
-    console.log("Falling back to mock data.");
+    console.error("Error fetching Reviewer Data:", error);
+    console.log("Falling back to MOCK data.");
     return FLData;
   }
 };
 
-// QA Data
+// Fetch QA Data (Quality Assurance Data)
 export const fetchQualityData = async (forceMock = false) => {
   try {
     if (USE_MOCK_DATA || forceMock) {
       console.log("Using MOCK data for QA Data.");
-      await simulateDelay(500);
       return QAData;
     } else {
-      console.log("Fetching LIVE QA Data from Render...");
-      const response = await fetch("https://my-json-server-9oad.onrender.com/mockQAData");
+      // TODO: Replace the URL below with the Tableau Cloud endpoint for QA Data.
+      const endpointUrl = "https://my-json-server-9oad.onrender.com/mockQAData";
+      console.log("Fetching QA Data from Tableau Cloud endpoint...");
+      const response = await fetch(endpointUrl);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Live QA Data Loaded.");
+      console.log("QA Data successfully loaded.");
       return data;
     }
   } catch (error) {
-    console.error("Error fetching QA data:", error);
-    console.log("Falling back to mock data.");
+    console.error("Error fetching QA Data:", error);
+    console.log("Falling back to MOCK data.");
     return QAData;
   }
 };
 
-// Feedback Data
+// Fetch Feedback Data
 export const fetchFeedbackData = async (forceMock = false) => {
   try {
     if (USE_MOCK_DATA || forceMock) {
-      console.log("Using MOCK data for Feedback.");
-      await simulateDelay(500);
+      console.log("Using MOCK data for Feedback Data.");
       return FeedbackData;
     } else {
-      console.log("Fetching LIVE Feedback Data from Render...");
-      const response = await fetch("https://my-json-server-9oad.onrender.com/mockFeedbackData");
+      // TODO: Replace the URL below with the Tableau Cloud endpoint for Feedback Data.
+      const endpointUrl = "https://my-json-server-9oad.onrender.com/mockFeedbackData";
+      console.log("Fetching Feedback Data from Tableau Cloud endpoint...");
+      const response = await fetch(endpointUrl);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Live Feedback Data Loaded.");
+      console.log("Feedback Data successfully loaded.");
       return data;
     }
   } catch (error) {
-    console.error("Error fetching feedback data:", error);
-    console.log("Falling back to mock data.");
+    console.error("Error fetching Feedback Data:", error);
+    console.log("Falling back to MOCK data.");
     return FeedbackData;
   }
 };

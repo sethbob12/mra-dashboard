@@ -41,6 +41,8 @@ import {
 } from "recharts";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+// Import react-simple-maps components for world map
+import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -134,8 +136,6 @@ function buildSankeyData(row) {
     ]
   };
 }
-
-// Updated renderSankeyNode to adjust text fill based on dark mode.
 function renderSankeyNode({ x, y, width, height, payload }, darkMode) {
   const infoText =
     payload.name === "Received" || payload.name === "Completed"
@@ -160,7 +160,6 @@ function renderSankeyNode({ x, y, width, height, payload }, darkMode) {
     </Tooltip>
   );
 }
-
 function FullSankeyModal({ open, onClose, rowData }) {
   const theme = useTheme();
   const darkMode = theme.palette.mode === "dark";
@@ -190,7 +189,7 @@ function FullSankeyModal({ open, onClose, rowData }) {
             overflow: "auto"
           }}
         >
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", color: darkMode ? "#fff" : "#000" }}>
             Workflow Sankey for {rowData.name}
           </Typography>
           <Box sx={{ width: 550, height: 400 }}>
@@ -240,6 +239,90 @@ function KPICard({ title, value, tooltip, color }) {
   );
 }
 
+/** ---------- World Map Modal Component ---------- */
+function WorldMapModal({ open, onClose, country }) {
+  const theme = useTheme();
+  const darkMode = theme.palette.mode === "dark";
+  const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+
+  // Normalize the country string (if undefined, default to "United States")
+  const normalizedCountry = country ? country.toLowerCase() : "united states";
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{ timeout: 300 }}
+    >
+      <Fade in={open}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 600,
+            bgcolor: darkMode ? "#424242" : "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+            maxHeight: "80vh",
+            overflow: "auto"
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", color: darkMode ? "#fff" : "#000" }}>
+            Location: {country || "United States"}
+          </Typography>
+          <ComposableMap projectionConfig={{ scale: 150 }}>
+            <Geographies geography={geoUrl}>
+              {({ geographies }) =>
+                geographies.map((geo) => {
+                  const curCountry = geo.properties.NAME || "";
+                  const isSelected = curCountry.toLowerCase() === normalizedCountry;
+                  return (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill={isSelected ? "#FF5722" : darkMode ? "#888" : "#DDD"}
+                      stroke="#FFF"
+                      strokeWidth={isSelected ? 2 : 0.5}
+                      style={{
+                        default: { outline: "none" },
+                        hover: { fill: isSelected ? "#FF7043" : "#ccc", outline: "none" },
+                        pressed: { outline: "none" }
+                      }}
+                    />
+                  );
+                })
+              }
+            </Geographies>
+          </ComposableMap>
+          <Box sx={{ mt: 2, textAlign: "right" }}>
+            <Button variant="contained" onClick={onClose}>
+              Close
+            </Button>
+          </Box>
+        </Box>
+      </Fade>
+    </Modal>
+  );
+}
+
+/** Helper: Given a time zone string, return a country name */
+function getCountryFromTimeZone(tz) {
+  // Update or expand this mapping as needed
+  const mapping = {
+    "Africa/Lagos": "Nigeria",
+    "Asia/Manila": "Philippines",
+    "America/Bogota": "Colombia",
+    "Europe/Istanbul": "Turkey",
+    "Europe/Vilnius": "Lithuania"
+  };
+  return mapping[tz] || "United States";
+}
+
 /** ---------- Helper: Render header label with default tooltip if needed ---------- */
 function renderHeaderLabel(column) {
   if (React.isValidElement(column.label)) {
@@ -270,6 +353,8 @@ export default function FLTable({ data }) {
   const [orderBy, setOrderBy] = useState("computedQualityScore");
   const [sankeyOpen, setSankeyOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [worldMapOpen, setWorldMapOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("");
   const navigate = useNavigate();
   
   // Sorting handler
@@ -290,6 +375,14 @@ export default function FLTable({ data }) {
       feedbackType: feedbackType === "qa" ? "internal" : "client"
     });
     navigate(`/reports?${queryParams.toString()}`);
+  };
+
+  // Handler for clicking the Local Time cell to show the world map modal.
+  const handleLocalTimeClick = (row) => {
+    const tzID = tzMap[row.email] || "America/New_York";
+    const country = getCountryFromTimeZone(tzID);
+    setSelectedCountry(country);
+    setWorldMapOpen(true);
   };
 
   // Build columns.
@@ -345,11 +438,8 @@ export default function FLTable({ data }) {
   ];
 
   // Process data from snapshots using the latest snapshot for key metrics.
-  // Also compute computedQualityScore using the new formula:
-  // Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (min(clientCount,6)) + Type (if caseType === "Both" then 4 else 2)
   const processedData = data.map((row) => {
     const latest = getLatestSnapshot(row);
-    // Use snapshot values if available; otherwise, fallback to row properties
     const accuracy = latest ? latest.accuracyScore : row.accuracyScore;
     const timeliness = latest ? latest.timelinessScore : row.timelinessScore;
     const efficiency = latest ? latest.efficiencyScore : row.efficiencyScore;
@@ -382,7 +472,6 @@ export default function FLTable({ data }) {
       const localTime = localTimeObj.format("h:mm A");
       const localHour = localTimeObj.hour();
       const isDay = localHour >= 6 && localHour < 18;
-      // Compute new quality score based on the updated methodology.
       const coveragePoints = Math.min(clientList.length, 6);
       const typePoints = row.caseType === "Both" ? 4 : 2;
       const computedQualityScore =
@@ -407,7 +496,7 @@ export default function FLTable({ data }) {
     return stableSort(processed, getComparator(order, sortKey));
   }, [processedData, order, orderBy]);
 
-  // Compute KPI averages for header row based on computedQualityScore
+  // Compute KPI averages for header row
   const totalReviewers = sortedDataMemo.length;
   let totalAccuracy = 0,
     totalTimeliness = 0,
@@ -429,7 +518,7 @@ export default function FLTable({ data }) {
   const handleExportCSV = () => {
     const headers = columns.map((col) =>
       typeof col.label === "string" ? col.label : ""
-    ); // For CSV, use plain text labels
+    );
     const rows = sortedDataMemo.map((row) => {
       const status = row.name === "Next Reviewer" ? "unavailable" : row.status;
       const clientNames = row.clientList ? row.clientList.join(", ") : "";
@@ -470,7 +559,7 @@ export default function FLTable({ data }) {
     doc.save("reviewers_table.pdf");
   };
 
-  // Helper to render the Case Type cell with abbreviations and tooltip.
+  // Helper to render the Case Type cell.
   function renderCaseType(row) {
     let label = "N";
     let color = "blue";
@@ -502,25 +591,13 @@ export default function FLTable({ data }) {
           <KPICard title="Total Reviewers" value={totalReviewers} tooltip="Count of unique reviewers." />
         </Grid>
         <Grid item>
-          <KPICard
-            title="Avg Accuracy"
-            value={`${avgAccuracy.toFixed(1)}%`}
-            tooltip={`Accuracy range: N/A`}
-          />
+          <KPICard title="Avg Accuracy" value={`${avgAccuracy.toFixed(1)}%`} tooltip="Accuracy range: N/A" />
         </Grid>
         <Grid item>
-          <KPICard
-            title="Avg Timeliness"
-            value={`${avgTimeliness.toFixed(1)}%`}
-            tooltip={`Timeliness range: N/A`}
-          />
+          <KPICard title="Avg Timeliness" value={`${avgTimeliness.toFixed(1)}%`} tooltip="Timeliness range: N/A" />
         </Grid>
         <Grid item>
-          <KPICard
-            title="Avg Efficiency"
-            value={`${avgEfficiency.toFixed(1)}%`}
-            tooltip={`Efficiency range: N/A`}
-          />
+          <KPICard title="Avg Efficiency" value={`${avgEfficiency.toFixed(1)}%`} tooltip="Efficiency range: N/A" />
         </Grid>
         <Grid item>
           <KPICard
@@ -531,12 +608,12 @@ export default function FLTable({ data }) {
                 <KeyboardArrowUpIcon sx={{ fontSize: 18, color: "green" }} />
               </>
             }
-            tooltip={`Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (6%) + Type (4%).\nTrend: ${avgQualityTrend}`}
+            tooltip={`Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (min(clientCount,6)) + Type (if caseType === "Both" then 4 else 2).\nTrend: ${avgQualityTrend}`}
           />
         </Grid>
       </Grid>
 
-      {/* Table container with sticky header and horizontal scrolling */}
+      {/* Table container */}
       <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
         <Table id="reviewersTable" size="small" stickyHeader>
           <TableHead>
@@ -610,43 +687,37 @@ export default function FLTable({ data }) {
                     "&:hover": { backgroundColor: darkMode ? "#555" : "#e6f2ff" }
                   }}
                 >
-                  {
-  /* Quality Score */
-}
-<TableCell
-  sx={{ textAlign: "center", backgroundColor: qualityBg, fontWeight: "bold" }}
->
-  <Tooltip
-    title={
-      (() => {
-        // Derive the type points (2 or 4) and a short description
-        const typePoints = row.caseType === "Both" ? 4 : 2;
-        const typeDescription =
-          row.caseType === "Both"
-            ? "Both"
-            : row.caseType === "Psych"
-            ? "Psych only"
-            : "Non-Psych only";
-
-        return (
-          <>
-            Accuracy: {row.accuracyScore || 0}%<br />
-            Timeliness: {row.timelinessScore || 0}%<br />
-            Efficiency: {row.efficiencyScore || 0}%<br />
-            Coverage: {Math.min(row.clientCount, 6)} (#Clients)
-            <br />
-            Type: {typePoints} ({typeDescription})
-            <br />
-            Trend: Stable
-          </>
-        );
-      })()
-    }
-    arrow
-  >
-    <span>{qscore.toFixed(1)}%</span>
-  </Tooltip>
-</TableCell>
+                  {/* Quality Score */}
+                  <TableCell sx={{ textAlign: "center", backgroundColor: qualityBg, fontWeight: "bold" }}>
+                    <Tooltip
+                      title={
+                        (() => {
+                          const typePoints = row.caseType === "Both" ? 4 : 2;
+                          const typeDescription =
+                            row.caseType === "Both"
+                              ? "Both"
+                              : row.caseType === "Psych"
+                              ? "Psych only"
+                              : "Non-Psych only";
+                          return (
+                            <>
+                              Accuracy: {row.accuracyScore || 0}%<br />
+                              Timeliness: {row.timelinessScore || 0}%<br />
+                              Efficiency: {row.efficiencyScore || 0}%<br />
+                              Coverage: {Math.min(row.clientCount, 6)} (#Clients)
+                              <br />
+                              Type: {typePoints} ({typeDescription})
+                              <br />
+                              Trend: Stable
+                            </>
+                          );
+                        })()
+                      }
+                      arrow
+                    >
+                      <span>{qscore.toFixed(1)}%</span>
+                    </Tooltip>
+                  </TableCell>
 
                   {/* Name */}
                   <TableCell
@@ -763,10 +834,11 @@ export default function FLTable({ data }) {
                     </Tooltip>
                   </TableCell>
 
-                  {/* Local Time */}
+                  {/* Local Time with World Map Modal trigger */}
                   <TableCell sx={{ textAlign: "center", minWidth: 150 }}>
                     <Tooltip title={`Time Zone: ${tzMap[row.email] || "America/New_York"}`} arrow>
                       <Box
+                        onClick={() => handleLocalTimeClick(row)}
                         sx={{
                           background: row.isDay
                             ? "linear-gradient(45deg, rgba(255,213,79,0.2), rgba(255,179,0,0.3))"
@@ -779,7 +851,8 @@ export default function FLTable({ data }) {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          border: darkMode ? "1px solid silver" : "none"
+                          border: darkMode ? "1px solid silver" : "none",
+                          cursor: "pointer"
                         }}
                       >
                         <Box
@@ -828,6 +901,9 @@ export default function FLTable({ data }) {
 
       {/* Sankey Modal */}
       <FullSankeyModal open={sankeyOpen} onClose={() => setSankeyOpen(false)} rowData={selectedRow} />
+
+      {/* World Map Modal for Local Time */}
+      <WorldMapModal open={worldMapOpen} onClose={() => setWorldMapOpen(false)} country={selectedCountry} />
     </Box>
   );
 }
