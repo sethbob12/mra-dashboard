@@ -305,7 +305,7 @@ const EmailListGenerator = ({ data }) => {
                 transform: "translate(-50%, -50%)",
                 width: { xs: "80%", md: "50%" },
                 bgcolor: theme.palette.mode === "dark" ? "#424242" : "background.paper",
-                boxShadow: 24,
+                boxShadow: 25,
                 p: 4,
                 borderRadius: 2
               }}
