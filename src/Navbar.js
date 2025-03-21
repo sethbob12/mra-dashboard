@@ -45,9 +45,23 @@ const Navbar = ({ mode, toggleTheme }) => {
     logoElement = <img src={reportsGif} alt="MRA Reports" style={iconStyle} />;
   } else if (location.pathname === "/qa-metrics") {
     logoElement = <img src={oneGif} alt="QA Metrics" style={iconStyle} />;
+  } else if (location.pathname === "/admin-tools") {
+    // Optional: You could provide a custom icon for the admin tools section
+    logoElement = <DashboardIcon />;
   } else {
     logoElement = <DashboardIcon />;
   }
+
+  // Navigation items for full dashboard
+  const navItems = [
+    { label: "Data Table", path: "/table" },
+    { label: "Visualizations", path: "/chart" },
+    { label: "Email Generator", path: "/emails" },
+    { label: "MRA Reports", path: "/reports" },
+    { label: "QA Metrics", path: "/qa-metrics" },
+    // New Admin Tools tab:
+    { label: "Admin Tools", path: "/admin-tools" },
+  ];
 
   return (
     <AppBar
@@ -103,13 +117,7 @@ const Navbar = ({ mode, toggleTheme }) => {
 
         {/* Right side: Navigation links and logout */}
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          {[
-            { label: "Data Table", path: "/table" },
-            { label: "Visualizations", path: "/chart" },
-            { label: "Email Generator", path: "/emails" },
-            { label: "MRA Reports", path: "/reports" },
-            { label: "QA Metrics", path: "/qa-metrics" },
-          ].map((item) => (
+          {navItems.map((item) => (
             <Button
               key={item.label}
               component={NavLink}

@@ -9,6 +9,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import EmailIcon from "@mui/icons-material/Email";
 import ReportIcon from "@mui/icons-material/Assessment";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings"; // New admin icon
 
 // Motion variants for the module cards
 const cardVariants = {
@@ -21,6 +22,7 @@ const Home = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
+  // Add a new module for Admin Tools
   const modules = [
     {
       label: "Data Table",
@@ -56,6 +58,13 @@ const Home = () => {
       path: "/qa-metrics",
       color: "#FF6384", // Pinkish Red
       subtitle: "Assess QA performance",
+    },
+    {
+      label: "Admin Tools",
+      icon: <AdminPanelSettingsIcon fontSize="large" />,
+      path: "/admin-tools",
+      color: "#F57C00", // A warm orange tone for admin
+      subtitle: "Access admin-specific tools",
     },
   ];
 

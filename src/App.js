@@ -16,6 +16,7 @@ import QAFeedbackAggregator from "./QAFeedbackAggregator";
 import ClientFeedbackAggregator from "./ClientFeedbackAggregator";
 import Reports from "./Reports";
 import QAMetrics from "./QAMetrics";
+import AdminTools from "./AdminTools";  // Import the new admin tools component
 import LoginPage from "./LoginPage";
 
 // Mock data & ProtectedRoute
@@ -217,6 +218,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <QAMetrics qaData={qaData} feedbackData={feedbackData} />
+              </ProtectedRoute>
+            }
+          />
+          {/* New Admin Tools Route */}
+          <Route
+            path="/admin-tools"
+            element={
+              <ProtectedRoute>
+                <AdminTools />
               </ProtectedRoute>
             }
           />
