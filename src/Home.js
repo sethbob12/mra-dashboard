@@ -9,9 +9,10 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import EmailIcon from "@mui/icons-material/Email";
 import ReportIcon from "@mui/icons-material/Assessment";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings"; // New admin icon
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import WorldMap from "./WorldMap";
+import AdminFLData from "./AdminFLData";
 
-// Motion variants for the module cards
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -22,48 +23,47 @@ const Home = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  // Add a new module for Admin Tools
   const modules = [
     {
       label: "Data Table",
       icon: <TableChartIcon fontSize="large" />,
       path: "/table",
-      color: "#1E73BE", // Blue
+      color: "#1E73BE",
       subtitle: "View detailed reviewer data",
     },
     {
       label: "Visualizations",
       icon: <BarChartIcon fontSize="large" />,
       path: "/chart",
-      color: "#FF8042", // Orange
+      color: "#FF8042",
       subtitle: "Analyze performance trends",
     },
     {
       label: "Email Generator",
       icon: <EmailIcon fontSize="large" />,
       path: "/emails",
-      color: "#8A2BE2", // Violet
+      color: "#8A2BE2",
       subtitle: "Create and manage email lists",
     },
     {
       label: "MRA Reports",
       icon: <ReportIcon fontSize="large" />,
       path: "/reports",
-      color: "#66BB6A", // Green
+      color: "#66BB6A",
       subtitle: "Generate comprehensive reports",
     },
     {
       label: "QA Metrics",
       icon: <ManageAccountsIcon fontSize="large" />,
       path: "/qa-metrics",
-      color: "#FF6384", // Pinkish Red
+      color: "#FF6384",
       subtitle: "Assess QA performance",
     },
     {
       label: "Admin Tools",
       icon: <AdminPanelSettingsIcon fontSize="large" />,
       path: "/admin-tools",
-      color: "#F57C00", // A warm orange tone for admin
+      color: "#F57C00",
       subtitle: "Access admin-specific tools",
     },
   ];
@@ -137,7 +137,7 @@ const Home = () => {
                   onClick={() => navigate(module.path)}
                 >
                   <IconButton
-                    disableRipple
+                    size="large"
                     sx={{
                       mb: 1,
                       backgroundColor: module.color,
@@ -167,6 +167,14 @@ const Home = () => {
           </Grid>
         ))}
       </Grid>
+
+      {/* World Map Section */}
+      <Box sx={{ mt: 6 }}>
+        <Typography variant="h5" sx={{ mb: 2, color: isDark ? "#fff" : "#000" }}>
+          Reviewer Locations
+        </Typography>
+        <WorldMap reviewers={AdminFLData} />
+      </Box>
 
       <Box sx={{ mt: 6 }}>
         <Typography
