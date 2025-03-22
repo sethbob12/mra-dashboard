@@ -1,4 +1,3 @@
-// src/Home.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Grid, Paper, IconButton, Tooltip } from "@mui/material";
@@ -171,7 +170,7 @@ const Home = () => {
       {/* World Map Section */}
       <Box sx={{ mt: 6 }}>
         <Typography variant="h5" sx={{ mb: 2, color: isDark ? "#fff" : "#000" }}>
-          Reviewer Locations
+          Global MRA Distribution
         </Typography>
         <WorldMap reviewers={AdminFLData} />
       </Box>
