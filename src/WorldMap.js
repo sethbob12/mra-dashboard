@@ -40,9 +40,9 @@ export default function WorldMap({ reviewers }) {
   const [showMarkers, setShowMarkers] = useState(true);
   const [showPerformanceLayer, setShowPerformanceLayer] = useState(false);
   const [showMRAsList, setShowMRAsList] = useState(true);
-  // Global panel expansion state.
+  // Global panel expansion state (for Global MRAs panel).
   const [globalPanelExpanded, setGlobalPanelExpanded] = useState(false);
-  // Legend expansion state.
+  // Legend expansion state (for Layers tab) now controlled by hover.
   const [legendExpanded, setLegendExpanded] = useState(false);
 
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -243,7 +243,7 @@ export default function WorldMap({ reviewers }) {
       .map(([country, count]) => ({ country, count }));
   }, [mrAsByCountry]);
 
-  // When a country in the global panel is clicked, fly to that country and display its MRAs popup.
+  // When a country in the global panel is hovered, fly to that country and display its MRAs popup.
   const flyToCountry = (countryName) => {
     const target = animationLocations.find(loc => loc.country === countryName || loc.geoName === countryName);
     if (target) {
@@ -256,7 +256,6 @@ export default function WorldMap({ reviewers }) {
       });
       setActiveCountry(target);
       setAnimationPlaying(false);
-      setGlobalPanelExpanded(false);
     }
   };
 
@@ -483,8 +482,8 @@ export default function WorldMap({ reviewers }) {
   };
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', height: 500 }}>
-      {/* Global MRAs Info Panel in far top right */}
+    <Box sx={{ position: 'relative', width: '100%', height: 500, borderRadius: '8px', overflow: 'hidden' }}>
+      {/* Global MRAs Info Panel in far top right (expands on hover) */}
       <Paper
         sx={{
           position: 'absolute',
@@ -496,12 +495,12 @@ export default function WorldMap({ reviewers }) {
           maxWidth: 220,
           zIndex: 1200
         }}
+        onMouseEnter={() => setGlobalPanelExpanded(true)}
+        onMouseLeave={() => setGlobalPanelExpanded(false)}
       >
-        <Box onClick={() => setGlobalPanelExpanded(prev => !prev)} sx={{ cursor: 'pointer' }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.3, color: panelTextColor }}>
-            Global MRAs: {totalMRAs}
-          </Typography>
-        </Box>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.3, color: panelTextColor }}>
+          Global MRAs: {totalMRAs}
+        </Typography>
         {globalPanelExpanded &&
           sortedCountries.map(({ country, count }) => (
             <Box
@@ -518,7 +517,7 @@ export default function WorldMap({ reviewers }) {
             </Box>
           ))}
       </Paper>
-      {/* Legend (Layers tab) at bottom right */}
+      {/* Legend (Layers tab) at bottom right, expands on hover */}
       <Paper
         sx={{
           position: 'absolute',
@@ -530,14 +529,14 @@ export default function WorldMap({ reviewers }) {
           zIndex: 1100,
           p: 0.5
         }}
+        onMouseEnter={() => setLegendExpanded(true)}
+        onMouseLeave={() => setLegendExpanded(false)}
       >
-        {/* Legend Header */}
-        <Box onClick={() => setLegendExpanded(prev => !prev)} sx={{ cursor: 'pointer' }}>
+        <Box sx={{ cursor: 'pointer' }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: panelTextColor }}>
             Layers {legendExpanded ? "▲" : "▼"}
           </Typography>
         </Box>
-        {/* Toggle Controls Container (clicks here won't collapse the legend) */}
         {legendExpanded && (
           <Box onClick={(e) => e.stopPropagation()} sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <FormControlLabel

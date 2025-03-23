@@ -168,20 +168,22 @@ const Home = () => {
       </Grid>
 
       {/* World Map Section */}
-      <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" sx={{ mb: 2, color: isDark ? "#fff" : "#000" }}>
-          Global MRA Distribution
-        </Typography>
-        <WorldMap reviewers={AdminFLData} />
-      </Box>
+<Box sx={{ mt: 6 }}>
+  <Typography variant="h5" sx={{ mb: 2, color: isDark ? "#fff" : "#000" }}>
+    Global MRA Distribution
+  </Typography>
+  <Box sx={{ borderRadius: '12px', overflow: 'hidden' }}>
+    <WorldMap reviewers={AdminFLData} />
+  </Box>
+</Box>
 
-      <Box sx={{ mt: 6 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            fontFamily: "Open Sans, sans-serif",
-            color: isDark ? "#fff !important" : "#888",
-          }}
+<Box sx={{ mt: 6 }}>
+  <Typography
+    variant="caption"
+    sx={{
+      fontFamily: "Open Sans, sans-serif",
+      color: isDark ? "#fff !important" : "#888",
+    }}
         >
           © {new Date().getFullYear()} MRA Interactive Dashboard. All rights reserved.
         </Typography>
