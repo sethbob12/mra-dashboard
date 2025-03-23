@@ -12,36 +12,44 @@ import { useTheme } from "@mui/material/styles";
 import AdminFLData from "./AdminFLData";
 import sampleCasesInfo from "./sampleCasesInfo";
 
-// Define psych specialties
+// Define psych specialties (in lower case, for matching new case types)
 const psychSpecialties = ["psychiatry", "psychology", "neuropsychology"];
 
-// Helper: Check if new case is psych case
-const isPsychCase = (caseType) => psychSpecialties.includes(caseType.toLowerCase());
-
-// Filtering functions
-const filterByCaseType = (writers, newCase) => {
-  // For psych cases, only allow writers with "Psych" or "Both"
-  if (isPsychCase(newCase.caseType)) {
-    return writers.filter(
-      (writer) =>
-        writer.caseType.toLowerCase() === "psych" ||
-        writer.caseType.toLowerCase() === "both"
-    );
-  }
-  // For non-psych cases, allow "Non-Psych" or "Both"
-  return writers.filter(
-    (writer) =>
-      writer.caseType.toLowerCase() === "non-psych" ||
-      writer.caseType.toLowerCase() === "both"
+// Helper: Check if the new case is a psych case by exact matching (case-insensitive)
+function isPsychCase(caseType) {
+  const lower = caseType.toLowerCase();
+  return (
+    lower === "psychiatry" ||
+    lower === "psychology" ||
+    lower === "neuropsychology"
   );
-};
+}
+
+// Filtering function for case type
+// For a psych case, allow only writers whose caseType is exactly "psych" or "both".
+// For a non-psych case, allow only writers whose caseType is exactly "non-psych" or "both".
+function filterByCaseType(writers, newCase) {
+  if (isPsychCase(newCase.caseType)) {
+    return writers.filter((writer) => {
+      const writerType = writer.caseType.toLowerCase();
+      return writerType === "psych" || writerType === "both";
+    });
+  } else {
+    return writers.filter((writer) => {
+      const writerType = writer.caseType.toLowerCase();
+      return writerType === "non-psych" || writerType === "both";
+    });
+  }
+}
 
 const filterByClient = (writers, newCase) => {
   return writers.filter((writer) => writer.clients.includes(newCase.client));
 };
 
 const filterByAvailability = (writers) => {
-  return writers.filter((writer) => writer.currentWorkload < writer.dailyCaseLimit);
+  return writers.filter(
+    (writer) => writer.currentWorkload < writer.dailyCaseLimit
+  );
 };
 
 const filterByPriorWriter = (writers, newCase) => {
@@ -53,12 +61,8 @@ const filterByPriorWriter = (writers, newCase) => {
   return writers;
 };
 
-// Compute a composite score for each writer
-// Lower cost and lower turnaround time are better; higher quality is better.
 const computeCompositeScore = (writer, client) => {
-  // Use writer.overallQualityScore; subtract a cost factor and turnaround time factor.
-  // Adjust weights as needed.
-  const cost = writer.costPerCase[client] || 25; // default cost if not provided
+  const cost = writer.costPerCase[client] || 25;
   const quality = writer.overallQualityScore;
   const turnaround = writer.turnaroundTime;
   const score = quality - 0.5 * cost - 0.2 * turnaround;
@@ -80,27 +84,27 @@ const CaseAssignmentTool = () => {
   // Start with all writers from AdminFLData
   const allWriters = useMemo(() => AdminFLData, []);
 
-  // Step 1: Filter by case type
+  // Step 1: Filter by case type using the updated logic.
   const writersByCaseType = useMemo(() => {
     return newCase ? filterByCaseType(allWriters, newCase) : [];
   }, [newCase, allWriters]);
 
-  // Step 2: Filter by client
+  // Step 2: Filter by client.
   const writersByClient = useMemo(() => {
     return newCase ? filterByClient(writersByCaseType, newCase) : [];
   }, [newCase, writersByCaseType]);
 
-  // Step 3: Filter by availability
+  // Step 3: Filter by availability.
   const writersByAvailability = useMemo(() => {
     return filterByAvailability(writersByClient);
   }, [writersByClient]);
 
-  // Step 4: Remove prior case writer (if applicable)
+  // Step 4: Remove prior case writer (if applicable).
   const finalWriters = useMemo(() => {
     return newCase ? filterByPriorWriter(writersByAvailability, newCase) : [];
   }, [newCase, writersByAvailability]);
 
-  // Step 5: Compute composite scores and sort descending
+  // Step 5: Compute composite scores and sort descending.
   const sortedWriters = useMemo(() => {
     if (!newCase) return [];
     const scored = finalWriters.map((writer) => ({
@@ -112,7 +116,14 @@ const CaseAssignmentTool = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
+      <Typography
+        variant="h4"
+        sx={{
+          mb: 2,
+          fontWeight: "bold",
+          color: isDark ? "#fff" : "#000",
+        }}
+      >
         Case Assignment Tool
       </Typography>
       <Button variant="contained" onClick={importNewCase} sx={{ mb: 4 }}>
@@ -120,7 +131,15 @@ const CaseAssignmentTool = () => {
       </Button>
 
       {newCase && (
-        <Box sx={{ mb: 4, p: 2, border: "1px solid", borderColor: isDark ? "#fff" : "#ccc", borderRadius: 2 }}>
+        <Box
+          sx={{
+            mb: 4,
+            p: 2,
+            border: "1px solid",
+            borderColor: isDark ? "#fff" : "#ccc",
+            borderRadius: 2,
+          }}
+        >
           <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
             New Case Details
           </Typography>
@@ -190,13 +209,15 @@ const CaseAssignmentTool = () => {
                     )}
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Composite Score:</strong> {writer.compositeScore.toFixed(2)}
+                    <strong>Composite Score:</strong>{" "}
+                    {writer.compositeScore.toFixed(2)}
                   </Typography>
                   <Typography variant="body2">
                     <strong>Quality Score:</strong> {writer.overallQualityScore}
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Cost (PFR):</strong> ${writer.costPerCase[newCase.client] || "N/A"}
+                    <strong>Cost (PFR):</strong>{" "}
+                    ${writer.costPerCase[newCase.client] || "N/A"}
                   </Typography>
                   <Typography variant="body2">
                     <strong>Turnaround Time:</strong> {writer.turnaroundTime} hrs

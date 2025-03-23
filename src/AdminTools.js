@@ -1,25 +1,12 @@
 // src/AdminTools.js
-// eslint-disable-next-line no-unused-vars
-import { TextField, MenuItem } from "@mui/material";
-// eslint-disable-next-line no-unused-vars
-import { motion, AnimatePresence } from "framer-motion";
-// eslint-disable-next-line no-unused-vars
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-
 import React, { useState, useMemo } from "react";
-import {
-  Box,
-  Button,
-  Typography,
-  Grid,
-  Paper,
-  Divider,
-} from "@mui/material";
+import { TextField, MenuItem, Box, Button, Typography, Grid, Paper, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import PersonIcon from "@mui/icons-material/Person";
+import { motion, AnimatePresence } from "framer-motion";
 
 import AdminFLData from "./AdminFLData";
 import sampleCasesInfo from "./sampleCasesInfo";
@@ -54,16 +41,26 @@ function getCaseLoad(caseLength) {
 /*
   3) Filtering Functions
 */
+// Define psych specialties for new cases (in lower case)
+const psychSpecialties = ["psychiatry", "psychology", "neuropsychology"];
+
+/**
+ * filterByCaseTypeDetailed:
+ * - If the new case’s caseType (lowercased) is one of "psychiatry", "psychology", or "neuropsychology",
+ *   then only allow writers whose caseType (lowercased) is exactly "psych" or "both".
+ * - Otherwise, allow only writers whose caseType is exactly "non-psych" or "both".
+ */
 function filterByCaseTypeDetailed(writer, newCase) {
-  const lowerCase = writer.caseType.toLowerCase();
-  const isCasePsych = ["psychiatry", "psychology", "neuropsychology"].includes(newCase.caseType);
+  const writerType = writer.caseType.toLowerCase();
+  const caseTypeLower = newCase.caseType.toLowerCase();
+  const isCasePsych = psychSpecialties.includes(caseTypeLower);
   if (isCasePsych) {
-    if (lowerCase === "psych" || lowerCase === "both") {
+    if (writerType === "psych" || writerType === "both") {
       return { passed: true };
     }
     return { passed: false, reason: "Does not match psych case type" };
   } else {
-    if (lowerCase === "non-psych" || lowerCase === "both") {
+    if (writerType === "non-psych" || writerType === "both") {
       return { passed: true };
     }
     return { passed: false, reason: "Does not match non-psych case type" };
@@ -185,26 +182,22 @@ export default function AdminTools() {
   const [manualCaseType, setManualCaseType] = useState(caseTypeOptions[0]);
   const [manualCaseLength, setManualCaseLength] = useState(300);
 
-  // Step animations
   const stepVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i) => ({ opacity: 1, y: 0, transition: { delay: i * 0.5 } }),
   };
 
-  // Generate random-ish case ID
   function generateCaseID() {
     const randomNum = Math.floor(20000 + Math.random() * 1000);
     return `${randomNum}-01`;
   }
 
-  // Import a random case from sample data
   function importNewCase() {
     const randomCase = sampleCasesInfo[Math.floor(Math.random() * sampleCasesInfo.length)];
     setNewCase(randomCase);
     setFinalSortMode("composite");
   }
 
-  // Build a new case from manual filter
   function optimizeAssignment() {
     const manualCase = {
       caseID: generateCaseID(),
@@ -212,7 +205,7 @@ export default function AdminTools() {
       client: manualClient,
       caseType: manualCaseType,
       caseLength: manualCaseLength,
-      priorCaseWriter: "", // For demonstration
+      priorCaseWriter: "",
     };
     setNewCase(manualCase);
     setFinalSortMode("composite");
@@ -223,7 +216,7 @@ export default function AdminTools() {
     return AdminFLData.map((writer) => ({ writer, passed: true, reason: "" }));
   }, []);
 
-  // Step 2: Filter by Case Type
+  // Step 2: Filter by Case Type using updated filtering logic
   const step2 = useMemo(() => {
     if (!newCase) return { passed: [], filtered: [] };
     const passed = [];
@@ -342,7 +335,6 @@ export default function AdminTools() {
     );
   }
 
-  // Render a list of writers
   function renderWritersList(list, isPassedList = true) {
     return (
       <Box>
@@ -369,7 +361,6 @@ export default function AdminTools() {
     );
   }
 
-  // Render a single step column
   function renderStepColumn(stepNumber, title, stepData) {
     return (
       <Box sx={{ flex: 1, p: 1, minWidth: 180, textAlign: "left" }}>
@@ -394,13 +385,12 @@ export default function AdminTools() {
             </Typography>
             {renderWritersList(stepData.passed, true)}
 
-            {/* Additional margin-top for Filtered Out heading only */}
             <Typography
               variant="subtitle2"
               sx={{
                 fontWeight: "bold",
                 color: isDark ? "#fff" : "#000",
-                mt: 2, // Add vertical space above the "Filtered Out:" heading
+                mt: 2,
               }}
             >
               Filtered Out:
@@ -414,7 +404,6 @@ export default function AdminTools() {
 
   return (
     <Box sx={{ p: 4 }}>
-      {/* Main Title */}
       <Typography
         variant="h4"
         sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
@@ -422,7 +411,7 @@ export default function AdminTools() {
         Case Assignment Tool
       </Typography>
 
-      {/* 1) Random Case Import Section */}
+      {/* Random Case Import Section */}
       <Box
         sx={{
           mb: 2,
@@ -443,7 +432,7 @@ export default function AdminTools() {
         </Button>
       </Box>
 
-      {/* 2) Manual Filter Section */}
+      {/* Manual Case Filter Section */}
       <Box
         sx={{
           mb: 2,
@@ -523,7 +512,7 @@ export default function AdminTools() {
         </Box>
       </Box>
 
-      {/* If newCase is set, show details */}
+      {/* New Case Details */}
       <AnimatePresence>
         {newCase && (
           <motion.div
@@ -596,11 +585,8 @@ export default function AdminTools() {
             <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
             {renderStepColumn(4, "Step 5: Exclude Prior", step5)}
 
-            {/* Downward Arrow - directly below step 5 column */}
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", ml: 1 }}>
-              <ArrowDownwardIcon
-                sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }}
-              />
+              <ArrowDownwardIcon sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }} />
             </Box>
           </Box>
 
@@ -650,7 +636,6 @@ export default function AdminTools() {
                         {writer.name}
                       </Typography>
 
-                      {/* Profile pic & trophy for top 3 */}
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         {writer.profilePic ? (
                           <Box
@@ -679,9 +664,7 @@ export default function AdminTools() {
                             <PersonIcon sx={{ color: isDark ? "#fff" : "#000" }} />
                           </Box>
                         )}
-                        {index < 3 && (
-                          <EmojiEventsIcon sx={{ color: "#66bb6a" }} />
-                        )}
+                        {index < 3 && <EmojiEventsIcon sx={{ color: "#66bb6a" }} />}
                       </Box>
                     </Box>
 
@@ -711,7 +694,6 @@ export default function AdminTools() {
 
           <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#000" }} />
 
-          {/* Methodology Section */}
           <Box sx={{ p: 2, background: isDark ? "#333" : "#f5f5f5", borderRadius: 2 }}>
             <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
               Composite Score Methodology:
