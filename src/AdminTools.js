@@ -1,6 +1,15 @@
 // src/AdminTools.js
 import React, { useState, useMemo } from "react";
-import { TextField, MenuItem, Box, Button, Typography, Grid, Paper, Divider } from "@mui/material";
+import {
+  TextField,
+  MenuItem,
+  Box,
+  Button,
+  Typography,
+  Grid,
+  Paper,
+  Divider
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -10,12 +19,11 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import AdminFLData from "./AdminFLData";
 import sampleCasesInfo from "./sampleCasesInfo";
+import SLData from "./SLData"; // Must be an array exported as default
 
-/* 
-  1) getOutlineColor: 
-     - Top 3 always green
-     - Others: green if ≥ 90, orange if 70–89.99, red if < 70
-*/
+// ============ MRA ASSIGNING SECTION ============
+
+// Helper for MRA outlines
 function getOutlineColor(writer, index) {
   if (index < 3) {
     return "#66bb6a";
@@ -26,30 +34,16 @@ function getOutlineColor(writer, index) {
   return "#F44336";
 }
 
-/*
-  2) getCaseLoad:
-     - <700 pages => 1
-     - 700–999 => 1.5
-     - 1000+ => 2
-*/
+// Helper for MRA load
 function getCaseLoad(caseLength) {
   if (caseLength >= 1000) return 2;
   if (caseLength >= 700) return 1.5;
   return 1;
 }
 
-/*
-  3) Filtering Functions
-*/
-// Define psych specialties for new cases (in lower case)
+// MRA filters
 const psychSpecialties = ["psychiatry", "psychology", "neuropsychology"];
 
-/**
- * filterByCaseTypeDetailed:
- * - If the new case’s caseType (lowercased) is one of "psychiatry", "psychology", or "neuropsychology",
- *   then only allow writers whose caseType (lowercased) is exactly "psych" or "both".
- * - Otherwise, allow only writers whose caseType is exactly "non-psych" or "both".
- */
 function filterByCaseTypeDetailed(writer, newCase) {
   const writerType = writer.caseType.toLowerCase();
   const caseTypeLower = newCase.caseType.toLowerCase();
@@ -89,34 +83,19 @@ function filterByPriorWriterDetailed(writer, newCase) {
   return { passed: true };
 }
 
-/*
-  4) Composite Score Calculation
-     Q = overallQualityScore
-     T = turnaroundTime
-     C = cost for the client
-
-     Turnaround Bonus (Bₜ):
-       if T < 24 => min(24 - T, 6)
-       else => -(T - 24)
-
-     Cost Bonus (B₍C₎):
-       ((maxCost - C) / (maxCost - minCost)) × 5
-
-     Composite Score = Q + Bₜ + B₍C₎ (clamped 0..100)
-*/
+// MRA scoring
 function computeTurnaroundBonus(turnaround) {
   if (turnaround < 24) {
     return Math.min(24 - turnaround, 6);
   }
   return -(turnaround - 24);
 }
-
 function computeCostBonus(writerCost, minCost, maxCost) {
   if (maxCost === minCost) return 5;
   return ((maxCost - writerCost) / (maxCost - minCost)) * 5;
 }
 
-// 5) Manual filter constants
+// MRA picklists
 const clientOptions = [
   "Lincoln",
   "PFR",
@@ -126,7 +105,7 @@ const clientOptions = [
   "Standard",
   "Peer Review",
   "Telco",
-  "LTC",
+  "LTC"
 ];
 
 const caseTypeOptions = [
@@ -164,36 +143,30 @@ const caseTypeOptions = [
   "Sleep Medicine",
   "Speech Pathology",
   "Urology",
-  "Vascular Surgery",
+  "Vascular Surgery"
 ];
 
-/*
-  Main Component
-*/
 export default function AdminTools() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
+  // ======= MRA STATES & LOGIC =======
   const [newCase, setNewCase] = useState(null);
   const [finalSortMode, setFinalSortMode] = useState("composite");
 
-  // Manual filter states
   const [manualClient, setManualClient] = useState(clientOptions[0]);
   const [manualCaseType, setManualCaseType] = useState(caseTypeOptions[0]);
   const [manualCaseLength, setManualCaseLength] = useState(300);
 
-  const stepVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i) => ({ opacity: 1, y: 0, transition: { delay: i * 0.5 } }),
-  };
-
+  // For random generation of a new MRA case
   function generateCaseID() {
     const randomNum = Math.floor(20000 + Math.random() * 1000);
     return `${randomNum}-01`;
   }
 
   function importNewCase() {
-    const randomCase = sampleCasesInfo[Math.floor(Math.random() * sampleCasesInfo.length)];
+    const randomCase =
+      sampleCasesInfo[Math.floor(Math.random() * sampleCasesInfo.length)];
     setNewCase(randomCase);
     setFinalSortMode("composite");
   }
@@ -205,18 +178,17 @@ export default function AdminTools() {
       client: manualClient,
       caseType: manualCaseType,
       caseLength: manualCaseLength,
-      priorCaseWriter: "",
+      priorCaseWriter: ""
     };
     setNewCase(manualCase);
     setFinalSortMode("composite");
   }
 
-  // Step 1: All Writers
+  // MRA Steps
   const step1 = useMemo(() => {
     return AdminFLData.map((writer) => ({ writer, passed: true, reason: "" }));
   }, []);
 
-  // Step 2: Filter by Case Type using updated filtering logic
   const step2 = useMemo(() => {
     if (!newCase) return { passed: [], filtered: [] };
     const passed = [];
@@ -232,7 +204,6 @@ export default function AdminTools() {
     return { passed, filtered };
   }, [newCase, step1]);
 
-  // Step 3: Filter by Client
   const step3 = useMemo(() => {
     if (!newCase) return { passed: [], filtered: [] };
     const passed = [];
@@ -248,7 +219,6 @@ export default function AdminTools() {
     return { passed, filtered };
   }, [newCase, step2]);
 
-  // Step 4: Filter by Availability
   const step4 = useMemo(() => {
     if (!newCase) return { passed: [], filtered: [] };
     const passed = [];
@@ -264,7 +234,6 @@ export default function AdminTools() {
     return { passed, filtered };
   }, [newCase, step3]);
 
-  // Step 5: Exclude Prior Case Writer
   const step5 = useMemo(() => {
     if (!newCase) return { passed: [], filtered: [] };
     const passed = [];
@@ -280,22 +249,21 @@ export default function AdminTools() {
     return { passed, filtered };
   }, [newCase, step4]);
 
-  // Final eligible writers
   const finalWriters = useMemo(() => {
     return step5.passed.map(({ writer }) => writer);
   }, [step5]);
 
-  // Compute min and max cost among final writers
   const { minCost, maxCost } = useMemo(() => {
     if (!newCase || finalWriters.length === 0) return { minCost: 25, maxCost: 25 };
-    const costs = finalWriters.map((writer) => writer.costPerCase[newCase.client] || 25);
+    const costs = finalWriters.map(
+      (writer) => writer.costPerCase[newCase.client] || 25
+    );
     return {
       minCost: Math.min(...costs),
-      maxCost: Math.max(...costs),
+      maxCost: Math.max(...costs)
     };
   }, [newCase, finalWriters]);
 
-  // Final Sorted List
   const sortedWriters = useMemo(() => {
     if (!newCase) return [];
     const withScore = finalWriters.map((writer) => {
@@ -318,12 +286,12 @@ export default function AdminTools() {
     } else if (finalSortMode === "quality") {
       sorted.sort((a, b) => b.overallQualityScore - a.overallQualityScore);
     } else {
+      // composite
       sorted.sort((a, b) => b.compositeScore - a.compositeScore);
     }
     return sorted;
   }, [newCase, finalSortMode, finalWriters, minCost, maxCost]);
 
-  // onClick for final cards
   function handleCardClick(writer) {
     alert(
       `Detailed Data for ${writer.name}:\n` +
@@ -346,12 +314,8 @@ export default function AdminTools() {
               textDecoration: reason ? "line-through" : "none",
               fontWeight: "bold",
               color: isPassedList
-                ? isDark
-                  ? "#66bb6a"
-                  : "#388e3c"
-                : isDark
-                ? "#f44336"
-                : "#d32f2f",
+                ? (isDark ? "#66bb6a" : "#388e3c")
+                : (isDark ? "#f44336" : "#d32f2f")
             }}
           >
             {writer.name} {reason && `- (${reason})`}
@@ -364,63 +328,251 @@ export default function AdminTools() {
   function renderStepColumn(stepNumber, title, stepData) {
     return (
       <Box sx={{ flex: 1, p: 1, minWidth: 180, textAlign: "left" }}>
-        <AnimatePresence>
-          <motion.div
-            key={newCase ? newCase.caseID + "-" + stepNumber : stepNumber}
-            custom={stepNumber}
-            initial="hidden"
-            animate="visible"
-            variants={stepVariants}
-          >
-            <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
-              {title} <br />
-              (Pass: {stepData.passed.length}, Out: {stepData.filtered.length})
-            </Typography>
-
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
-            >
-              Passed:
-            </Typography>
-            {renderWritersList(stepData.passed, true)}
-
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: "bold",
-                color: isDark ? "#fff" : "#000",
-                mt: 2,
-              }}
-            >
-              Filtered Out:
-            </Typography>
-            {renderWritersList(stepData.filtered, false)}
-          </motion.div>
-        </AnimatePresence>
+        <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+          {title} <br />
+          (Pass: {stepData.passed.length}, Out: {stepData.filtered.length})
+        </Typography>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+        >
+          Passed:
+        </Typography>
+        {renderWritersList(stepData.passed, true)}
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000", mt: 2 }}
+        >
+          Filtered Out:
+        </Typography>
+        {renderWritersList(stepData.filtered, false)}
       </Box>
     );
   }
 
+  // ======= SL ASSIGNING SECTION =======
+
+  // Quick console check:
+  console.log("SLData is array?", Array.isArray(SLData), SLData);
+
+  // Gather ALL unique specialties from SLData
+  const allSLSpecialties = useMemo(() => {
+    // If SLData is truly an array, this should gather specialties.
+    const specs = new Set();
+    SLData.forEach((sl) => {
+      sl.specialties.forEach((s) => specs.add(s));
+    });
+    return Array.from(specs).sort();
+  }, []);
+
+  // States for SL assignment
+  const [newSLCase, setNewSLCase] = useState(null);
+  const [finalSortModeSL, setFinalSortModeSL] = useState("cost");
+  const [manualSLSpecialty, setManualSLSpecialty] = useState("");
+
+  // On load or once, if you want to default manualSLSpecialty:
+  // useEffect(() => {
+  //   if (allSLSpecialties.length > 0 && !manualSLSpecialty) {
+  //     setManualSLSpecialty(allSLSpecialties[0]);
+  //   }
+  // }, [allSLSpecialties, manualSLSpecialty]);
+
+  // Import a random SL case from sampleCasesInfo
+  function importNewSLCase() {
+    if (sampleCasesInfo.length === 0) return;
+    const randomCase =
+      sampleCasesInfo[Math.floor(Math.random() * sampleCasesInfo.length)];
+
+    // 25% chance we set a prior SL
+    let priorSL = "";
+    if (Math.random() < 0.25 && SLData.length > 0) {
+      const randomSL = SLData[Math.floor(Math.random() * SLData.length)];
+      priorSL = randomSL.name;
+    }
+
+    setNewSLCase({
+      caseID: randomCase.caseID,
+      claimantId: randomCase.claimantId,
+      client: randomCase.client,
+      requestedSpecialty: randomCase.caseType, // from the randomCase
+      priorSL
+    });
+    setFinalSortModeSL("cost");
+  }
+
+  // Manual SL assignment
+  function optimizeSLAssignment() {
+    if (!manualSLSpecialty) {
+      alert("Please select a specialty first!");
+      return;
+    }
+    // 25% chance for prior
+    let priorSL = "";
+    if (Math.random() < 0.25 && SLData.length > 0) {
+      const randomSL = SLData[Math.floor(Math.random() * SLData.length)];
+      priorSL = randomSL.name;
+    }
+    setNewSLCase({
+      caseID: generateCaseID(),
+      claimantId: "DemoClaimantSL",
+      client: "ManualClient", // or let user pick if needed
+      requestedSpecialty: manualSLSpecialty,
+      priorSL
+    });
+    setFinalSortModeSL("cost");
+  }
+
+  // Step 1: all SLs
+  const step1SL = useMemo(() => {
+    if (!Array.isArray(SLData)) {
+      return [];
+    }
+    return SLData.map((sl) => ({ sl, passed: true }));
+  }, []);
+
+  // Step 2: filter by requested specialty + DNU check
+  const step2SL = useMemo(() => {
+    if (!newSLCase) return { passed: [], filtered: [] };
+    const passed = [];
+    const filtered = [];
+
+    step1SL.forEach(({ sl }) => {
+      const specialtyMatch = sl.specialties
+        .map((sp) => sp.toLowerCase())
+        .includes(newSLCase.requestedSpecialty?.toLowerCase());
+      const isOnDNU = sl.dnu.includes(newSLCase.client);
+
+      if (!specialtyMatch) {
+        filtered.push({ sl, reason: "Does not match requested specialty" });
+      } else if (isOnDNU) {
+        filtered.push({ sl, reason: `SL is on DNU for ${newSLCase.client}` });
+      } else {
+        passed.push({ sl });
+      }
+    });
+
+    return { passed, filtered };
+  }, [newSLCase, step1SL]);
+
+  // Step 3: check prior
+  const step3SL = useMemo(() => {
+    if (!newSLCase) return { passed: [] };
+    const arr = step2SL.passed.map((item) => {
+      if (newSLCase.priorSL && item.sl.name === newSLCase.priorSL) {
+        return { ...item, priorNote: "Check Priors and Client Comments" };
+      }
+      return item;
+    });
+    return { passed: arr };
+  }, [newSLCase, step2SL]);
+
+  // Final sorted SLs
+  const sortedSLs = useMemo(() => {
+    if (!newSLCase) return [];
+    const arr = step3SL.passed.map((item) => ({
+      ...item.sl,
+      priorNote: item.priorNote || ""
+    }));
+    if (finalSortModeSL === "cost") {
+      arr.sort((a, b) => a.costPerCase - b.costPerCase);
+    } else if (finalSortModeSL === "avgSignOffTime") {
+      arr.sort((a, b) => a.avgSignOffTime - b.avgSignOffTime);
+    } else if (finalSortModeSL === "casesCompleted") {
+      arr.sort((a, b) => b.casesCompleted30Days - a.casesCompleted30Days);
+    }
+    return arr;
+  }, [newSLCase, finalSortModeSL, step3SL]);
+
+  // Helper for SL card border
+  function getSLOutlineColor(_, index) {
+    return index < 3 ? "#66bb6a" : "#FFA726";
+  }
+
+  function handleSLCardClick(sl) {
+    alert(
+      `Detailed Data for ${sl.name}:\n` +
+        `Specialties: ${sl.specialties.join(", ")}\n` +
+        `States: ${sl.states.join(", ")}\n` +
+        `Client DNU: ${sl.dnu.join(", ") || "(none)"}\n` +
+        `Cost per Case: $${sl.costPerCase}\n` +
+        `Avg Sign Off Time: ${sl.avgSignOffTime} hrs\n` +
+        `Cases Completed (30 days): ${sl.casesCompleted30Days}\n` +
+        (sl.priorNote ? `\nNote: ${sl.priorNote}` : "")
+    );
+  }
+
+  function renderSLList(list, isPassedList = true) {
+    return (
+      <Box>
+        {list.map(({ sl, reason, priorNote }) => (
+          <Typography
+            key={sl.name}
+            variant="body2"
+            sx={{
+              textDecoration: reason ? "line-through" : "none",
+              fontWeight: "bold",
+              color: isPassedList
+                ? (isDark ? "#66bb6a" : "#388e3c")
+                : (isDark ? "#f44336" : "#d32f2f")
+            }}
+          >
+            {sl.name}
+            {priorNote && ` - (${priorNote})`}
+            {reason && ` - (${reason})`}
+          </Typography>
+        ))}
+      </Box>
+    );
+  }
+
+  function renderStepColumnSL(stepNumber, title, stepData) {
+    const passedCount = stepData?.passed?.length || 0;
+    const filteredCount = stepData?.filtered?.length || 0;
+    return (
+      <Box sx={{ flex: 1, p: 1, minWidth: 180, textAlign: "left" }}>
+        <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+          {title} <br />
+          (Pass: {passedCount}, Out: {filteredCount})
+        </Typography>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+        >
+          Passed:
+        </Typography>
+        {stepData?.passed && renderSLList(stepData.passed, true)}
+        {stepData?.filtered && (
+          <>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000", mt: 2 }}
+            >
+              Filtered Out:
+            </Typography>
+            {renderSLList(stepData.filtered, false)}
+          </>
+        )}
+      </Box>
+    );
+  }
+
+  // Clears
+  function clearMRA() {
+    setNewCase(null);
+  }
+  function clearSL() {
+    setNewSLCase(null);
+  }
+
   return (
     <Box sx={{ p: 4 }}>
-      <Typography
-        variant="h4"
-        sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
-      >
-        Case Assignment Tool
+      {/* ================= MRA Section ================= */}
+      <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
+        Case Assignment Tool (MRA)
       </Typography>
 
-      {/* Random Case Import Section */}
-      <Box
-        sx={{
-          mb: 2,
-          p: 2,
-          border: "1px solid",
-          borderColor: isDark ? "#fff" : "#ccc",
-          borderRadius: 2,
-        }}
-      >
+      {/* Random Case Import for MRA */}
+      <Box sx={{ mb: 2, p: 2, border: "1px solid", borderColor: isDark ? "#fff" : "#ccc", borderRadius: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
           1) Random Case Import
         </Typography>
@@ -432,16 +584,8 @@ export default function AdminTools() {
         </Button>
       </Box>
 
-      {/* Manual Case Filter Section */}
-      <Box
-        sx={{
-          mb: 2,
-          p: 2,
-          border: "1px solid",
-          borderColor: isDark ? "#fff" : "#ccc",
-          borderRadius: 2,
-        }}
-      >
+      {/* Manual Case Filter for MRA */}
+      <Box sx={{ mb: 2, p: 2, border: "1px solid", borderColor: isDark ? "#fff" : "#ccc", borderRadius: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
           2) Manual Case Filter
         </Typography>
@@ -459,10 +603,7 @@ export default function AdminTools() {
               size="small"
               value={manualClient}
               onChange={(e) => setManualClient(e.target.value)}
-              sx={{
-                minWidth: 120,
-                background: isDark ? "#e0e0e0" : "#fff",
-              }}
+              sx={{ minWidth: 120, background: isDark ? "#e0e0e0" : "#fff" }}
               InputProps={{ sx: { color: isDark ? "#000" : "#000" } }}
             >
               {clientOptions.map((client) => (
@@ -512,7 +653,7 @@ export default function AdminTools() {
         </Box>
       </Box>
 
-      {/* New Case Details */}
+      {/* New MRA Case Details */}
       <AnimatePresence>
         {newCase && (
           <motion.div
@@ -529,6 +670,7 @@ export default function AdminTools() {
                 borderColor: isDark ? "#fff" : "#ccc",
                 borderRadius: 2,
                 background: isDark ? "#424242" : "#f5f5f5",
+                position: "relative"
               }}
             >
               <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
@@ -554,6 +696,13 @@ export default function AdminTools() {
                   <strong>Prior Case Writer:</strong> {newCase.priorCaseWriter}
                 </Typography>
               )}
+              <Button
+                variant="outlined"
+                onClick={clearMRA}
+                sx={{ position: "absolute", top: 10, right: 10 }}
+              >
+                Clear
+              </Button>
             </Box>
           </motion.div>
         )}
@@ -563,7 +712,7 @@ export default function AdminTools() {
         <>
           <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
 
-          {/* Step Columns */}
+          {/* MRA Step Columns */}
           <Box
             key={newCase.caseID + "-steps"}
             sx={{
@@ -572,7 +721,7 @@ export default function AdminTools() {
               alignItems: "flex-start",
               gap: 1,
               overflowX: "auto",
-              mb: 2,
+              mb: 2
             }}
           >
             {renderStepColumn(0, "Step 1: All Writers", { passed: step1, filtered: [] })}
@@ -584,15 +733,16 @@ export default function AdminTools() {
             {renderStepColumn(3, "Step 4: Availability", step4)}
             <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
             {renderStepColumn(4, "Step 5: Exclude Prior", step5)}
-
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", ml: 1 }}>
-              <ArrowDownwardIcon sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }} />
+              <ArrowDownwardIcon
+                sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }}
+              />
             </Box>
           </Box>
 
           <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
 
-          {/* Final Sorted List */}
+          {/* Final Sorted MRA List */}
           <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
             <Typography variant="h5" sx={{ color: isDark ? "#fff" : "#000" }}>
               Final Sorted List ({sortedWriters.length})
@@ -622,20 +772,13 @@ export default function AdminTools() {
                       background: isDark ? "#424242" : "#fff",
                       color: isDark ? "#fff" : "#000",
                       border: `2px solid ${getOutlineColor(writer, index)}`,
-                      cursor: "pointer",
+                      cursor: "pointer"
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
                         {writer.name}
                       </Typography>
-
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         {writer.profilePic ? (
                           <Box
@@ -646,7 +789,7 @@ export default function AdminTools() {
                               width: 50,
                               height: 50,
                               borderRadius: "50%",
-                              objectFit: "cover",
+                              objectFit: "cover"
                             }}
                           />
                         ) : (
@@ -658,7 +801,7 @@ export default function AdminTools() {
                               backgroundColor: isDark ? "#555" : "#ccc",
                               display: "flex",
                               alignItems: "center",
-                              justifyContent: "center",
+                              justifyContent: "center"
                             }}
                           >
                             <PersonIcon sx={{ color: isDark ? "#fff" : "#000" }} />
@@ -667,7 +810,6 @@ export default function AdminTools() {
                         {index < 3 && <EmojiEventsIcon sx={{ color: "#66bb6a" }} />}
                       </Box>
                     </Box>
-
                     <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
                       <strong>Composite Score:</strong> {writer.compositeScore.toFixed(2)}
                     </Typography>
@@ -675,7 +817,8 @@ export default function AdminTools() {
                       <strong>Quality Score:</strong> {writer.overallQualityScore}
                     </Typography>
                     <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                      <strong>Cost (PFR):</strong> ${writer.costPerCase[newCase.client] || "N/A"}
+                      <strong>Cost (PFR):</strong> $
+                      {writer.costPerCase[newCase.client] || "N/A"}
                     </Typography>
                     <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
                       <strong>TAT:</strong> {writer.turnaroundTime} hrs
@@ -702,7 +845,8 @@ export default function AdminTools() {
               Let Q = overallQualityScore, T = turnaroundTime, and C = cost for the client.
             </Typography>
             <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-              Turnaround Bonus (Bₜ) = <code>min(24 - T, 6)</code> if T &lt; 24; otherwise, Bₜ = <code>-(T - 24)</code>.
+              Turnaround Bonus (Bₜ) = <code>min(24 - T, 6)</code> if T &lt; 24; otherwise, Bₜ ={" "}
+              <code>-(T - 24)</code>.
             </Typography>
             <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
               Cost Bonus (B₍C₎) = <code>((maxCost - C) / (maxCost - minCost)) × 5</code>.
@@ -713,6 +857,220 @@ export default function AdminTools() {
           </Box>
         </>
       )}
+
+      {/* ================= SL ASSIGNING SECTION ================= */}
+      <Box sx={{ mt: 8 }}>
+        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
+          SL Assigning
+        </Typography>
+
+        {/* Random Case Import for SL */}
+        <Box
+          sx={{
+            mb: 2,
+            p: 2,
+            border: "1px solid",
+            borderColor: isDark ? "#fff" : "#ccc",
+            borderRadius: 2
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
+            1) Random Case Import
+          </Typography>
+          <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
+            Click the button below to randomly select a case for SL assignment.
+          </Typography>
+          <Button variant="contained" onClick={importNewSLCase} sx={{ mt: 2 }}>
+            Import New SL Case
+          </Button>
+        </Box>
+
+        {/* Manual Filter for SL */}
+        <Box
+          sx={{
+            mb: 2,
+            p: 2,
+            border: "1px solid",
+            borderColor: isDark ? "#fff" : "#ccc",
+            borderRadius: 2
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
+            2) Manual Filter
+          </Typography>
+          <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
+            Select a requested specialty, then click "Optimize SL Assignment."
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, alignItems: "center" }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
+              Requested Specialty:
+            </Typography>
+            <TextField
+              select
+              size="small"
+              value={manualSLSpecialty}
+              onChange={(e) => setManualSLSpecialty(e.target.value)}
+              sx={{ minWidth: 150, background: isDark ? "#e0e0e0" : "#fff" }}
+              InputProps={{ sx: { color: isDark ? "#000" : "#000" } }}
+            >
+              {allSLSpecialties.map((spec) => (
+                <MenuItem key={spec} value={spec}>
+                  {spec}
+                </MenuItem>
+              ))}
+            </TextField>
+            <Button variant="contained" onClick={optimizeSLAssignment}>
+              Optimize SL Assignment
+            </Button>
+          </Box>
+        </Box>
+
+        {/* New SL Case Details */}
+        <AnimatePresence>
+          {newSLCase && (
+            <motion.div
+              key={newSLCase.caseID}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <Box
+                sx={{
+                  mb: 4,
+                  p: 2,
+                  border: "1px solid",
+                  borderColor: isDark ? "#fff" : "#ccc",
+                  borderRadius: 2,
+                  background: isDark ? "#424242" : "#f5f5f5",
+                  position: "relative"
+                }}
+              >
+                <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  New SL Case Details
+                </Typography>
+                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  <strong>Case ID:</strong> {newSLCase.caseID}
+                </Typography>
+                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  <strong>Claimant ID:</strong> {newSLCase.claimantId}
+                </Typography>
+                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  <strong>Client:</strong> {newSLCase.client}
+                </Typography>
+                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  <strong>Requested Specialty:</strong> {newSLCase.requestedSpecialty}
+                </Typography>
+                {newSLCase.priorSL && (
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Prior SL:</strong> {newSLCase.priorSL}
+                  </Typography>
+                )}
+                <Button
+                  variant="outlined"
+                  onClick={clearSL}
+                  sx={{ position: "absolute", top: 10, right: 10 }}
+                >
+                  Clear
+                </Button>
+              </Box>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {newSLCase && (
+          <>
+            <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
+
+            {/* SL Step Columns */}
+            <Box
+              key={newSLCase.caseID + "-SLsteps"}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "flex-start",
+                gap: 1,
+                overflowX: "auto",
+                mb: 2
+              }}
+            >
+              {renderStepColumnSL(0, "Step 1: All SLs", { passed: step1SL, filtered: [] })}
+              <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+              {renderStepColumnSL(1, "Step 2: Specialty & DNU Filter", step2SL)}
+              <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+              {renderStepColumnSL(2, "Step 3: Check Priors", step3SL)}
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", ml: 1 }}>
+                <ArrowDownwardIcon sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }} />
+              </Box>
+            </Box>
+
+            <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
+
+            {/* Final Sorted SL List */}
+            <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
+              <Typography variant="h5" sx={{ color: isDark ? "#fff" : "#000" }}>
+                Final Sorted SL List ({sortedSLs.length})
+              </Typography>
+              <Button variant="outlined" onClick={() => setFinalSortModeSL("cost")}>
+                Sort by Cost
+              </Button>
+              <Button variant="outlined" onClick={() => setFinalSortModeSL("avgSignOffTime")}>
+                Sort by Avg Sign Off Time
+              </Button>
+              <Button variant="outlined" onClick={() => setFinalSortModeSL("casesCompleted")}>
+                Sort by Cases Completed
+              </Button>
+            </Box>
+
+            <Grid container spacing={2}>
+              {sortedSLs.map((sl, index) => (
+                <Grid item key={sl.name} xs={12} sm={6} md={4}>
+                  <motion.div whileHover={{ scale: 1.05 }} onClick={() => handleSLCardClick(sl)}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        background: isDark ? "#424242" : "#fff",
+                        color: isDark ? "#fff" : "#000",
+                        border: `2px solid ${getSLOutlineColor(sl, index)}`,
+                        cursor: "pointer"
+                      }}
+                    >
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          {sl.name}
+                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          {index < 3 && <EmojiEventsIcon sx={{ color: "#66bb6a" }} />}
+                        </Box>
+                      </Box>
+                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                        <strong>Specialties:</strong> {sl.specialties.join(", ")}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                        <strong>States:</strong> {sl.states.join(", ")}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                        <strong>Cost per Case:</strong> ${sl.costPerCase}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                        <strong>Avg Sign Off Time:</strong> {sl.avgSignOffTime} hrs
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                        <strong>Cases Completed (30 days):</strong> {sl.casesCompleted30Days}
+                      </Typography>
+                      {sl.priorNote && (
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
+                          <strong>Note:</strong> {sl.priorNote}
+                        </Typography>
+                      )}
+                    </Paper>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        )}
+      </Box>
     </Box>
   );
 }
