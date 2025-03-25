@@ -109,42 +109,75 @@ const clientOptions = [
 ];
 
 const caseTypeOptions = [
+  "Addiction Medicine",
   "Allergy & Immunology",
   "Anesthesiology",
+  "Brain Injury Medicine",
+  "Cardiovascular Disease",
+  "Cardiovascular Medicine",
+  "Cardiology",
+  "Child & Adolescent Psychiatry",
   "Chiropractic",
-  "Colon And Rectal Surgery",
+  "Clinical Informatics",
+  "Colon & Rectal Surgery",
+  "Critical Care",
   "Critical Care Medicine",
   "Dermatology",
-  "Emergency Medicine",
+  "Diabetes and Metabolism",
   "Endocrinology",
+  "Emergency Medicine",
   "Family Medicine",
-  "General Surgery",
-  "Hematology And Oncology",
+  "Forensic Pathology",
+  "Foot Surgery",
+  "Gastroenterology",
+  "GI",
+  "Geriatric Medicine",
+  "General Preventive Medicine",
+  "Hand Surgery",
+  "Hematology",
+  "Hospice & Palliative Medicine",
+  "Infectious Disease",
   "Internal Medicine",
+  "Medical Oncology",
   "Medical Toxicology",
   "Nephrology",
   "Neurology",
   "Neuromuscular Medicine",
+  "Neuro-Ophthalmology",
   "Neuroophthalmology",
-  "Neurological Surgery",
   "Neuropsychology",
-  "Obstetrics And Gynecology",
+  "Neurological Surgery",
+  "Oncology",
   "Occupational Medicine",
   "Ophthalmology",
   "Orthopedic Surgery",
   "Otolaryngology",
+  "Obstetrics & Gynecology",
+  "Pain Management",
+  "Pain Medicine",
+  "Pathology",
+  "Periodontics",
   "Pediatrics",
   "Physical Medicine & Rehabilitation",
   "Plastic Surgery",
-  "Podiatry",
-  "Psychiatry",
-  "Psychology",
-  "Pulmonary Medicine",
+  "PMR",
+  "Preventive Medicine",
+  "Public Health",
+  "Rheumatology",
   "Sleep Medicine",
+  "Spine Surgery",
+  "Surgery of the Hand",
   "Speech Pathology",
+  "Toxicology",
   "Urology",
   "Vascular Surgery"
 ];
+
+// Motion variants for step animations
+const stepVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function AdminTools() {
   const theme = useTheme();
@@ -154,6 +187,7 @@ export default function AdminTools() {
   const [newCase, setNewCase] = useState(null);
   const [finalSortMode, setFinalSortMode] = useState("composite");
 
+  // For dropdowns, closed state text is forced black; menu items will be white in dark mode
   const [manualClient, setManualClient] = useState(clientOptions[0]);
   const [manualCaseType, setManualCaseType] = useState(caseTypeOptions[0]);
   const [manualCaseLength, setManualCaseLength] = useState(300);
@@ -352,12 +386,10 @@ export default function AdminTools() {
 
   // ======= SL ASSIGNING SECTION =======
 
-  // Quick console check:
   console.log("SLData is array?", Array.isArray(SLData), SLData);
 
   // Gather ALL unique specialties from SLData
   const allSLSpecialties = useMemo(() => {
-    // If SLData is truly an array, this should gather specialties.
     const specs = new Set();
     SLData.forEach((sl) => {
       sl.specialties.forEach((s) => specs.add(s));
@@ -370,20 +402,11 @@ export default function AdminTools() {
   const [finalSortModeSL, setFinalSortModeSL] = useState("cost");
   const [manualSLSpecialty, setManualSLSpecialty] = useState("");
 
-  // On load or once, if you want to default manualSLSpecialty:
-  // useEffect(() => {
-  //   if (allSLSpecialties.length > 0 && !manualSLSpecialty) {
-  //     setManualSLSpecialty(allSLSpecialties[0]);
-  //   }
-  // }, [allSLSpecialties, manualSLSpecialty]);
-
-  // Import a random SL case from sampleCasesInfo
   function importNewSLCase() {
     if (sampleCasesInfo.length === 0) return;
     const randomCase =
       sampleCasesInfo[Math.floor(Math.random() * sampleCasesInfo.length)];
 
-    // 25% chance we set a prior SL
     let priorSL = "";
     if (Math.random() < 0.25 && SLData.length > 0) {
       const randomSL = SLData[Math.floor(Math.random() * SLData.length)];
@@ -400,13 +423,11 @@ export default function AdminTools() {
     setFinalSortModeSL("cost");
   }
 
-  // Manual SL assignment
   function optimizeSLAssignment() {
     if (!manualSLSpecialty) {
       alert("Please select a specialty first!");
       return;
     }
-    // 25% chance for prior
     let priorSL = "";
     if (Math.random() < 0.25 && SLData.length > 0) {
       const randomSL = SLData[Math.floor(Math.random() * SLData.length)];
@@ -415,7 +436,7 @@ export default function AdminTools() {
     setNewSLCase({
       caseID: generateCaseID(),
       claimantId: "DemoClaimantSL",
-      client: "ManualClient", // or let user pick if needed
+      client: "ManualClient",
       requestedSpecialty: manualSLSpecialty,
       priorSL
     });
@@ -430,18 +451,16 @@ export default function AdminTools() {
     return SLData.map((sl) => ({ sl, passed: true }));
   }, []);
 
-  // Step 2: filter by requested specialty + DNU check
+  // Step 2: filter by requested specialty + DNU check (updated)
   const step2SL = useMemo(() => {
     if (!newSLCase) return { passed: [], filtered: [] };
     const passed = [];
     const filtered = [];
-
+    const requestedSpec = newSLCase.requestedSpecialty?.trim().toLowerCase();
     step1SL.forEach(({ sl }) => {
-      const specialtyMatch = sl.specialties
-        .map((sp) => sp.toLowerCase())
-        .includes(newSLCase.requestedSpecialty?.toLowerCase());
+      const specialties = sl.specialties.map((sp) => sp.trim().toLowerCase());
+      const specialtyMatch = specialties.includes(requestedSpec);
       const isOnDNU = sl.dnu.includes(newSLCase.client);
-
       if (!specialtyMatch) {
         filtered.push({ sl, reason: "Does not match requested specialty" });
       } else if (isOnDNU) {
@@ -450,7 +469,6 @@ export default function AdminTools() {
         passed.push({ sl });
       }
     });
-
     return { passed, filtered };
   }, [newSLCase, step1SL]);
 
@@ -466,7 +484,6 @@ export default function AdminTools() {
     return { passed: arr };
   }, [newSLCase, step2SL]);
 
-  // Final sorted SLs
   const sortedSLs = useMemo(() => {
     if (!newSLCase) return [];
     const arr = step3SL.passed.map((item) => ({
@@ -483,7 +500,6 @@ export default function AdminTools() {
     return arr;
   }, [newSLCase, finalSortModeSL, step3SL]);
 
-  // Helper for SL card border
   function getSLOutlineColor(_, index) {
     return index < 3 ? "#66bb6a" : "#FFA726";
   }
@@ -556,7 +572,6 @@ export default function AdminTools() {
     );
   }
 
-  // Clears
   function clearMRA() {
     setNewCase(null);
   }
@@ -566,510 +581,697 @@ export default function AdminTools() {
 
   return (
     <Box sx={{ p: 4 }}>
-      {/* ================= MRA Section ================= */}
-      <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-        Case Assignment Tool (MRA)
-      </Typography>
-
-      {/* Random Case Import for MRA */}
-      <Box sx={{ mb: 2, p: 2, border: "1px solid", borderColor: isDark ? "#fff" : "#ccc", borderRadius: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-          1) Random Case Import
-        </Typography>
-        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
-          Click the button below to randomly select a case from the sample dataset.
-        </Typography>
-        <Button variant="contained" onClick={importNewCase} sx={{ mt: 2 }}>
-          Import New Case
-        </Button>
-      </Box>
-
-      {/* Manual Case Filter for MRA */}
-      <Box sx={{ mb: 2, p: 2, border: "1px solid", borderColor: isDark ? "#fff" : "#ccc", borderRadius: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-          2) Manual Case Filter
-        </Typography>
-        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
-          Select a client, case type, and case length, then click "Optimize MRA Assignment."
-        </Typography>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
-          {/* Client */}
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-              Client:
-            </Typography>
-            <TextField
-              select
-              size="small"
-              value={manualClient}
-              onChange={(e) => setManualClient(e.target.value)}
-              sx={{ minWidth: 120, background: isDark ? "#e0e0e0" : "#fff" }}
-              InputProps={{ sx: { color: isDark ? "#000" : "#000" } }}
-            >
-              {clientOptions.map((client) => (
-                <MenuItem key={client} value={client}>
-                  {client}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-          {/* Case Type */}
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-              Case Type:
-            </Typography>
-            <TextField
-              select
-              size="small"
-              value={manualCaseType}
-              onChange={(e) => setManualCaseType(e.target.value)}
-              sx={{ minWidth: 150, background: isDark ? "#e0e0e0" : "#fff" }}
-              InputProps={{ sx: { color: isDark ? "#000" : "#000" } }}
-            >
-              {caseTypeOptions.map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-          {/* Case Length */}
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-              Case Length:
-            </Typography>
-            <TextField
-              type="number"
-              size="small"
-              value={manualCaseLength}
-              onChange={(e) => setManualCaseLength(Number(e.target.value))}
-              sx={{ minWidth: 100, background: isDark ? "#e0e0e0" : "#fff" }}
-              InputProps={{ sx: { color: isDark ? "#000" : "#000" } }}
-            />
-          </Box>
-          <Button variant="contained" onClick={optimizeAssignment} sx={{ mt: 1 }}>
-            Optimize MRA Assignment
-          </Button>
-        </Box>
-      </Box>
-
-      {/* New MRA Case Details */}
-      <AnimatePresence>
-        {newCase && (
-          <motion.div
-            key={newCase.caseID}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+      {/* Two Column Layout */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 4
+        }}
+      >
+        {/* Left Column – MRA Tool */}
+        <Box
+          sx={{
+            flex: 1,
+            p: 3,
+            background: isDark ? "#424242" : "#fff",
+            borderRadius: 2,
+            boxShadow: 3
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
           >
-            <Box
-              sx={{
-                mb: 4,
-                p: 2,
-                border: "1px solid",
-                borderColor: isDark ? "#fff" : "#ccc",
-                borderRadius: 2,
-                background: isDark ? "#424242" : "#f5f5f5",
-                position: "relative"
-              }}
-            >
-              <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
-                New Case Details
-              </Typography>
-              <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                <strong>Case ID:</strong> {newCase.caseID}
-              </Typography>
-              <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                <strong>Claimant ID:</strong> {newCase.claimantId}
-              </Typography>
-              <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                <strong>Client:</strong> {newCase.client}
-              </Typography>
-              <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                <strong>Case Type:</strong> {newCase.caseType}
-              </Typography>
-              <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                <strong>Case Length:</strong> {newCase.caseLength}
-              </Typography>
-              {newCase.priorCaseWriter && (
-                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                  <strong>Prior Case Writer:</strong> {newCase.priorCaseWriter}
-                </Typography>
-              )}
-              <Button
-                variant="outlined"
-                onClick={clearMRA}
-                sx={{ position: "absolute", top: 10, right: 10 }}
-              >
-                Clear
-              </Button>
-            </Box>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            Case Assignment Tool (MRA)
+          </Typography>
 
-      {newCase && (
-        <>
-          <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
-
-          {/* MRA Step Columns */}
+          {/* Random Case Import for MRA */}
           <Box
-            key={newCase.caseID + "-steps"}
             sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "flex-start",
-              gap: 1,
-              overflowX: "auto",
-              mb: 2
+              mb: 2,
+              p: 2,
+              border: "1px solid",
+              borderColor: isDark ? "#fff" : "#ccc",
+              borderRadius: 2
             }}
           >
-            {renderStepColumn(0, "Step 1: All Writers", { passed: step1, filtered: [] })}
-            <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
-            {renderStepColumn(1, "Step 2: Case Type", step2)}
-            <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
-            {renderStepColumn(2, "Step 3: Client", step3)}
-            <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
-            {renderStepColumn(3, "Step 4: Availability", step4)}
-            <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
-            {renderStepColumn(4, "Step 5: Exclude Prior", step5)}
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", ml: 1 }}>
-              <ArrowDownwardIcon
-                sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }}
-              />
-            </Box>
-          </Box>
-
-          <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
-
-          {/* Final Sorted MRA List */}
-          <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography variant="h5" sx={{ color: isDark ? "#fff" : "#000" }}>
-              Final Sorted List ({sortedWriters.length})
-            </Typography>
-            <Button variant="outlined" onClick={() => setFinalSortMode("cost")}>
-              Sort by Cost
-            </Button>
-            <Button variant="outlined" onClick={() => setFinalSortMode("quality")}>
-              Sort by Quality
-            </Button>
-            <Button variant="outlined" onClick={() => setFinalSortMode("composite")}>
-              Composite Score Sort
-            </Button>
-          </Box>
-
-          <Grid container spacing={2}>
-            {sortedWriters.map((writer, index) => (
-              <Grid item key={writer.mra_id} xs={12} sm={6} md={4}>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  onClick={() => handleCardClick(writer)}
-                >
-                  <Paper
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      background: isDark ? "#424242" : "#fff",
-                      color: isDark ? "#fff" : "#000",
-                      border: `2px solid ${getOutlineColor(writer, index)}`,
-                      cursor: "pointer"
-                    }}
-                  >
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
-                        {writer.name}
-                      </Typography>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {writer.profilePic ? (
-                          <Box
-                            component="img"
-                            src={writer.profilePic}
-                            alt="Profile"
-                            sx={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: "50%",
-                              objectFit: "cover"
-                            }}
-                          />
-                        ) : (
-                          <Box
-                            sx={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: "50%",
-                              backgroundColor: isDark ? "#555" : "#ccc",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center"
-                            }}
-                          >
-                            <PersonIcon sx={{ color: isDark ? "#fff" : "#000" }} />
-                          </Box>
-                        )}
-                        {index < 3 && <EmojiEventsIcon sx={{ color: "#66bb6a" }} />}
-                      </Box>
-                    </Box>
-                    <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                      <strong>Composite Score:</strong> {writer.compositeScore.toFixed(2)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                      <strong>Quality Score:</strong> {writer.overallQualityScore}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                      <strong>Cost (PFR):</strong> $
-                      {writer.costPerCase[newCase.client] || "N/A"}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                      <strong>TAT:</strong> {writer.turnaroundTime} hrs
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                      <strong>Availability:</strong> {writer.availability}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                      <strong>Clients:</strong> {writer.clients.join(", ")}
-                    </Typography>
-                  </Paper>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-
-          <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#000" }} />
-
-          <Box sx={{ p: 2, background: isDark ? "#333" : "#f5f5f5", borderRadius: 2 }}>
-            <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
-              Composite Score Methodology:
-            </Typography>
-            <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-              Let Q = overallQualityScore, T = turnaroundTime, and C = cost for the client.
-            </Typography>
-            <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-              Turnaround Bonus (Bₜ) = <code>min(24 - T, 6)</code> if T &lt; 24; otherwise, Bₜ ={" "}
-              <code>-(T - 24)</code>.
-            </Typography>
-            <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-              Cost Bonus (B₍C₎) = <code>((maxCost - C) / (maxCost - minCost)) × 5</code>.
-            </Typography>
-            <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-              Composite Score = Q + Bₜ + B₍C₎ (clamped between 0 and 100).
-            </Typography>
-          </Box>
-        </>
-      )}
-
-      {/* ================= SL ASSIGNING SECTION ================= */}
-      <Box sx={{ mt: 8 }}>
-        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-          SL Assigning
-        </Typography>
-
-        {/* Random Case Import for SL */}
-        <Box
-          sx={{
-            mb: 2,
-            p: 2,
-            border: "1px solid",
-            borderColor: isDark ? "#fff" : "#ccc",
-            borderRadius: 2
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-            1) Random Case Import
-          </Typography>
-          <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
-            Click the button below to randomly select a case for SL assignment.
-          </Typography>
-          <Button variant="contained" onClick={importNewSLCase} sx={{ mt: 2 }}>
-            Import New SL Case
-          </Button>
-        </Box>
-
-        {/* Manual Filter for SL */}
-        <Box
-          sx={{
-            mb: 2,
-            p: 2,
-            border: "1px solid",
-            borderColor: isDark ? "#fff" : "#ccc",
-            borderRadius: 2
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-            2) Manual Filter
-          </Typography>
-          <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
-            Select a requested specialty, then click "Optimize SL Assignment."
-          </Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2, alignItems: "center" }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-              Requested Specialty:
-            </Typography>
-            <TextField
-              select
-              size="small"
-              value={manualSLSpecialty}
-              onChange={(e) => setManualSLSpecialty(e.target.value)}
-              sx={{ minWidth: 150, background: isDark ? "#e0e0e0" : "#fff" }}
-              InputProps={{ sx: { color: isDark ? "#000" : "#000" } }}
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
             >
-              {allSLSpecialties.map((spec) => (
-                <MenuItem key={spec} value={spec}>
-                  {spec}
-                </MenuItem>
-              ))}
-            </TextField>
-            <Button variant="contained" onClick={optimizeSLAssignment}>
-              Optimize SL Assignment
+              1) Random Case Import
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}
+            >
+              Click the button below to randomly select a case from the sample dataset.
+            </Typography>
+            <Button variant="contained" onClick={importNewCase} sx={{ mt: 2 }}>
+              Import New Case
             </Button>
           </Box>
-        </Box>
 
-        {/* New SL Case Details */}
-        <AnimatePresence>
-          {newSLCase && (
-            <motion.div
-              key={newSLCase.caseID}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+          {/* Manual Case Filter for MRA */}
+          <Box
+            sx={{
+              mb: 2,
+              p: 2,
+              border: "1px solid",
+              borderColor: isDark ? "#fff" : "#ccc",
+              borderRadius: 2
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
             >
-              <Box
-                sx={{
-                  mb: 4,
-                  p: 2,
-                  border: "1px solid",
-                  borderColor: isDark ? "#fff" : "#ccc",
-                  borderRadius: 2,
-                  background: isDark ? "#424242" : "#f5f5f5",
-                  position: "relative"
-                }}
-              >
-                <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
-                  New SL Case Details
-                </Typography>
-                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                  <strong>Case ID:</strong> {newSLCase.caseID}
-                </Typography>
-                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                  <strong>Claimant ID:</strong> {newSLCase.claimantId}
-                </Typography>
-                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                  <strong>Client:</strong> {newSLCase.client}
-                </Typography>
-                <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                  <strong>Requested Specialty:</strong> {newSLCase.requestedSpecialty}
-                </Typography>
-                {newSLCase.priorSL && (
-                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
-                    <strong>Prior SL:</strong> {newSLCase.priorSL}
-                  </Typography>
-                )}
-                <Button
-                  variant="outlined"
-                  onClick={clearSL}
-                  sx={{ position: "absolute", top: 10, right: 10 }}
-                >
-                  Clear
-                </Button>
-              </Box>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {newSLCase && (
-          <>
-            <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
-
-            {/* SL Step Columns */}
+              2) Manual Case Filter
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}
+            >
+              Select a client, case type, and case length, then click "Optimize MRA Assignment."
+            </Typography>
             <Box
-              key={newSLCase.caseID + "-SLsteps"}
               sx={{
                 display: "flex",
-                flexDirection: "row",
-                alignItems: "flex-start",
-                gap: 1,
-                overflowX: "auto",
-                mb: 2
+                flexWrap: "wrap",
+                gap: 2,
+                mt: 2
               }}
             >
-              {renderStepColumnSL(0, "Step 1: All SLs", { passed: step1SL, filtered: [] })}
-              <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
-              {renderStepColumnSL(1, "Step 2: Specialty & DNU Filter", step2SL)}
-              <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
-              {renderStepColumnSL(2, "Step 3: Check Priors", step3SL)}
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", ml: 1 }}>
-                <ArrowDownwardIcon sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }} />
+              {/* Client Dropdown */}
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+                >
+                  Client:
+                </Typography>
+                <TextField
+                  select
+                  size="small"
+                  value={manualClient}
+                  onChange={(e) => setManualClient(e.target.value)}
+                  sx={{ minWidth: 120, background: isDark ? "#e0e0e0" : "#fff" }}
+                  InputProps={{ sx: { color: "#000" } }}
+                  SelectProps={{
+                    MenuProps: {
+                      PaperProps: {
+                        sx: {
+                          background: isDark ? "#424242" : "#fff",
+                          "& .MuiMenuItem-root": {
+                            color: isDark ? "#fff" : "#000"
+                          }
+                        }
+                      }
+                    }
+                  }}
+                >
+                  {clientOptions.map((client) => (
+                    <MenuItem key={client} value={client}>
+                      {client}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </Box>
+              {/* Case Type Dropdown */}
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+                >
+                  Case Type:
+                </Typography>
+                <TextField
+                  select
+                  size="small"
+                  value={manualCaseType}
+                  onChange={(e) => setManualCaseType(e.target.value)}
+                  sx={{ minWidth: 150, background: isDark ? "#e0e0e0" : "#fff" }}
+                  InputProps={{ sx: { color: "#000" } }}
+                  SelectProps={{
+                    MenuProps: {
+                      PaperProps: {
+                        sx: {
+                          background: isDark ? "#424242" : "#fff",
+                          "& .MuiMenuItem-root": {
+                            color: isDark ? "#fff" : "#000"
+                          }
+                        }
+                      }
+                    }
+                  }}
+                >
+                  {caseTypeOptions.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+              {/* Case Length Field */}
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+                >
+                  Case Length:
+                </Typography>
+                <TextField
+                  type="number"
+                  size="small"
+                  value={manualCaseLength}
+                  onChange={(e) => setManualCaseLength(Number(e.target.value))}
+                  sx={{ minWidth: 100, background: isDark ? "#e0e0e0" : "#fff" }}
+                  InputProps={{ sx: { color: "#000" } }}
+                />
+              </Box>
+              <Button variant="contained" onClick={optimizeAssignment} sx={{ mt: 1 }}>
+                Optimize MRA Assignment
+              </Button>
             </Box>
+          </Box>
 
-            <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
+          {/* New MRA Case Details */}
+          <AnimatePresence>
+            {newCase && (
+              <motion.div
+                key={newCase.caseID}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <Box
+                  sx={{
+                    mb: 4,
+                    p: 2,
+                    border: "1px solid",
+                    borderColor: isDark ? "#fff" : "#ccc",
+                    borderRadius: 2,
+                    background: isDark ? "#424242" : "#f5f5f5",
+                    position: "relative"
+                  }}
+                >
+                  <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    New Case Details
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Case ID:</strong> {newCase.caseID}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Claimant ID:</strong> {newCase.claimantId}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Client:</strong> {newCase.client}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Case Type:</strong> {newCase.caseType}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Case Length:</strong> {newCase.caseLength}
+                  </Typography>
+                  {newCase.priorCaseWriter && (
+                    <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                      <strong>Prior Case Writer:</strong> {newCase.priorCaseWriter}
+                    </Typography>
+                  )}
+                  <Button
+                    variant="outlined"
+                    onClick={clearMRA}
+                    sx={{ position: "absolute", top: 10, right: 10 }}
+                  >
+                    Clear
+                  </Button>
+                </Box>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            {/* Final Sorted SL List */}
-            <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
-              <Typography variant="h5" sx={{ color: isDark ? "#fff" : "#000" }}>
-                Final Sorted SL List ({sortedSLs.length})
-              </Typography>
-              <Button variant="outlined" onClick={() => setFinalSortModeSL("cost")}>
-                Sort by Cost
-              </Button>
-              <Button variant="outlined" onClick={() => setFinalSortModeSL("avgSignOffTime")}>
-                Sort by Avg Sign Off Time
-              </Button>
-              <Button variant="outlined" onClick={() => setFinalSortModeSL("casesCompleted")}>
-                Sort by Cases Completed
-              </Button>
-            </Box>
+          {newCase && (
+            <>
+              <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#000" }} />
 
-            <Grid container spacing={2}>
-              {sortedSLs.map((sl, index) => (
-                <Grid item key={sl.name} xs={12} sm={6} md={4}>
-                  <motion.div whileHover={{ scale: 1.05 }} onClick={() => handleSLCardClick(sl)}>
-                    <Paper
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        background: isDark ? "#424242" : "#fff",
-                        color: isDark ? "#fff" : "#000",
-                        border: `2px solid ${getSLOutlineColor(sl, index)}`,
-                        cursor: "pointer"
-                      }}
+              {/* MRA Step Columns with staggered delay */}
+              <Box
+                key={newCase.caseID + "-steps"}
+                component={motion.div}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: { transition: { staggerChildren: 0.3 } }
+                }}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "flex-start",
+                  gap: 1,
+                  overflowX: "auto",
+                  mb: 2
+                }}
+              >
+                <motion.div variants={stepVariants}>
+                  {renderStepColumn(0, "Step 1: All Writers", { passed: step1, filtered: [] })}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  {renderStepColumn(1, "Step 2: Case Type", step2)}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  {renderStepColumn(2, "Step 3: Client", step3)}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  {renderStepColumn(3, "Step 4: Availability", step4)}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  {renderStepColumn(4, "Step 5: Exclude Prior", step5)}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", ml: 1 }}>
+                    <ArrowDownwardIcon sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }} />
+                  </Box>
+                </motion.div>
+              </Box>
+
+              <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#000" }} />
+
+              {/* Final Sorted MRA List */}
+              <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
+                <Typography variant="h5" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  Final Sorted List ({sortedWriters.length})
+                </Typography>
+                <Button variant="outlined" onClick={() => setFinalSortMode("cost")}>
+                  Sort by Cost
+                </Button>
+                <Button variant="outlined" onClick={() => setFinalSortMode("quality")}>
+                  Sort by Quality
+                </Button>
+                <Button variant="outlined" onClick={() => setFinalSortMode("composite")}>
+                  Composite Score Sort
+                </Button>
+              </Box>
+
+              <Grid container spacing={2}>
+                {sortedWriters.map((writer, index) => (
+                  <Grid item key={writer.mra_id} xs={12} sm={6} md={4}>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => handleCardClick(writer)}
                     >
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
-                          {sl.name}
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          {index < 3 && <EmojiEventsIcon sx={{ color: "#66bb6a" }} />}
+                      <Paper
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: isDark ? "#424242" : "#fff",
+                          color: isDark ? "#fff" : "#000",
+                          border: `2px solid ${getOutlineColor(writer, index)}`,
+                          cursor: "pointer"
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center"
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+                            {writer.name}
+                          </Typography>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            {writer.profilePic ? (
+                              <Box
+                                component="img"
+                                src={writer.profilePic}
+                                alt="Profile"
+                                sx={{
+                                  width: 50,
+                                  height: 50,
+                                  borderRadius: "50%",
+                                  objectFit: "cover"
+                                }}
+                              />
+                            ) : (
+                              <Box
+                                sx={{
+                                  width: 50,
+                                  height: 50,
+                                  borderRadius: "50%",
+                                  backgroundColor: isDark ? "#555" : "#ccc",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center"
+                                }}
+                              >
+                                <PersonIcon sx={{ color: isDark ? "#fff" : "#000" }} />
+                              </Box>
+                            )}
+                            {index < 3 && <EmojiEventsIcon sx={{ color: "#66bb6a" }} />}
+                          </Box>
                         </Box>
-                      </Box>
-                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                        <strong>Specialties:</strong> {sl.specialties.join(", ")}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                        <strong>States:</strong> {sl.states.join(", ")}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                        <strong>Cost per Case:</strong> ${sl.costPerCase}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                        <strong>Avg Sign Off Time:</strong> {sl.avgSignOffTime} hrs
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                        <strong>Cases Completed (30 days):</strong> {sl.casesCompleted30Days}
-                      </Typography>
-                      {sl.priorNote && (
-                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
-                          <strong>Note:</strong> {sl.priorNote}
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Composite Score:</strong> {writer.compositeScore.toFixed(2)}
                         </Typography>
-                      )}
-                    </Paper>
-                  </motion.div>
-                </Grid>
-              ))}
-            </Grid>
-          </>
-        )}
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Quality Score:</strong> {writer.overallQualityScore}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Cost (PFR):</strong> $
+                          {writer.costPerCase[newCase.client] || "N/A"}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>TAT:</strong> {writer.turnaroundTime} hrs
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Availability:</strong> {writer.availability}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Clients:</strong> {writer.clients.join(", ")}
+                        </Typography>
+                      </Paper>
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+
+              <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#000" }} />
+
+              <Box sx={{ p: 2, background: isDark ? "#333" : "#f5f5f5", borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  Composite Score Methodology:
+                </Typography>
+                <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  Let Q = overallQualityScore, T = turnaroundTime, and C = cost for the client.
+                </Typography>
+                <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  Turnaround Bonus (Bₜ) = <code>min(24 - T, 6)</code> if T &lt; 24; otherwise, Bₜ ={" "}
+                  <code>-(T - 24)</code>.
+                </Typography>
+                <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  Cost Bonus (B₍C₎) = <code>((maxCost - C) / (maxCost - minCost)) × 5</code>.
+                </Typography>
+                <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  Composite Score = Q + Bₜ + B₍C₎ (clamped between 0 and 100).
+                </Typography>
+              </Box>
+            </>
+          )}
+        </Box>
+
+        {/* Right Column – SL Tool */}
+        <Box
+          sx={{
+            flex: 1,
+            p: 3,
+            background: isDark ? "#424242" : "#fff",
+            borderRadius: 2,
+            boxShadow: 3
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+          >
+            SL Assigning
+          </Typography>
+
+          {/* Random Case Import for SL */}
+          <Box
+            sx={{
+              mb: 2,
+              p: 2,
+              border: "1px solid",
+              borderColor: isDark ? "#fff" : "#ccc",
+              borderRadius: 2
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+            >
+              1) Random Case Import
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}
+            >
+              Click the button below to randomly select a case for SL assignment.
+            </Typography>
+            <Button variant="contained" onClick={importNewSLCase} sx={{ mt: 2 }}>
+              Import New SL Case
+            </Button>
+          </Box>
+
+          {/* Manual Filter for SL */}
+          <Box
+            sx={{
+              mb: 2,
+              p: 2,
+              border: "1px solid",
+              borderColor: isDark ? "#fff" : "#ccc",
+              borderRadius: 2
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+            >
+              2) Manual Filter
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}
+            >
+              Select a requested specialty, then click "Optimize SL Assignment."
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+                mt: 2,
+                alignItems: "center"
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: "bold", color: isDark ? "#fff" : "#000" }}
+              >
+                Requested Specialty:
+              </Typography>
+              <TextField
+                select
+                size="small"
+                value={manualSLSpecialty}
+                onChange={(e) => setManualSLSpecialty(e.target.value)}
+                sx={{ minWidth: 150, background: isDark ? "#e0e0e0" : "#fff" }}
+                InputProps={{ sx: { color: "#000" } }}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      sx: {
+                        background: isDark ? "#424242" : "#fff",
+                        "& .MuiMenuItem-root": {
+                          color: isDark ? "#fff" : "#000"
+                        }
+                      }
+                    }
+                  }
+                }}
+              >
+                {allSLSpecialties.map((spec) => (
+                  <MenuItem key={spec} value={spec}>
+                    {spec}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <Button variant="contained" onClick={optimizeSLAssignment}>
+                Optimize SL Assignment
+              </Button>
+            </Box>
+          </Box>
+
+          {/* New SL Case Details */}
+          <AnimatePresence>
+            {newSLCase && (
+              <motion.div
+                key={newSLCase.caseID}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <Box
+                  sx={{
+                    mb: 4,
+                    p: 2,
+                    border: "1px solid",
+                    borderColor: isDark ? "#fff" : "#ccc",
+                    borderRadius: 2,
+                    background: isDark ? "#424242" : "#f5f5f5",
+                    position: "relative"
+                  }}
+                >
+                  <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    New SL Case Details
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Case ID:</strong> {newSLCase.caseID}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Claimant ID:</strong> {newSLCase.claimantId}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Client:</strong> {newSLCase.client}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                    <strong>Requested Specialty:</strong> {newSLCase.requestedSpecialty}
+                  </Typography>
+                  {newSLCase.priorSL && (
+                    <Typography variant="body1" sx={{ color: isDark ? "#fff" : "#000" }}>
+                      <strong>Prior SL:</strong> {newSLCase.priorSL}
+                    </Typography>
+                  )}
+                  <Button
+                    variant="outlined"
+                    onClick={clearSL}
+                    sx={{ position: "absolute", top: 10, right: 10 }}
+                  >
+                    Clear
+                  </Button>
+                </Box>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {newSLCase && (
+            <>
+              <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#ccc" }} />
+
+              {/* SL Step Columns with staggered delay */}
+              <Box
+                key={newSLCase.caseID + "-SLsteps"}
+                component={motion.div}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: { transition: { staggerChildren: 0.3 } }
+                }}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "flex-start",
+                  gap: 1,
+                  overflowX: "auto",
+                  mb: 2
+                }}
+              >
+                <motion.div variants={stepVariants}>
+                  {renderStepColumnSL(0, "Step 1: All SLs", { passed: step1SL, filtered: [] })}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  {renderStepColumnSL(1, "Step 2: Specialty & DNU Filter", step2SL)}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <ArrowForwardIcon sx={{ color: isDark ? "#fff" : "#000", mt: 2 }} />
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  {renderStepColumnSL(2, "Step 3: Check Priors", step3SL)}
+                </motion.div>
+                <motion.div variants={stepVariants}>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", ml: 1 }}>
+                    <ArrowDownwardIcon sx={{ color: isDark ? "#fff" : "#000", fontSize: 40, mt: 1, mb: 2 }} />
+                  </Box>
+                </motion.div>
+              </Box>
+
+              <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#000" }} />
+
+              {/* Final Sorted SL List */}
+              <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
+                <Typography variant="h5" sx={{ color: isDark ? "#fff" : "#000" }}>
+                  Final Sorted SL List ({sortedSLs.length})
+                </Typography>
+                <Button variant="outlined" onClick={() => setFinalSortModeSL("cost")}>
+                  Sort by Cost
+                </Button>
+                <Button variant="outlined" onClick={() => setFinalSortModeSL("avgSignOffTime")}>
+                  Sort by Avg Sign Off Time
+                </Button>
+                <Button variant="outlined" onClick={() => setFinalSortModeSL("casesCompleted")}>
+                  Sort by Cases Completed
+                </Button>
+              </Box>
+
+              <Grid container spacing={2}>
+                {sortedSLs.map((sl, index) => (
+                  <Grid item key={sl.name} xs={12} sm={6} md={4}>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => handleSLCardClick(sl)}
+                    >
+                      <Paper
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: isDark ? "#424242" : "#fff",
+                          color: isDark ? "#fff" : "#000",
+                          border: `2px solid ${getSLOutlineColor(sl, index)}`,
+                          cursor: "pointer"
+                        }}
+                      >
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <Typography variant="h6" sx={{ color: isDark ? "#fff" : "#000" }}>
+                            {sl.name}
+                          </Typography>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            {index < 3 && <EmojiEventsIcon sx={{ color: "#66bb6a" }} />}
+                          </Box>
+                        </Box>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Specialties:</strong> {sl.specialties.join(", ")}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>States:</strong> {sl.states.join(", ")}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Cost per Case:</strong> ${sl.costPerCase}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Avg Sign Off Time:</strong> {sl.avgSignOffTime} hrs
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
+                          <strong>Cases Completed (30 days):</strong> {sl.casesCompleted30Days}
+                        </Typography>
+                        {sl.priorNote && (
+                          <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000", mt: 1 }}>
+                            <strong>Note:</strong> {sl.priorNote}
+                          </Typography>
+                        )}
+                      </Paper>
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+            </>
+          )}
+        </Box>
       </Box>
     </Box>
   );
