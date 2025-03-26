@@ -1,17 +1,15 @@
 // src/Navbar.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
   Button,
   Box,
-  IconButton,
   Divider,
 } from "@mui/material";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import HomeIcon from "@mui/icons-material/Home";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import growthChartGif from "./assets/growth-chart.gif";
 import houseChimney from "./assets/house-chimney.png";
 import tableGif from "./assets/table.gif";
@@ -26,12 +24,17 @@ const Navbar = ({ mode, toggleTheme }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Remount logo on route change to retrigger GIF animation
+  useEffect(() => {
+    setLogoKey(Date.now());
+  }, [location.pathname]);
+
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
     navigate("/login");
   };
 
-  // Common style for icon images
+  // Common style for nav link icons
   const iconStyle = {
     width: "30px",
     height: "30px",
@@ -39,7 +42,7 @@ const Navbar = ({ mode, toggleTheme }) => {
     boxShadow: "0px 3px 6px rgba(0,0,0,0.5)",
   };
 
-  // Helper to return an icon for a given section
+  // Helper: Return an icon for a given section
   const getSectionIcon = (path) => {
     switch (path) {
       case "/login":
@@ -76,7 +79,7 @@ const Navbar = ({ mode, toggleTheme }) => {
       position="sticky"
       sx={{
         background: "linear-gradient(135deg, #1E73BE 0%, #0C3B70 100%)",
-        boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.15)",
+        boxShadow: "0px 6px 12px rgba(0,0,0,0.15)",
         zIndex: 1300,
       }}
     >
@@ -94,50 +97,31 @@ const Navbar = ({ mode, toggleTheme }) => {
           gap: 2,
         }}
       >
-        {/* Left side: Home icon and animated logo */}
-        <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1, flexShrink: 0 }}>
-          <IconButton
-            component={NavLink}
-            to="/"
-            size="large"
-            color="inherit"
-            aria-label="home"
-            sx={{
-              mr: 1,
-              "&:hover": { transform: "scale(1.07)" },
-              transition: "transform 0.3s ease",
-            }}
-          >
-            <HomeIcon sx={{ fontSize: 32 }} />
-          </IconButton>
-
-          <Divider
-            orientation="vertical"
-            sx={{
-              borderColor: "black",
-              height: 40,
-              alignSelf: "center",
-              mr: 2,
-              opacity: 0.9,
-            }}
-          />
-
-          {/* Animated logo that replays on click or when route changes */}
+        {/* Left side: Logo area (serving as home link) */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+          {/* Logo container with semi-transparent background */}
           <Box
             component={NavLink}
             to="/"
             onClick={() => setLogoKey(Date.now())}
             sx={{
               display: "flex",
-              alignItems: "flex-end",
+              alignItems: "center",
+              justifyContent: "center",
               textDecoration: "none",
+              backgroundColor: "rgba(255,255,255,0.6)",
+              padding: 0.5,
+              borderRadius: 2,
+              boxShadow: "0px 2px 4px rgba(0,0,0,0.3)",
+              alignSelf: "center",  // Centers this box vertically in the container
+              height: "55px",       // 55px height in a 70px Toolbar leaves ~7.5px blue above and below
             }}
           >
             <img
               key={location.pathname + "-" + logoKey}
-              src={mraDashboardGif}
+              src={`${mraDashboardGif}?t=${logoKey}`}
               alt="MRA Dashboard"
-              style={{ height: 60 }}
+              style={{ height: "100%" }}
             />
           </Box>
         </Box>

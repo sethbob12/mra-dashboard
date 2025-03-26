@@ -137,7 +137,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: []
+      dnu: ["PFR"]
     },
     {
       name: "Daniel Sternberg, PhD",
@@ -164,7 +164,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: []
+      dnu: ["PFR"]
     },
     {
       name: "Douglas Bell, MD",
@@ -191,7 +191,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: []
+      dnu: ["PFR"]
     },
     {
       name: "Gladys Lee, MD",
@@ -348,7 +348,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: []
+      dnu: ["PFR"]
     },
     {
       name: "Kien Tran, MD",
@@ -411,7 +411,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: []
+      dnu: ["PFR"]
     },
     {
       name: "Michael Aron, MD",
@@ -573,7 +573,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: []
+      dnu: ["PFR"]
     },
     {
       name: "Sanda Carniciu, MD",
@@ -744,7 +744,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: []
+      dnu: ["PFR"]
     },
     {
       name: "Whitney Taul, CCC-SLP",
