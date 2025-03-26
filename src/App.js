@@ -1,13 +1,14 @@
 // src/App.js
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Routes, Route } from "react-router-dom";
-import { Box, CssBaseline, Button, Tooltip } from "@mui/material";
+import { Box, CssBaseline, Button, Tooltip, Typography } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 import liveIcon from "./assets/liveIcon.gif"; // Example live icon
 
 import Navbar from "./Navbar";
+import ThemeToggleSwitch from "./ThemeToggleSwitch"; // Theme toggle switch import
 import Home from "./Home";
 import FLTable from "./FLTable";
 import FLChart from "./FLChart";
@@ -16,7 +17,7 @@ import QAFeedbackAggregator from "./QAFeedbackAggregator";
 import ClientFeedbackAggregator from "./ClientFeedbackAggregator";
 import Reports from "./Reports";
 import QAMetrics from "./QAMetrics";
-import AdminTools from "./AdminTools";  // Import the new admin tools component
+import AdminTools from "./AdminTools";
 import LoginPage from "./LoginPage";
 
 // Mock data & ProtectedRoute
@@ -35,12 +36,12 @@ function App() {
         palette: {
           mode,
           ...(mode === "dark" && {
-            text: { primary: "#000" }
-          })
+            text: { primary: "#000" },
+          }),
         },
         typography: {
-          allVariants: { color: mode === "dark" ? "#000" : "inherit" }
-        }
+          allVariants: { color: mode === "dark" ? "#000" : "inherit" },
+        },
       }),
     [mode]
   );
@@ -96,14 +97,36 @@ function App() {
       <CssBaseline />
       <Navbar mode={mode} toggleTheme={toggleTheme} />
 
-      <Box sx={{ mt: 4, margin: "0 auto", maxWidth: 1600, width: "100%", px: 2 }}>
+      {/* Main content container is now positioned relatively */}
+      <Box sx={{ position: "relative", mt: 4, margin: "0 auto", maxWidth: 1600, width: "100%", px: 2 }}>
+        {/* Absolutely positioned Theme Toggle Switch in the top-right corner of the main content */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: -10,
+            right: 25,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 0.1,
+          }}
+        >
+          <Box sx={{ transition: "transform 0.3s ease", "&:hover": { transform: "scale(1.1)" } }}>
+            <ThemeToggleSwitch checked={mode === "dark"} onChange={toggleTheme} size={34} />
+          </Box>
+          <Typography variant="caption" sx={{ color: mode === "dark" ? "#fff" : "#000", mt: 0 }}>
+            {mode === "dark" ? "Dark Mode" : "Light Mode"}
+          </Typography>
+        </Box>
+
+        {/* Rest of your content */}
         <Box
           sx={{
             my: 2,
             display: "flex",
             alignItems: "center",
             gap: 2,
-            justifyContent: "flex-start"
+            justifyContent: "flex-start",
           }}
         >
           <Tooltip
@@ -120,7 +143,7 @@ function App() {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1
+                gap: 1,
               }}
             >
               {useLiveApi ? (
@@ -152,8 +175,8 @@ function App() {
                 "&:hover": {
                   backgroundColor: mode === "dark"
                     ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.05)"
-                }
+                    : "rgba(0,0,0,0.05)",
+                },
               }}
             >
               <RefreshIcon sx={{ mr: 1 }} />
@@ -221,7 +244,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* New Admin Tools Route */}
           <Route
             path="/admin-tools"
             element={
