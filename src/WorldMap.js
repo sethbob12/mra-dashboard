@@ -668,11 +668,25 @@ export default function WorldMap({ reviewers }) {
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="body2">
-                  <a href={`mailto:${selectedReviewer.email}`} style={{ color: 'inherit', textDecoration: 'underline' }}>
-                    Email
-                  </a>
-                </Typography>
+              <Typography variant="body2">
+  <Box
+    component="a"
+    href={`mailto:${selectedReviewer.email}`}
+    sx={{
+      color: 'inherit',
+      textDecoration: 'underline',
+      outline: 'none',
+      border: 'none',
+      '&:focus, &:active': {
+        outline: 'none',
+        border: 'none',
+      },
+    }}
+  >
+    Email
+  </Box>
+</Typography>
+
                 <Typography variant="body2" sx={{ color: getMarkerColor(selectedReviewer.overallQualityScore) }}>
                   Quality Score: {selectedReviewer.overallQualityScore.toFixed(1)}
                 </Typography>

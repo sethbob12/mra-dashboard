@@ -11,6 +11,7 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import WorldMap from "./WorldMap";
 import AdminFLData from "./AdminFLData";
+import NewsTicker from "./NewsTicker";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
@@ -145,16 +146,14 @@ const Home = () => {
                       "&:hover": { backgroundColor: module.color },
                     }}
                   >
-                    {React.cloneElement(module.icon, { sx: { color: "#fff", fontSize: "large" } })}
+                    {React.cloneElement(module.icon, {
+                      sx: { color: "#fff", fontSize: "large" },
+                    })}
                   </IconButton>
                   <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 600,
-                      mb: 1,
-                      color: isDark ? "#fff" : undefined,
-                    }}
-                  >
+  variant="h6"
+  sx={{ fontWeight: 600, mb: 1, color: isDark ? "#fff" : "inherit" }}
+>
                     {module.label}
                   </Typography>
                   <Typography variant="body2" sx={{ color: isDark ? "#ddd" : "#777" }}>
@@ -167,23 +166,35 @@ const Home = () => {
         ))}
       </Grid>
 
-      {/* World Map Section */}
-<Box sx={{ mt: 6 }}>
-  <Typography variant="h5" sx={{ mb: 2, color: isDark ? "#fff" : "#000" }}>
-    Global MRA Distribution
-  </Typography>
-  <Box sx={{ borderRadius: '12px', overflow: 'hidden' }}>
-    <WorldMap reviewers={AdminFLData} />
-  </Box>
-</Box>
+      {/* Scrolling News Ticker replacing static heading */}
+      <Box sx={{ mt: 6 }}>
+        <NewsTicker
+          messages={[
+            "Weekly Quality Scores up 6%, exceeding performance targets.",
+            "No critical issues pending—great job team!",
+            "Monthly reports deadline approaching this Friday.",
+            "New reviewer onboarding completed successfully.",
+            "System uptime at 99.9%, all systems operational.",
+            "Reminder: Check your dashboard daily for real-time metrics.",
+          ]}
+          sx={{ fontSize: "1.5rem" }}
+        />
+      </Box>
 
-<Box sx={{ mt: 6 }}>
-  <Typography
-    variant="caption"
-    sx={{
-      fontFamily: "Open Sans, sans-serif",
-      color: isDark ? "#fff !important" : "#888",
-    }}
+      {/* World Map Section */}
+      <Box sx={{ mt: 2 }}>
+        <Box sx={{ borderRadius: "12px", overflow: "hidden" }}>
+          <WorldMap reviewers={AdminFLData} />
+        </Box>
+      </Box>
+
+      <Box sx={{ mt: 6 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontFamily: "Open Sans, sans-serif",
+            color: isDark ? "#fff !important" : "#888",
+          }}
         >
           © {new Date().getFullYear()} MRA Interactive Dashboard. All rights reserved.
         </Typography>
