@@ -3,7 +3,7 @@
 const QAData = [
   {
     qaMember: 1,
-    name: "QA Member 1",
+    name: "QA Member Bob",
     snapshots: [
       {
         snapshotDate: "2025-03-04T00:00:00Z",
@@ -81,7 +81,7 @@ const QAData = [
   },
   {
     qaMember: 2,
-    name: "QA Member 2",
+    name: "QA Member Jane",
     snapshots: [
       {
         snapshotDate: "2025-03-04T00:00:00Z",
@@ -159,7 +159,7 @@ const QAData = [
   },
   {
     qaMember: 3,
-    name: "QA Member 3",
+    name: "QA Member Tom",
     snapshots: [
       {
         snapshotDate: "2025-03-04T00:00:00Z",
@@ -237,7 +237,7 @@ const QAData = [
   },
   {
     qaMember: 4,
-    name: "QA Member 4",
+    name: "QA Member Gary",
     snapshots: [
       {
         snapshotDate: "2025-03-04T00:00:00Z",
@@ -315,7 +315,7 @@ const QAData = [
   },
   {
     qaMember: 5,
-    name: "QA Member 5",
+    name: "QA Member Patrick",
     snapshots: [
       {
         snapshotDate: "2025-03-04T00:00:00Z",

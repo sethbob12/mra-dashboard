@@ -1,4 +1,3 @@
-// src/Navbar.js
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -58,7 +57,7 @@ const Navbar = ({ mode, toggleTheme }) => {
       case "/qa-metrics":
         return <img src={oneGif} alt="QA Metrics" style={iconStyle} />;
       case "/admin-tools":
-        return <AdminPanelSettingsIcon sx={{ fontSize: 40 }} />;
+        return <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#FFA726" }} />;
       default:
         return <img src={houseChimney} alt="Dashboard" style={iconStyle} />;
     }
@@ -88,18 +87,18 @@ const Navbar = ({ mode, toggleTheme }) => {
           display: "flex",
           flexWrap: "nowrap",
           justifyContent: "space-between",
-          alignItems: "flex-end",
+          alignItems: "center", // <-- changed from "flex-end" to "center"
           overflowX: "auto",
           minHeight: 70,
           pt: 1,
-          pb: 0,
+          pb: 1, // symmetrical top/bottom padding
           px: 3,
           gap: 2,
         }}
       >
         {/* Left side: Logo area (serving as home link) */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
-          {/* Logo container with semi-transparent background */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+          {/* Logo container */}
           <Box
             component={NavLink}
             to="/"
@@ -109,12 +108,12 @@ const Navbar = ({ mode, toggleTheme }) => {
               alignItems: "center",
               justifyContent: "center",
               textDecoration: "none",
-              backgroundColor: "rgba(255,255,255,0.6)",
+              backgroundColor: "rgba(255,255,255,0.6)", // semi-transparent white background
               padding: 0.5,
               borderRadius: 2,
               boxShadow: "0px 2px 4px rgba(0,0,0,0.3)",
-              alignSelf: "center",  // Centers this box vertically in the container
-              height: "55px",       // 55px height in a 70px Toolbar leaves ~7.5px blue above and below
+              border: "2px solid rgba(0,0,0,0.8)", // dark border
+              height: "55px",
             }}
           >
             <img

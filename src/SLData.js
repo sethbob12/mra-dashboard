@@ -411,7 +411,7 @@ const SLData = [
       costPerCase: 25,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
-      dnu: ["PFR"]
+      dnu: ["PFR", "LTC"]
     },
     {
       name: "Michael Aron, MD",

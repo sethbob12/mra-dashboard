@@ -209,14 +209,23 @@ function MiniImage({ src, alt }) {
     <Box
       sx={{
         borderRadius: 1,
-        height: 112,
+        height: 160,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        overflow: "hidden"
+        overflow: "hidden",
       }}
     >
-      <Box component="img" src={src} alt={alt} sx={{ height: "100%", width: "auto" }} />
+      <Box
+        component="img"
+        src={src}
+        alt={alt}
+        sx={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
     </Box>
   );
 }

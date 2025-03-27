@@ -1,4 +1,3 @@
-// src/AdminTools.js
 import React, { useState, useMemo } from "react";
 import {
   TextField,
@@ -97,7 +96,7 @@ function filterByPriorWriterDetailed(writer, newCase) {
   return { passed: true };
 }
 
-// MRA scoring
+// MRA scoring functions
 function computeTurnaroundBonus(turnaround) {
   if (turnaround < 24) {
     return Math.min(24 - turnaround, 6);
@@ -322,7 +321,7 @@ export default function AdminTools() {
     };
   }, [newCase, finalWriters]);
 
-  /****************** Final Composite Score with Specialty Modifier ******************/
+  /****************** Final Composite Score with Specialty & Client Modifiers ******************/
   const sortedWriters = useMemo(() => {
     if (!newCase) return [];
     const withScore = finalWriters.map((writer) => {
@@ -359,9 +358,19 @@ export default function AdminTools() {
           }
         }
       }
+      // Look up the client modifier from the writer's clientModifiers field.
+      const clientModifier =
+        (writer.clientModifiers && writer.clientModifiers[newCase.client]) || 0;
+      console.log(
+        `Writer: ${writer.name}, newCase.client: ${newCase.client}, Specialty Modifier: ${specialtyModifier}, Client Modifier: ${clientModifier}`
+      );
       const compositeScore =
-        writer.overallQualityScore + turnaroundBonus + costBonus + specialtyModifier;
-      return { ...writer, compositeScore, specialtyModifier };
+        writer.overallQualityScore +
+        turnaroundBonus +
+        costBonus +
+        specialtyModifier +
+        clientModifier;
+      return { ...writer, compositeScore, specialtyModifier, clientModifier };
     });
 
     let sorted = [...withScore];
@@ -573,6 +582,7 @@ export default function AdminTools() {
     );
   }
 
+  
   function renderSLList(list, isPassedList = true) {
     return (
       <Box>
@@ -883,8 +893,6 @@ export default function AdminTools() {
                   </motion.div>
                 </Box>
                 <Divider sx={{ my: 2, borderColor: isDark ? "#fff" : "#000" }} />
-
-                {/* Final Sorted MRA List */}
                 <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
                   <Typography variant="h5" sx={{ color: isDark ? "#fff" : "#000" }}>
                     Final Sorted List ({sortedWriters.length})
@@ -969,7 +977,7 @@ export default function AdminTools() {
                           <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
                             <strong>Revision Availability:</strong> {computeRevisionAvailability(writer, "correction")}
                           </Typography>
-                          {(typeof writer.specialtyModifier === "number" && writer.specialtyModifier !== 0) && (
+                          {typeof writer.specialtyModifier === "number" && writer.specialtyModifier !== 0 && (
                             <Typography
                               variant="body2"
                               sx={{
@@ -979,6 +987,18 @@ export default function AdminTools() {
                               }}
                             >
                               Specialty Modifier: {writer.specialtyModifier > 0 ? `+${writer.specialtyModifier}` : writer.specialtyModifier}
+                            </Typography>
+                          )}
+                          {typeof writer.clientModifier === "number" && writer.clientModifier !== 0 && (
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: "bold",
+                                mt: 1,
+                                color: writer.clientModifier > 0 ? "green" : "red",
+                              }}
+                            >
+                              Client Modifier: {writer.clientModifier > 0 ? `+${writer.clientModifier}` : writer.clientModifier}
                             </Typography>
                           )}
                         </Paper>
@@ -1001,7 +1021,7 @@ export default function AdminTools() {
                     Cost Bonus (B₍C₎) = <code>((maxCost - C) / (maxCost - minCost)) × 5</code>.
                   </Typography>
                   <Typography variant="body2" sx={{ color: isDark ? "#fff" : "#000" }}>
-                    Composite Score = Q + Bₜ + B₍C₎ (clamped between 0 and 100).
+                    Composite Score = Q + Bₜ + B₍C₎ + Specialty Modifier + Client Modifier.
                   </Typography>
                 </Box>
               </>

@@ -195,8 +195,7 @@ export default function RevisionAssignmentTool() {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
-        Revision Assignment Tool
+      <Typography variant="h4" sx={{ mb: -3, fontWeight: "bold", color: isDark ? "#fff" : "#000" }}>
       </Typography>
 
       {/* RANDOM REVISION IMPORT */}

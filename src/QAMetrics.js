@@ -1,4 +1,4 @@
-// src/QAMetrics.js
+// src/QAMetrics.js 
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
@@ -52,7 +52,7 @@ const openSansTheme = createTheme({
   typography: { fontFamily: "Open Sans, sans-serif" }
 });
 
-// ---------- QA Internal Mapping ----------
+// ---------- QA Internal Mapping (fallback) ----------
 const qaInternalMapping = {
   301: "Alice Cooper",
   302: "Brian Adams",
@@ -74,6 +74,13 @@ const baseColors = [
   "#8A2BE2"
 ];
 
+// Helper: Given a qaMember id (as string or number), return the QA name from qaData if available.
+const getQAName = (qaMember, qaData) => {
+  // First, try to find the QA object in qaData (assumes each QA data item has a qaMember and name field)
+  const qaObj = qaData.find((item) => String(item.qaMember) === String(qaMember));
+  return qaObj ? qaObj.name : qaInternalMapping[qaMember] || qaMember;
+};
+
 const getTrend = (current, previous) => {
   if (previous === 0) return { arrow: "-", change: "N/A" };
   const diff = current - previous;
@@ -92,13 +99,12 @@ const getWorkdays = (start, end) => {
   return count;
 };
 
-// Returns only internal feedback items from feedbackData that match the QA member (using full name mapping)
 const getSortedFeedback = (qaMember, start, end, feedbackData) => {
   return feedbackData
     .filter((fb) => {
       if (fb.feedbackType !== "internal") return false;
       return (
-        fb.qaMember === qaInternalMapping[qaMember] &&
+        fb.qaMember === qaMember &&
         dayjs(fb.date).isSameOrAfter(start) &&
         dayjs(fb.date).isSameOrBefore(end)
       );
@@ -172,7 +178,7 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
     const currentDay = windowStart.clone().add(i, "day");
     const point = { date: currentDay.format("MM-DD") };
     uniqueQAMemberIDs.forEach((qaMember) => {
-      const memberObj = qaData.find((x) => x.qaMember === qaMember);
+      const memberObj = qaData.find((x) => String(x.qaMember) === String(qaMember));
       if (!memberObj || !memberObj.snapshots) {
         point[`qa_${qaMember}`] = 0;
         return;
@@ -479,7 +485,7 @@ export default function QAMetrics({ qaData, feedbackData }) {
                     {/* Left Column: Stats and Bar Chart */}
                     <Grid item xs={12} sm={6}>
                       <Typography variant="h6" sx={{ mb: 1, color: textColor }}>
-                        QA - {qaInternalMapping[member.qaMember] || member.qaMember}
+                        QA - {getQAName(member.qaMember, qaData)}
                       </Typography>
                       <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2, color: textColor }}>
                         Submission Stats
@@ -576,8 +582,14 @@ export default function QAMetrics({ qaData, feedbackData }) {
                               <XAxis dataKey="dateLabel" stroke={textColor} />
                               <YAxis stroke={textColor} />
                               <RechartsTooltip
-                                formatter={(val) => `${val.toFixed(1)} cases/day`}
+                                formatter={(val, name) => {
+                                  // Extract qaMember id from the dataKey and then look up the name
+                                  const qaId = name.replace("qa_", "");
+                                  const displayName = getQAName(qaId, qaData);
+                                  return [val.toFixed(1) + " cases/day", `QA - ${displayName}`];
+                                }}
                                 labelFormatter={(label) => `Date: ${label}`}
+                                cursor={{ strokeDasharray: "3 3", strokeWidth: 1 }}
                               />
                               <Bar dataKey="avgCasesDay" fill={baseColors[0]} barSize={30} />
                             </BarChart>
@@ -744,7 +756,7 @@ export default function QAMetrics({ qaData, feedbackData }) {
                     }}
                   />
                   <Typography variant="body2" sx={{ opacity: activeQA[qaMember] ? 1 : 0.3, color: textColor }}>
-                    QA - {qaInternalMapping[qaMember] || qaMember}
+                  {getQAName(qaMember, qaData)}
                   </Typography>
                 </Box>
               ))}
@@ -757,8 +769,8 @@ export default function QAMetrics({ qaData, feedbackData }) {
                 <RechartsTooltip
                   formatter={(val, name) => {
                     const qaId = name.replace("qa_", "");
-                    const displayName = qaInternalMapping[qaId] || qaId;
-                    return [val, `QA - ${displayName}`];
+                    const displayName = getQAName(qaId, qaData);
+                    return [val.toFixed(1) + " cases/day", ` ${displayName}`];
                   }}
                   labelFormatter={(label) => `Date: ${label}`}
                   cursor={{ strokeDasharray: "3 3", strokeWidth: 1 }}
