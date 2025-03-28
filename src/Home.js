@@ -167,19 +167,17 @@ const Home = () => {
       </Grid>
 
       {/* Scrolling News Ticker replacing static heading */}
-      <Box sx={{ mt: 6 }}>
-        <NewsTicker
-          messages={[
-            "Weekly Quality Scores up 6%, exceeding performance targets.",
-            "No critical issues pending—great job team!",
-            "Monthly reports deadline approaching this Friday.",
-            "New reviewer onboarding completed successfully.",
-            "System uptime at 99.9%, all systems operational.",
-            "Reminder: Check your dashboard daily for real-time metrics.",
-          ]}
-          sx={{ fontSize: "1.5rem" }}
-        />
-      </Box>
+<Box sx={{ mt: 6 }}>
+  <NewsTicker
+    messages={[
+      "✅ Accomplished: Refactored Email and Table components to use the new simplified Master/Transactional schema.",
+      "Pending: Update FLChart component to derive visualizations from the new data structure.",
+      "Pending: Enhance QAMetrics and Reports to reflect updated metrics.",
+      "Pending: Integrate with DB exports in new JSON schema for proof-of-concept.",
+    ]}
+    sx={{ fontSize: "1.5rem" }}
+  />
+</Box>
 
       {/* World Map Section */}
       <Box sx={{ mt: 2 }}>

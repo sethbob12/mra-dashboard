@@ -22,7 +22,7 @@ const NewsTicker = ({ messages }) => {
         sx={{
           display: "inline-block",
           paddingLeft: "100%",
-          animation: "scrollText 60s linear infinite",
+          animation: "scrollText 45s linear infinite",
           fontWeight: 600,
           color: isDark ? "#fff" : "#333",
         }}
