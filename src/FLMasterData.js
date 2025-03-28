@@ -1,6 +1,6 @@
-// src/FLStaticData.js
+// src/FLMasterData.js
 /*
-  FLStaticData: Static data for Frontline Reviewers.
+  FLMasterData:
   This file contains only the static properties that do not change over time.
   The dynamic snapshot data (such as totalCases, avgCasesDay, etc.) is stored separately.
   

@@ -12,7 +12,7 @@ import {
   Stack,
   IconButton,
   createTheme,
-  ThemeProvider
+  ThemeProvider,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -23,8 +23,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 const openSansTheme = createTheme({
   typography: {
-    fontFamily: "Open Sans, sans-serif"
-  }
+    fontFamily: "Open Sans, sans-serif",
+  },
 });
 
 const uniformGradient = "linear-gradient(to right, #1E73BE, #1565C0)";
@@ -40,12 +40,12 @@ const psychWriters = {
   "Ravit Haleva": "ravithaleva@gmail.com",
   "Shaila Anne Maramara": "shailamaramara@gmail.com",
   "Will Smith": "will@peerlinkmedical.com",
-  "Addison Marimberga": "addison@peerlinkmedical.com"
+  "Addison Marimberga": "addison@peerlinkmedical.com",
 };
 
 /**
  * EmailListGenerator component
- * @param {Array} data - Array of reviewer data (mock/live) passed from App.js
+ * @param {Array} data - Array of reviewer static data (from FLMasterData)
  */
 const EmailListGenerator = ({ data }) => {
   const theme = useTheme();
@@ -63,7 +63,7 @@ const EmailListGenerator = ({ data }) => {
               mb: 2,
               fontWeight: "bold",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "#fff" : "#000"
+              color: theme.palette.mode === "dark" ? "#fff" : "#000",
             }}
           >
             Email List Generator
@@ -89,14 +89,14 @@ const EmailListGenerator = ({ data }) => {
 
   // All unique emails across reviewers.
   const allEmails = [
-    ...new Set(data.filter((item) => item.email).map((item) => item.email))
+    ...new Set(data.filter((item) => item.email).map((item) => item.email)),
   ];
 
   // Build categories: "All", "Psych", plus each client.
   const emailCategories = {
     All: allEmails,
     Psych: Object.values(psychWriters),
-    ...groupedEmails
+    ...groupedEmails,
   };
 
   // Copy to clipboard.
@@ -146,7 +146,7 @@ const EmailListGenerator = ({ data }) => {
             mb: 2,
             fontWeight: "bold",
             textAlign: "center",
-            color: theme.palette.mode === "dark" ? "#fff" : "#000"
+            color: theme.palette.mode === "dark" ? "#fff" : "#000",
           }}
         >
           Email List Generator
@@ -165,11 +165,13 @@ const EmailListGenerator = ({ data }) => {
                   transition: "0.3s ease-in-out",
                   "&:hover": {
                     boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-                    transform: "translateY(-2px)"
+                    transform: "translateY(-2px)",
                   },
                   // Dark mode styles.
-                  backgroundColor: theme.palette.mode === "dark" ? "#333" : "#fff",
-                  borderColor: theme.palette.mode === "dark" ? "#555" : "inherit"
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "#333" : "#fff",
+                  borderColor:
+                    theme.palette.mode === "dark" ? "#555" : "inherit",
                 }}
                 onClick={() => setSelectedClient(client)}
               >
@@ -177,7 +179,7 @@ const EmailListGenerator = ({ data }) => {
                   sx={{
                     background: uniformGradient,
                     p: 2,
-                    textAlign: "center"
+                    textAlign: "center",
                   }}
                 >
                   <Typography
@@ -188,7 +190,7 @@ const EmailListGenerator = ({ data }) => {
                       fontSize: "1.3rem",
                       letterSpacing: "0.7px",
                       textShadow:
-                        "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000"
+                        "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                     }}
                   >
                     {client}
@@ -199,7 +201,8 @@ const EmailListGenerator = ({ data }) => {
                     p: 2,
                     textAlign: "center",
                     // For dark mode, a slightly lighter box for contrast.
-                    backgroundColor: theme.palette.mode === "dark" ? "#444" : "#fff"
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#444" : "#fff",
                   }}
                 >
                   <Button
@@ -208,11 +211,13 @@ const EmailListGenerator = ({ data }) => {
                     sx={{
                       textTransform: "none",
                       fontWeight: "bold",
-                      backgroundColor: theme.palette.mode === "dark" ? "#757575" : "#757575",
+                      backgroundColor:
+                        theme.palette.mode === "dark" ? "#757575" : "#757575",
                       color: "#fff",
                       "&:hover": {
-                        backgroundColor: theme.palette.mode === "dark" ? "#616161" : "#616161"
-                      }
+                        backgroundColor:
+                          theme.palette.mode === "dark" ? "#616161" : "#616161",
+                      },
                     }}
                   >
                     Show Emails
@@ -234,10 +239,12 @@ const EmailListGenerator = ({ data }) => {
                 transition: "0.3s ease-in-out",
                 "&:hover": {
                   boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-                  transform: "translateY(-2px)"
+                  transform: "translateY(-2px)",
                 },
-                backgroundColor: theme.palette.mode === "dark" ? "#333" : "#fff",
-                borderColor: theme.palette.mode === "dark" ? "#555" : "inherit"
+                backgroundColor:
+                  theme.palette.mode === "dark" ? "#333" : "#fff",
+                borderColor:
+                  theme.palette.mode === "dark" ? "#555" : "inherit",
               }}
               onClick={handleExportEmails}
             >
@@ -245,7 +252,7 @@ const EmailListGenerator = ({ data }) => {
                 sx={{
                   background: uniformGradient,
                   p: 2,
-                  textAlign: "center"
+                  textAlign: "center",
                 }}
               >
                 <Typography
@@ -254,7 +261,7 @@ const EmailListGenerator = ({ data }) => {
                     fontWeight: "bold",
                     color: "#fff",
                     textShadow:
-                      "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000"
+                      "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                   }}
                 >
                   Export Emails (CSV)
@@ -264,23 +271,27 @@ const EmailListGenerator = ({ data }) => {
                 sx={{
                   p: 2,
                   textAlign: "center",
-                  backgroundColor: theme.palette.mode === "dark" ? "#444" : "#fff"
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "#444" : "#fff",
                 }}
               >
                 <Button
                   variant="contained"
                   fullWidth
+                  onClick={handleExportEmails}
+                  startIcon={<DownloadIcon sx={{ mr: 1 }} />}
                   sx={{
                     textTransform: "none",
                     fontWeight: "bold",
-                    backgroundColor: theme.palette.mode === "dark" ? "#757575" : "#757575",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#757575" : "#757575",
                     color: "#fff",
                     "&:hover": {
-                      backgroundColor: theme.palette.mode === "dark" ? "#616161" : "#616161"
-                    }
+                      backgroundColor:
+                        theme.palette.mode === "dark" ? "#616161" : "#616161",
+                    },
                   }}
                 >
-                  <DownloadIcon sx={{ mr: 1 }} />
                   Export
                 </Button>
               </Box>
@@ -304,33 +315,65 @@ const EmailListGenerator = ({ data }) => {
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 width: { xs: "80%", md: "50%" },
-                bgcolor: theme.palette.mode === "dark" ? "#424242" : "background.paper",
+                bgcolor:
+                  theme.palette.mode === "dark" ? "#424242" : "background.paper",
                 boxShadow: 25,
                 p: 4,
-                borderRadius: 2
+                borderRadius: 2,
               }}
             >
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: theme.palette.mode === "dark" ? "#fff" : "inherit" }}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 2 }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    color:
+                      theme.palette.mode === "dark" ? "#fff" : "inherit",
+                  }}
+                >
                   {selectedClient} Emails
                 </Typography>
                 <IconButton onClick={() => setSelectedClient(null)}>
-                  <CloseIcon sx={{ color: theme.palette.mode === "dark" ? "#fff" : "inherit" }} />
+                  <CloseIcon
+                    sx={{
+                      color:
+                        theme.palette.mode === "dark" ? "#fff" : "inherit",
+                    }}
+                  />
                 </IconButton>
               </Stack>
-              <Box sx={{ p: 2, backgroundColor: theme.palette.mode === "dark" ? "#333" : "#F5F5F5", borderRadius: 1, minHeight: 100 }}>
+              <Box
+                sx={{
+                  p: 2,
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "#333" : "#F5F5F5",
+                  borderRadius: 1,
+                  minHeight: 100,
+                }}
+              >
                 <Typography
                   sx={{
                     whiteSpace: "normal",
                     wordBreak: "break-word",
                     fontSize: "14px",
-                    color: theme.palette.mode === "dark" ? "#fff" : "inherit"
+                    color:
+                      theme.palette.mode === "dark" ? "#fff" : "inherit",
                   }}
                 >
-                  {emailCategories[selectedClient]?.join(", ") || "No email addresses found."}
+                  {emailCategories[selectedClient]?.join(", ") ||
+                    "No email addresses found."}
                 </Typography>
               </Box>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                sx={{ mt: 2 }}
+              >
                 <Button
                   variant="outlined"
                   onClick={() => handleCopy(selectedClient)}
@@ -343,7 +386,9 @@ const EmailListGenerator = ({ data }) => {
                     )
                   }
                 >
-                  {copiedClient === selectedClient ? "Copied!" : "Copy Addresses"}
+                  {copiedClient === selectedClient
+                    ? "Copied!"
+                    : "Copy Addresses"}
                 </Button>
                 <Button
                   variant="contained"
@@ -353,7 +398,7 @@ const EmailListGenerator = ({ data }) => {
                   sx={{
                     backgroundColor: "#43a047",
                     color: "#fff",
-                    "&:hover": { backgroundColor: "#388e3c" }
+                    "&:hover": { backgroundColor: "#388e3c" },
                   }}
                 >
                   Email Group

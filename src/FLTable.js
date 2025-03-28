@@ -1,3 +1,4 @@
+// src/FLTable.js
 /* eslint-disable no-unused-vars */
 /* REFACTORED for apiService layer */
 import React, { useState, useMemo } from "react";
@@ -20,7 +21,8 @@ import {
   Card,
   CardContent,
   Grid,
-  Typography
+  Typography,
+  Stack
 } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import dayjs from "dayjs";
@@ -41,9 +43,10 @@ import {
 } from "recharts";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-// Import react-simple-maps components for world map
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import FLMasterData from "./FLMasterData";
 
+// Extend dayjs with timezone support
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -102,7 +105,7 @@ function WorkflowFunnel({ row }) {
   );
 }
 
-/** Tooltip wrapper for the funnel showing percentages */
+/** Tooltip wrapper for the workflow funnel */
 function WorkflowFunnelTooltip({ row, children }) {
   const { total, late, revised, direct } = computeWorkflowStats(row);
   const latePct = total ? ((late / total) * 100).toFixed(1) : 0;
@@ -218,15 +221,20 @@ function KPICard({ title, value, tooltip, color }) {
     <Tooltip title={tooltip} arrow>
       <Card
         sx={{
-          borderRadius: 2,
-          boxShadow: 2,
-          background: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
-          minWidth: 180,
-          minHeight: 110,
-          cursor: "default"
+          borderRadius: 3,
+          boxShadow: 3,
+          background: "linear-gradient(135deg, #f0f9ff 0%, #e0f7fa 100%)",
+          minWidth: 200,
+          minHeight: 120,
+          cursor: "pointer",
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+          "&:hover": {
+            transform: "scale(1.05)",
+            boxShadow: "0px 10px 20px rgba(0,0,0,0.2)"
+          }
         }}
       >
-        <CardContent sx={{ textAlign: "center" }}>
+        <CardContent sx={{ textAlign: "center", p: 2 }}>
           <Typography variant="h6" sx={{ color: color || "#1565C0", fontWeight: "bold" }}>
             {title}
           </Typography>
@@ -244,10 +252,7 @@ function WorldMapModal({ open, onClose, country }) {
   const theme = useTheme();
   const darkMode = theme.palette.mode === "dark";
   const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-
-  // Normalize the country string (if undefined, default to "United States")
   const normalizedCountry = country ? country.toLowerCase() : "united states";
-
   return (
     <Modal
       open={open}
@@ -312,7 +317,6 @@ function WorldMapModal({ open, onClose, country }) {
 
 /** Helper: Given a time zone string, return a country name */
 function getCountryFromTimeZone(tz) {
-  // Update or expand this mapping as needed
   const mapping = {
     "Africa/Lagos": "Nigeria",
     "Asia/Manila": "Philippines",
@@ -336,35 +340,48 @@ function renderHeaderLabel(column) {
   }
 }
 
+/** ---------- Merge Static and Dynamic Data ---------- */
+// Import static master data
+const useMergedData = (dynamicData) => {
+  return useMemo(() => {
+    if (!dynamicData || !Array.isArray(dynamicData)) return [];
+    const masterMap = {};
+    FLMasterData.forEach((entry) => {
+      masterMap[entry.mra_id] = entry;
+    });
+    return dynamicData.map((dyn) => ({ ...masterMap[dyn.mra_id], ...dyn }));
+  }, [dynamicData]);
+};
+
 /** ---------- FLTable Component ---------- */
 export default function FLTable({ data }) {
   const theme = useTheme();
   const darkMode = theme.palette.mode === "dark";
-  
-  // Header: blue gradient with black text (default)
+  const navigate = useNavigate();
+
+  // Merge dynamic (transactional) data with static master data
+  const mergedData = useMergedData(data);
+
+  // Header styling
   const headerBg = "linear-gradient(45deg, #1E73BE, #1565C0)";
   const headerText = "#000";
-  // Row backgrounds for dark mode
   const rowEvenBg = darkMode ? "#333" : "#f5f5f5";
   const rowOddBg = darkMode ? "#424242" : "white";
   const nameTextColor = darkMode ? "#fff" : "black";
-  
+
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("computedQualityScore");
   const [sankeyOpen, setSankeyOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [worldMapOpen, setWorldMapOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("");
-  const navigate = useNavigate();
-  
-  // Sorting handler
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
-  // Feedback-click handler using navigate
   const handleFeedbackClick = (row, feedbackType) => {
     const now = dayjs();
     const pastYear = now.subtract(365, "day");
@@ -377,15 +394,13 @@ export default function FLTable({ data }) {
     navigate(`/reports?${queryParams.toString()}`);
   };
 
-  // Handler for clicking the Local Time cell to show the world map modal.
   const handleLocalTimeClick = (row) => {
-    const tzID = tzMap[row.email] || "America/New_York";
+    const tzID = (row.location && row.location.timezone) || (tzMap[row.email] ? tzMap[row.email] : "America/New_York");
     const country = getCountryFromTimeZone(tzID);
     setSelectedCountry(country);
     setWorldMapOpen(true);
   };
 
-  // Build columns.
   const columns = [
     { id: "computedQualityScore", label: "Quality Score", align: "center" },
     { id: "name", label: "Name", align: "left", width: 250 },
@@ -437,28 +452,34 @@ export default function FLTable({ data }) {
     { id: "localTime", label: "Local Time", align: "center", minWidth: 150 }
   ];
 
-  // Process data from snapshots using the latest snapshot for key metrics.
-  const processedData = data.map((row) => {
+  // Process the merged data and compute derived scores:
+  const processedData = mergedData.map((row) => {
     const latest = getLatestSnapshot(row);
-    const accuracy = latest ? latest.accuracyScore : row.accuracyScore;
-    const timeliness = latest ? latest.timelinessScore : row.timelinessScore;
-    const efficiency = latest ? latest.efficiencyScore : row.efficiencyScore;
+    // Compute Accuracy and Timeliness based on dynamic revision and late percentages:
+    const accuracy = latest ? 100 - (latest.revisionRate || 0) : 100 - (row.revisionRate || 0);
+    const timeliness = latest ? 100 - (latest.lateCasePercentage || 0) : 100 - (row.lateCasePercentage || 0);
+    // Compute Efficiency: full (100) at 5 cases/day; otherwise linear.
+    const avg = latest ? (latest.avgCasesPerDay || latest.avgCasesDay) : (row.avgCasesPerDay || row.avgCasesDay);
+    const computedEfficiencyScore = avg ? Math.min((avg / 5) * 100, 100) : 0;
+
     return {
       ...row,
       qualityScore: latest ? latest.qualityScore : row.qualityScore,
       accuracyScore: accuracy,
       timelinessScore: timeliness,
-      efficiencyScore: efficiency,
+      efficiencyScore: computedEfficiencyScore,
       revisionRate: latest ? latest.revisionRate : row.revisionRate,
       lateCasePercentage: latest ? latest.lateCasePercentage : row.lateCasePercentage,
-      avgCasesPerDay: latest ? (latest.avgCasesPerDay || latest.avgCasesDay) : (row.avgCasesPerDay || row.avgCasesDay),
+      avgCasesPerDay: avg,
       casesPast30Days: latest ? latest.casesPast30Days : row.casesPast30Days,
-      costPerCase: latest ? latest.costPerCase : row.costPerCase,
-      status: row.status || "available"
+      // Use costPerCase from the merged static master data (it should be available)
+      costPerCase: row.costPerCase,
+      // Force status to be available for now
+      status: "available"
     };
   });
 
-  // Sort data and add local time and client count info
+  // Further process data: add client list, compute local time, and quality score.
   const sortedDataMemo = useMemo(() => {
     const processed = processedData.map((row) => {
       let clientList = [];
@@ -467,10 +488,11 @@ export default function FLTable({ data }) {
       } else if (Array.isArray(row.clients)) {
         clientList = row.clients;
       }
-      const tzID = tzMap[row.email] || "America/New_York";
+      const tzID = row.location && row.location.timezone ? row.location.timezone : (tzMap[row.email] || "America/New_York");
       const localTimeObj = dayjs().tz(tzID);
       const localTime = localTimeObj.format("h:mm A");
       const localHour = localTimeObj.hour();
+      // Define day between 6 and 18
       const isDay = localHour >= 6 && localHour < 18;
       const coveragePoints = Math.min(clientList.length, 6);
       const typePoints = row.caseType === "Both" ? 4 : 2;
@@ -496,7 +518,7 @@ export default function FLTable({ data }) {
     return stableSort(processed, getComparator(order, sortKey));
   }, [processedData, order, orderBy]);
 
-  // Compute KPI averages for header row
+  // Compute KPIs for header row
   const totalReviewers = sortedDataMemo.length;
   let totalAccuracy = 0,
     totalTimeliness = 0,
@@ -520,7 +542,6 @@ export default function FLTable({ data }) {
       typeof col.label === "string" ? col.label : ""
     );
     const rows = sortedDataMemo.map((row) => {
-      const status = row.name === "Next Reviewer" ? "unavailable" : row.status;
       const clientNames = row.clientList ? row.clientList.join(", ") : "";
       return [
         `${row.computedQualityScore?.toFixed(1) || 0}%`,
@@ -531,7 +552,7 @@ export default function FLTable({ data }) {
         `${row.lateCasePercentage?.toFixed(1) || 0}%`,
         `${row.revisionRate?.toFixed(1) || 0}%`,
         `"QA / Client"`,
-        status === "available" ? "Available" : "Off",
+        "Available",
         row.localTime || ""
       ].join(",");
     });
@@ -559,7 +580,7 @@ export default function FLTable({ data }) {
     doc.save("reviewers_table.pdf");
   };
 
-  // Helper to render the Case Type cell.
+  // Render Case Type cell
   function renderCaseType(row) {
     let label = "N";
     let color = "blue";
@@ -582,7 +603,6 @@ export default function FLTable({ data }) {
     );
   }
 
-  // Render table
   return (
     <Box sx={{ width: "100%", ml: 1 }}>
       {/* KPI Row */}
@@ -591,24 +611,24 @@ export default function FLTable({ data }) {
           <KPICard title="Total Reviewers" value={totalReviewers} tooltip="Count of unique reviewers." />
         </Grid>
         <Grid item>
-          <KPICard title="Avg Accuracy" value={`${avgAccuracy.toFixed(1)}%`} tooltip="Accuracy range: N/A" />
+          <KPICard title="Avg Accuracy" value={`${avgAccuracy.toFixed(1)}%`} tooltip="Calculated as 100 - Revision Rate" />
         </Grid>
         <Grid item>
-          <KPICard title="Avg Timeliness" value={`${avgTimeliness.toFixed(1)}%`} tooltip="Timeliness range: N/A" />
+          <KPICard title="Avg Timeliness" value={`${avgTimeliness.toFixed(1)}%`} tooltip="Calculated as 100 - Late Case Percentage" />
         </Grid>
         <Grid item>
-          <KPICard title="Avg Efficiency" value={`${avgEfficiency.toFixed(1)}%`} tooltip="Efficiency range: N/A" />
+          <KPICard title="Avg Efficiency" value={`${avgEfficiency.toFixed(1)}%`} tooltip="Derived from avg cases per day (full points at 5 cases/day)" />
         </Grid>
         <Grid item>
           <KPICard
             title="Avg Quality Score"
-            value={
+            value={(
               <>
                 {`${avgQuality.toFixed(1)}% `}
                 <KeyboardArrowUpIcon sx={{ fontSize: 18, color: "green" }} />
               </>
-            }
-            tooltip={`Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (min(clientCount,6)) + Type (if caseType === "Both" then 4 else 2).\nTrend: ${avgQualityTrend}`}
+            )}
+            tooltip={`Quality Score = (Accuracy*60%) + (Timeliness*20%) + (Efficiency*10%) + Coverage (min(clientCount,6)) + Type (Both=4, else 2).\nTrend: ${avgQualityTrend}`}
           />
         </Grid>
       </Grid>
@@ -653,11 +673,10 @@ export default function FLTable({ data }) {
               let qualityBg = "#EF9A9A";
               if (qscore >= 90) qualityBg = "#A5D6A7";
               else if (qscore >= 80) qualityBg = "#FFF59D";
-              const status = row.name === "Next Reviewer" ? "unavailable" : row.status;
               const revisionRate = row.revisionRate || 0;
               const cases = row.casesPast30Days || 0;
               let minX = Math.min(
-                ...data.map((r) => {
+                ...mergedData.map((r) => {
                   const snap = getLatestSnapshot(r);
                   return snap ? snap.casesPast30Days || 0 : 0;
                 })
@@ -668,17 +687,24 @@ export default function FLTable({ data }) {
               const yieldColor = revisionRate < expectedY ? "green" : "red";
               const yieldTooltip = `Cases: ${cases}, Rev Rate: ${revisionRate.toFixed(1)}%`;
               const effColor =
-                (row.accuracyScore || 0) >= 75 && (row.timelinessScore || 0) >= 75 ? "green" : "red";
-              const effTooltip = `Accuracy: ${row.accuracyScore || 0}%\nTimeliness: ${row.timelinessScore || 0}%`;
+                row.accuracyScore >= 75 && row.timelinessScore >= 75 ? "green" : "red";
+              const effTooltip = `Accuracy: ${row.accuracyScore}%\nTimeliness: ${row.timelinessScore}%`;
+
               let clientCostTooltip = "No client/cost info";
               if (row.clientList && row.costPerCase) {
                 const lines = ["Clients & Cost:", ""];
                 row.clientList.forEach((client) => {
-                  const cost = row.costPerCase[client] ?? "N/A";
-                  lines.push(`- ${client}: $${cost}`);
+                  const cost = row.costPerCase[client];
+                  // Only add the line if cost is defined (even if 0)
+                  if (typeof cost !== "undefined") {
+                    lines.push(`- ${client}: $${cost}`);
+                  }
                 });
-                clientCostTooltip = lines.join("\n");
+                if (lines.length > 1) {
+                  clientCostTooltip = lines.join("\n");
+                }
               }
+
               return (
                 <TableRow
                   key={row.mra_id}
@@ -691,27 +717,14 @@ export default function FLTable({ data }) {
                   <TableCell sx={{ textAlign: "center", backgroundColor: qualityBg, fontWeight: "bold" }}>
                     <Tooltip
                       title={
-                        (() => {
-                          const typePoints = row.caseType === "Both" ? 4 : 2;
-                          const typeDescription =
-                            row.caseType === "Both"
-                              ? "Both"
-                              : row.caseType === "Psych"
-                              ? "Psych only"
-                              : "Non-Psych only";
-                          return (
-                            <>
-                              Accuracy: {row.accuracyScore || 0}%<br />
-                              Timeliness: {row.timelinessScore || 0}%<br />
-                              Efficiency: {row.efficiencyScore || 0}%<br />
-                              Coverage: {Math.min(row.clientCount, 6)} (#Clients)
-                              <br />
-                              Type: {typePoints} ({typeDescription})
-                              <br />
-                              Trend: Stable
-                            </>
-                          );
-                        })()
+                        <>
+                          Accuracy: {row.accuracyScore}%<br />
+                          Timeliness: {row.timelinessScore}%<br />
+                          Efficiency: {row.efficiencyScore.toFixed(1)}%<br />
+                          Coverage: {Math.min(row.clientCount, 6)} (#Clients)<br />
+                          Type: {row.caseType === "Both" ? 4 : 2}<br />
+                          Trend: Stable
+                        </>
                       }
                       arrow
                     >
@@ -823,20 +836,16 @@ export default function FLTable({ data }) {
                     </Box>
                   </TableCell>
 
-                  {/* Status */}
+                  {/* Status - forced as available */}
                   <TableCell sx={{ textAlign: "center" }}>
-                    <Tooltip title="Status pending API access" arrow>
-                      {row.status === "available" ? (
-                        <span style={{ color: "green", fontWeight: "bold" }}>✅</span>
-                      ) : (
-                        <span style={{ color: "red", fontWeight: "bold" }}>❌</span>
-                      )}
+                    <Tooltip title="Currently Available" arrow>
+                      <span style={{ color: "green", fontWeight: "bold" }}>✅</span>
                     </Tooltip>
                   </TableCell>
 
-                  {/* Local Time with World Map Modal trigger */}
+                  {/* Local Time */}
                   <TableCell sx={{ textAlign: "center", minWidth: 150 }}>
-                    <Tooltip title={`Time Zone: ${tzMap[row.email] || "America/New_York"}`} arrow>
+                    <Tooltip title={`Time Zone: ${ (row.location && row.location.timezone) || (tzMap[row.email] ? tzMap[row.email] : "America/New_York") }`} arrow>
                       <Box
                         onClick={() => handleLocalTimeClick(row)}
                         sx={{
@@ -875,7 +884,6 @@ export default function FLTable({ data }) {
             })}
           </TableBody>
 
-          {/* Footer with average quality */}
           <TableFooter>
             <TableRow sx={{ backgroundColor: "transparent" }}>
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
@@ -889,7 +897,6 @@ export default function FLTable({ data }) {
         </Table>
       </TableContainer>
 
-      {/* Export Buttons */}
       <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
         <Button variant="outlined" onClick={handleExportCSV}>
           <Box component="img" src={csvIcon} alt="CSV Icon" sx={{ width: 40, height: 40 }} />
@@ -899,10 +906,8 @@ export default function FLTable({ data }) {
         </Button>
       </Box>
 
-      {/* Sankey Modal */}
       <FullSankeyModal open={sankeyOpen} onClose={() => setSankeyOpen(false)} rowData={selectedRow} />
 
-      {/* World Map Modal for Local Time */}
       <WorldMapModal open={worldMapOpen} onClose={() => setWorldMapOpen(false)} country={selectedCountry} />
     </Box>
   );

@@ -8,7 +8,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import liveIcon from "./assets/liveIcon.gif"; // Example live icon
 
 import Navbar from "./Navbar";
-import ThemeToggleSwitch from "./ThemeToggleSwitch"; // Theme toggle switch import
+import ThemeToggleSwitch from "./ThemeToggleSwitch";
 import Home from "./Home";
 import FLTable from "./FLTable";
 import FLChart from "./FLChart";
@@ -19,13 +19,12 @@ import Reports from "./Reports";
 import QAMetrics from "./QAMetrics";
 import AdminTools from "./AdminTools";
 import LoginPage from "./LoginPage";
-
-// Mock data & ProtectedRoute
-import FLData from "./FLData";
-import FeedbackData from "./FeedbackData";
-import QAData from "./QAData";
 import ProtectedRoute from "./ProtectedRoute";
 import apiService from "./apiService";
+
+// Import master and transactional data.
+import FLMasterData from "./FLMasterData";
+import FLTransactionalData from "./FLTransactionalData";
 
 function App() {
   // Light/Dark mode
@@ -46,37 +45,28 @@ function App() {
     [mode]
   );
 
-  // Data states
-  const [reviewerData, setReviewerData] = useState(FLData);
-  const [feedbackData, setFeedbackData] = useState(FeedbackData);
-  const [qaData, setQaData] = useState(QAData);
+  // For feedback and QA data
+  const [feedbackData, setFeedbackData] = useState([]);
+  const [qaData, setQaData] = useState([]);
 
-  // Toggle for mock vs. live API
+  // Toggle for live API vs. mock
   const [useLiveApi, setUseLiveApi] = useState(false);
 
-  // Data fetching
   const fetchData = useCallback(async () => {
     if (useLiveApi) {
       console.log("🔄 Fetching LIVE API data...");
       try {
-        const rData = await apiService.fetchReviewerData();
         const fData = await apiService.fetchFeedbackData();
         const qData = await apiService.fetchQualityData();
-        setReviewerData(rData);
         setFeedbackData(fData);
         setQaData(qData);
         console.log("✅ Loaded live API data.");
       } catch (error) {
         console.error("❌ Error fetching live API data:", error);
-        setReviewerData(FLData);
-        setFeedbackData(FeedbackData);
-        setQaData(QAData);
       }
     } else {
-      console.log("🟡 Using MOCK data (FLData, FeedbackData, QAData).");
-      setReviewerData(FLData);
-      setFeedbackData(FeedbackData);
-      setQaData(QAData);
+      console.log("🟡 Using MOCK data (FeedbackData, QAData).");
+      // Here you might load your static mock files if needed.
     }
   }, [useLiveApi]);
 
@@ -92,14 +82,45 @@ function App() {
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
 
+  // Merge static master data with transactional snapshot.
+  const mergedReviewerData = useMemo(() => {
+    return FLMasterData.map((master) => {
+      const trans = FLTransactionalData.find((t) => t.mra_id === master.mra_id);
+      if (trans) {
+        const casesPast30Days = Object.values(trans.casesByClient).reduce(
+          (acc, val) => acc + val,
+          0
+        );
+        const snapshot = {
+          snapshotDate: trans.snapshotDate,
+          totalCases: trans.totalCases,
+          casesPast30Days,
+          avgCasesPerDay: trans.avgCasesDay,
+          revisionRate: trans.revisionRate,
+          lateCasePercentage: trans.lateCasePercentage
+          // Note: No efficiency, accuracy, or timeliness here.
+        };
+        return { ...master, snapshots: [snapshot] };
+      }
+      return master;
+    });
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Navbar mode={mode} toggleTheme={toggleTheme} />
 
-      {/* Main content container is now positioned relatively */}
-      <Box sx={{ position: "relative", mt: 4, margin: "0 auto", maxWidth: 1600, width: "100%", px: 2 }}>
-        {/* Absolutely positioned Theme Toggle Switch in the top-right corner of the main content */}
+      <Box
+        sx={{
+          position: "relative",
+          mt: 4,
+          margin: "0 auto",
+          maxWidth: 1600,
+          width: "100%",
+          px: 2
+        }}
+      >
         <Box
           sx={{
             position: "absolute",
@@ -108,7 +129,7 @@ function App() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 0.1,
+            gap: 0.1
           }}
         >
           <Box sx={{ transition: "transform 0.3s ease", "&:hover": { transform: "scale(1.1)" } }}>
@@ -119,14 +140,13 @@ function App() {
           </Typography>
         </Box>
 
-        {/* Rest of your content */}
         <Box
           sx={{
             my: 2,
             display: "flex",
             alignItems: "center",
             gap: 2,
-            justifyContent: "flex-start",
+            justifyContent: "flex-start"
           }}
         >
           <Tooltip
@@ -143,17 +163,12 @@ function App() {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1,
+                gap: 1
               }}
             >
               {useLiveApi ? (
                 <>
-                  <Box
-                    component="img"
-                    src={liveIcon}
-                    alt="Live Icon"
-                    sx={{ width: 24, height: 24 }}
-                  />
+                  <Box component="img" src={liveIcon} alt="Live Icon" sx={{ width: 24, height: 24 }} />
                   Using LIVE API Data
                 </>
               ) : (
@@ -173,10 +188,8 @@ function App() {
                 padding: "4px 8px",
                 transition: "background-color 0.3s ease",
                 "&:hover": {
-                  backgroundColor: mode === "dark"
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.05)",
-                },
+                  backgroundColor: mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"
+                }
               }}
             >
               <RefreshIcon sx={{ mr: 1 }} />
@@ -192,7 +205,7 @@ function App() {
             path="/table"
             element={
               <ProtectedRoute>
-                <FLTable data={reviewerData} />
+                <FLTable data={mergedReviewerData} />
               </ProtectedRoute>
             }
           />
@@ -200,7 +213,7 @@ function App() {
             path="/chart"
             element={
               <ProtectedRoute>
-                <FLChart data={reviewerData} />
+                <FLChart data={mergedReviewerData} />
               </ProtectedRoute>
             }
           />
@@ -208,7 +221,7 @@ function App() {
             path="/emails"
             element={
               <ProtectedRoute>
-                <EmailListGenerator data={reviewerData} />
+                <EmailListGenerator data={mergedReviewerData} />
               </ProtectedRoute>
             }
           />
@@ -232,7 +245,7 @@ function App() {
             path="/reports"
             element={
               <ProtectedRoute>
-                <Reports reviewerData={reviewerData} feedbackData={feedbackData} />
+                <Reports reviewerData={mergedReviewerData} feedbackData={feedbackData} />
               </ProtectedRoute>
             }
           />
