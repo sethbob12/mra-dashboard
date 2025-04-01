@@ -170,9 +170,9 @@ const Home = () => {
 <Box sx={{ mt: 6 }}>
   <NewsTicker
     messages={[
-      "✅ Accomplished: Refactored Email and Table components to use the new simplified Master/Transactional schema.",
-      "Pending: Update FLChart component to derive visualizations from the new data structure.",
-      "Pending: Enhance QAMetrics and Reports to reflect updated metrics.",
+      "✅ Accomplished: Refactored Email, Table, Global Map components to use the new simplified Master/Transactional schema.",
+      "Pending: Update Chart component to derive visualizations from the new data structure.",
+      "Pending: Update QAMetrics and Reports to reflect updated metrics.",
       "Pending: Integrate with DB exports in new JSON schema for proof-of-concept.",
     ]}
     sx={{ fontSize: "1.5rem" }}

@@ -55,7 +55,7 @@ const MatrixRain = () => {
         top: 0,
         left: 0,
         zIndex: -1,
-        opacity: 0.01, // Adjust for desired faintness
+        opacity: 0.03, // Adjust for desired faintness
       }}
     />
   );

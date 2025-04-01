@@ -1,5 +1,5 @@
 // src/FLChart.js
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -28,12 +28,9 @@ import TimelineIcon from "@mui/icons-material/Timeline";
 import GridViewIcon from "@mui/icons-material/GridView";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { useSearchParams } from "react-router-dom";
-
-import dayjs from "dayjs";
 import {
   ResponsiveContainer,
   PieChart,
@@ -54,6 +51,10 @@ import {
   Sankey
 } from "recharts";
 
+// Import static and dynamic data
+import FLMasterData from "./FLMasterData";
+import FLTransactionalData from "./FLTransactionalData";
+
 import InteractiveStackedBarChart from "./InteractiveStackedBarChart";
 import pdfIcon from "./assets/pdfIcon.png";
 
@@ -65,8 +66,23 @@ import TimeVAccuracyImg from "./assets/TimeVAccuracy.jpg";
 import GridImg from "./assets/Grid.jpg";
 import SankeyImg from "./assets/Sankey.jpg";
 
-// -------------------- Utility Functions --------------------
-// Export chart content to PDF.
+// -------------------- Merge Data --------------------
+// Merge static master data and dynamic transactional data based on mra_id.
+const useMergedData = () => {
+  return useMemo(() => {
+    const masterMap = {};
+    FLMasterData.forEach(entry => {
+      masterMap[entry.mra_id] = entry;
+    });
+    // The transactional data overrides master data
+    return FLTransactionalData.map(dyn => ({
+      ...masterMap[dyn.mra_id],
+      ...dyn
+    }));
+  }, []);
+};
+
+// -------------------- Utility: Export PDF --------------------
 const handleExportPDF = async (elementId, title, event) => {
   event.stopPropagation();
   const ref = document.getElementById(elementId);
@@ -80,42 +96,28 @@ const handleExportPDF = async (elementId, title, event) => {
   doc.save(`${title.replace(/\s+/g, "_").toLowerCase()}.pdf`);
 };
 
-// Compute overall KPIs across all reviewers.
-const computeOverallKPIs = (allData) => {
-  let totalCases = 0,
-    totalRevised = 0,
-    totalLate = 0;
-  allData.forEach((reviewer) => {
-    const snapshot = getLatestSnapshot(reviewer);
-    const total = snapshot ? (snapshot.casesPast30Days || 0) : 0;
-    const revised = snapshot ? Math.round(((snapshot.revisionRate || 0) * total) / 100) : 0;
-    const late = snapshot ? Math.round(((snapshot.lateCasePercentage || 0) * total) / 100) : 0;
-    totalCases += total;
-    totalRevised += revised;
-    totalLate += late;
-  });
-  const overallDirect = Math.max(0, totalCases - totalRevised - totalLate);
-  return {
-    totalCases,
-    overallDirect,
-    totalRevised,
-    totalLate,
-    percentDirect: totalCases ? (overallDirect / totalCases) * 100 : 0,
-    percentRevised: totalCases ? (totalRevised / totalCases) * 100 : 0,
-    percentLate: totalCases ? (totalLate / totalCases) * 100 : 0
-  };
-};
+// -------------------- Quality Score Calculation --------------------
+// eslint-disable-next-line no-unused-vars
+const computeQualityScore = (reviewer) => {
+  // Dynamic fields from merged data:
+  const revisionRate = reviewer.revisionRate || 0;
+  const lateCasePercentage = reviewer.lateCasePercentage || 0;
+  const avgCasesDay = reviewer.avgCasesDay || 0;
 
-const overallKPIsCalc = (data) => (Array.isArray(data) ? computeOverallKPIs(data) : null);
+  const accuracyScore = 100 - revisionRate;
+  const timelinessScore = 100 - lateCasePercentage;
+  const efficiencyScore = Math.min((avgCasesDay / 5) * 100, 100);
 
-// -------------------- Helpers --------------------
-const getLatestSnapshot = (reviewer) => {
-  if (!reviewer.snapshots || !Array.isArray(reviewer.snapshots) || reviewer.snapshots.length === 0)
-    return null;
-  const sorted = reviewer.snapshots.sort(
-    (a, b) => dayjs(b.snapshotDate).valueOf() - dayjs(a.snapshotDate).valueOf()
-  );
-  return sorted[0];
+  // Compute client count from comma-separated string.
+  let clientCount = 0;
+  if (typeof reviewer.clients === "string") {
+    clientCount = reviewer.clients.split(",").map(s => s.trim()).filter(Boolean).length;
+  } else if (Array.isArray(reviewer.clients)) {
+    clientCount = reviewer.clients.length;
+  }
+  const coveragePoints = Math.min(clientCount, 6);
+  const typePoints = reviewer.caseType === "Both" ? 4 : 2;
+  return (accuracyScore * 0.6) + (timelinessScore * 0.2) + (efficiencyScore * 0.1) + coveragePoints + typePoints;
 };
 
 // -------------------- Custom Tooltips --------------------
@@ -125,7 +127,7 @@ const CustomTooltipRevision = ({ active, payload }) => {
     return (
       <div style={{ backgroundColor: "#fff", padding: 5, border: "1px solid #ccc" }}>
         <p>{`Reviewer: ${reviewer}`}</p>
-        <p>{`Cases Past 30 Days: ${x}`}</p>
+        <p>{`Total Cases: ${x}`}</p>
         <p>{`Revision Rate: ${y}`}</p>
       </div>
     );
@@ -153,8 +155,8 @@ const generatePieData = (data) => {
   data.forEach((reviewer) => {
     reviewer.clients
       .split(",")
-      .map((c) => c.trim())
-      .forEach((client) => {
+      .map(c => c.trim())
+      .forEach(client => {
         if (!clientData[client]) {
           clientData[client] = { count: 0, names: [] };
         }
@@ -172,38 +174,23 @@ const generatePieData = (data) => {
 };
 
 const generateRevisionRateScatterData = (data) =>
-  data.map((reviewer) => {
-    const snapshot = getLatestSnapshot(reviewer);
-    return {
-      x: snapshot ? snapshot.casesPast30Days || 0 : 0,
-      y: snapshot ? snapshot.revisionRate || 0 : 0,
-      reviewer: reviewer.name
-    };
-  });
+  data.map(reviewer => ({
+    x: reviewer.totalCases || 0,
+    y: reviewer.revisionRate || 0,
+    reviewer: reviewer.name
+  }));
 
 const generatePerformanceScatterData = (data) =>
-  data
-    .map((reviewer) => {
-      const snapshot = getLatestSnapshot(reviewer);
-      if (
-        snapshot &&
-        typeof snapshot.accuracyScore === "number" &&
-        typeof snapshot.timelinessScore === "number"
-      ) {
-        return {
-          accuracy: snapshot.accuracyScore || 50,
-          timeliness: snapshot.timelinessScore || 50,
-          reviewer: reviewer.name
-        };
-      }
-      return null;
-    })
-    .filter((item) => item !== null);
+  data.map(reviewer => {
+    const accuracy = reviewer.accuracyScore !== undefined ? reviewer.accuracyScore : (100 - reviewer.revisionRate);
+    const timeliness = reviewer.timelinessScore !== undefined ? reviewer.timelinessScore : (100 - reviewer.lateCasePercentage);
+    return { accuracy, timeliness, reviewer: reviewer.name };
+  });
 
-// No-op for Customized placeholder.
+// No-op placeholder for Customized.
 const renderTriangleBackground = () => null;
 
-// -------------------- MiniImage --------------------
+// -------------------- MiniImage Component --------------------
 function MiniImage({ src, alt }) {
   return (
     <Box
@@ -213,19 +200,10 @@ function MiniImage({ src, alt }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        overflow: "hidden",
+        overflow: "hidden"
       }}
     >
-      <Box
-        component="img"
-        src={src}
-        alt={alt}
-        sx={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
+      <Box component="img" src={src} alt={alt} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
     </Box>
   );
 }
@@ -243,15 +221,14 @@ const ClientReviewerGrid = ({ data }) => {
     "LTC",
     "Muckleshoot"
   ];
-  const rows = data.map((reviewer) => {
-    const reviewerClients = reviewer.clients.split(",").map((c) => c.trim());
+  const rows = data.map(reviewer => {
+    const reviewerClients = reviewer.clients.split(",").map(c => c.trim());
     let row = { Reviewer: reviewer.name };
-    fixedClientOrder.forEach((client) => {
+    fixedClientOrder.forEach(client => {
       row[client] = reviewerClients.includes(client) ? "X" : "";
     });
     return row;
   });
-
   return (
     <Paper sx={{ mt: 2, border: "1px solid #ccc", overflowX: "auto", borderRadius: 2, boxShadow: 1 }}>
       <Typography variant="h6" sx={{ p: 2, color: "#fff", textAlign: "center" }}>
@@ -270,34 +247,17 @@ const ClientReviewerGrid = ({ data }) => {
         >
           <colgroup>
             <col style={{ width: `${100 / (fixedClientOrder.length + 1)}%` }} />
-            {fixedClientOrder.map((client) => (
+            {fixedClientOrder.map(client => (
               <col key={client} style={{ width: `${100 / (fixedClientOrder.length + 1)}%` }} />
             ))}
           </colgroup>
           <thead>
             <tr style={{ backgroundColor: "#1976d2" }}>
-              <th
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "4px",
-                  textAlign: "center",
-                  color: "#fff",
-                  fontWeight: "bold"
-                }}
-              >
+              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", color: "#fff", fontWeight: "bold" }}>
                 Reviewer
               </th>
-              {fixedClientOrder.map((client) => (
-                <th
-                  key={client}
-                  style={{
-                    border: "1px solid #ccc",
-                    padding: "4px",
-                    textAlign: "center",
-                    color: "#fff",
-                    fontWeight: "bold"
-                  }}
-                >
+              {fixedClientOrder.map(client => (
+                <th key={client} style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", color: "#fff", fontWeight: "bold" }}>
                   {client}
                 </th>
               ))}
@@ -306,17 +266,10 @@ const ClientReviewerGrid = ({ data }) => {
           <tbody>
             {rows.map((row, index) => (
               <tr key={index} style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f5f5f5" }}>
-                <td
-                  style={{
-                    border: "1px solid #ccc",
-                    padding: "4px",
-                    textAlign: "center",
-                    fontWeight: "bold"
-                  }}
-                >
+                <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", fontWeight: "bold" }}>
                   {row["Reviewer"]}
                 </td>
-                {fixedClientOrder.map((client) => (
+                {fixedClientOrder.map(client => (
                   <td key={client} style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>
                     {row[client]}
                   </td>
@@ -336,7 +289,7 @@ const ReviewerDotTable = ({ data, minXData }) => {
   return (
     <Paper sx={{ p: 1, width: "50%", margin: "16px auto" }}>
       <Box
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen(prev => !prev)}
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -372,13 +325,9 @@ const ReviewerDotTable = ({ data, minXData }) => {
           </colgroup>
           <thead>
             <tr style={{ backgroundColor: "#e0e0e0" }}>
-              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>
-                Reviewer
-              </th>
+              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Reviewer</th>
               <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Cases</th>
-              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>
-                Revision Rate (%)
-              </th>
+              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Revision Rate (%)</th>
               <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Meets Goal</th>
             </tr>
           </thead>
@@ -398,21 +347,11 @@ const ReviewerDotTable = ({ data, minXData }) => {
               const rowBgColor = i % 2 === 0 ? "#fff" : "#f9f9f9";
               return (
                 <tr key={i} style={{ backgroundColor: rowBgColor }}>
-                  <td
-                    style={{
-                      border: "1px solid #ccc",
-                      padding: "4px",
-                      textAlign: "center",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis"
-                    }}
-                  >
+                  <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {d.reviewer}
                   </td>
                   <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>{d.x}</td>
-                  <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>
-                    {d.y.toFixed(1)}
-                  </td>
+                  <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>{d.y.toFixed(1)}</td>
                   <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", backgroundColor: dotColor }}>
                     &nbsp;
                   </td>
@@ -427,16 +366,90 @@ const ReviewerDotTable = ({ data, minXData }) => {
 };
 
 // -------------------- Main FLChart Component --------------------
-const FLChart = ({ data }) => {
+const FLChart = () => {
   const theme = useTheme();
-  // For non-header text in dark mode, use white.
   const textColor = theme.palette.mode === "dark" ? "#fff" : "#000";
 
-  const revisionScatterData = generateRevisionRateScatterData(data);
-  const xValues = revisionScatterData.map((d) => d.x);
+  // Merge the master and transactional data.
+  const data = useMergedData();
+
+  // Compute quality scores for each reviewer.
+  const qualityData = useMemo(() => {
+    return data.map(reviewer => {
+      const revisionRate = reviewer.revisionRate || 0;
+      const lateCasePercentage = reviewer.lateCasePercentage || 0;
+      const avgCasesDay = reviewer.avgCasesDay || 0;
+      const accuracyScore = 100 - revisionRate;
+      const timelinessScore = 100 - lateCasePercentage;
+      const efficiencyScore = Math.min((avgCasesDay / 5) * 100, 100);
+
+      // Count clients.
+      let clientCount = 0;
+      if (typeof reviewer.clients === "string") {
+        clientCount = reviewer.clients.split(",").map(s => s.trim()).filter(Boolean).length;
+      } else if (Array.isArray(reviewer.clients)) {
+        clientCount = reviewer.clients.length;
+      }
+      const coveragePoints = Math.min(clientCount, 6);
+      const typePoints = reviewer.caseType === "Both" ? 4 : 2;
+      const overallQualityScore = (accuracyScore * 0.6) + (timelinessScore * 0.2) + (efficiencyScore * 0.1) + coveragePoints + typePoints;
+      return {
+        ...reviewer,
+        accuracyScore,
+        timelinessScore,
+        efficiencyScore,
+        overallQualityScore
+      };
+    });
+  }, [data]);
+
+  // Generate chart data.
+  const revisionScatterData = useMemo(() => generateRevisionRateScatterData(data), [data]);
+  const performanceScatterData = useMemo(() => generatePerformanceScatterData(data), [data]);
+  const pieDataGenerated = useMemo(() => generatePieData(data), [data]);
+
+  const xValues = revisionScatterData.map(d => d.x);
   const minXData = xValues.length ? Math.min(...xValues) : 0;
 
-  // Custom vertical line renderer using Customized.
+  // For composed chart (Revisions vs. Total Cases)
+  let lineData = [];
+  if (xValues.length && Math.max(...xValues) > 90) {
+    lineData = [
+      { x: minXData, y: 20 },
+      { x: 90, y: 30 },
+      { x: Math.max(...xValues), y: 30 }
+    ];
+  } else if (xValues.length) {
+    const slope = (30 - 20) / (90 - minXData);
+    lineData = [
+      { x: minXData, y: 20 },
+      { x: Math.max(...xValues), y: 20 + slope * (Math.max(...xValues) - minXData) }
+    ];
+  }
+
+  // Custom dot renderers.
+  const renderCustomDot = (props) => {
+    const { cx, cy, payload } = props;
+    let expectedY;
+    if (payload.x <= minXData) {
+      expectedY = 20;
+    } else if (payload.x >= 90) {
+      expectedY = 30;
+    } else {
+      const slope = (30 - 20) / (90 - minXData);
+      expectedY = 20 + slope * (payload.x - minXData);
+    }
+    const fillColor = payload.y < expectedY ? "green" : "red";
+    return <circle cx={cx} cy={cy} r={5} fill={fillColor} stroke="#fff" strokeWidth={1} />;
+  };
+
+  const renderCustomDotForPerformance = (props) => {
+    const { cx, cy, payload } = props;
+    const isGreen = payload.accuracy >= 75 && payload.timeliness >= 75;
+    return <circle cx={cx} cy={cy} r={5} fill={isGreen ? "green" : "red"} stroke="#fff" strokeWidth={1} />;
+  };
+
+  // Custom vertical line renderer.
   const renderCustomVerticalLine = (props) => {
     const { xAxisMap, yAxisMap } = props;
     const xAxis = Object.values(xAxisMap)[0];
@@ -448,52 +461,20 @@ const FLChart = ({ data }) => {
     return <line x1={xCoord} y1={yCoordBottom} x2={xCoord} y2={yCoordTop} stroke="blue" strokeDasharray="3 3" />;
   };
 
-  const [expandedPanels, setExpandedPanels] = useState({});
+  // State for workflow Sankey.
   const [selectedReviewer, setSelectedReviewer] = useState("");
   const [sankeyData, setSankeyData] = useState(null);
   const [kpiData, setKpiData] = useState(null);
   const [searchParams] = useSearchParams();
   const [popoverAnchor, setPopoverAnchor] = useState(null);
   const [popoverData, setPopoverData] = useState(null);
-
-  const qualityData = data.map((reviewer) => {
-    const snapshot = getLatestSnapshot(reviewer);
-    return {
-      ...reviewer,
-      qualityScore: snapshot ? snapshot.qualityScore : 0,
-      accuracyScore: snapshot ? snapshot.accuracyScore : 0,
-      timelinessScore: snapshot ? snapshot.timelinessScore : 0,
-      efficiencyScore: snapshot ? snapshot.efficiencyScore : 0,
-      costPerCase: snapshot ? snapshot.costPerCase : {}
-    };
-  });
-
-  const togglePanel = (panel, event) => {
-    event.stopPropagation();
-    setExpandedPanels((prev) => ({ ...prev, [panel]: !prev[panel] }));
-  };
-
-  const getColor = (reviewerValue, overallValue, isHigherBetter = true) => {
-    return isHigherBetter
-      ? reviewerValue >= overallValue
-        ? "green"
-        : "red"
-      : reviewerValue <= overallValue
-      ? "green"
-      : "red";
-  };
-
-  const handleSliceClick = (payload, event) => {
-    event.stopPropagation();
-    setPopoverAnchor(event.currentTarget);
-    setPopoverData(payload);
-  };
+  const [expandedPanels, setExpandedPanels] = useState({});
 
   useEffect(() => {
     const reviewerParam = searchParams.get("reviewer");
     if (reviewerParam) {
       setSelectedReviewer(reviewerParam);
-      setExpandedPanels((prev) => ({ ...prev, panel6: true }));
+      setExpandedPanels(prev => ({ ...prev, panel6: true }));
       setTimeout(() => {
         const sankeyElem = document.getElementById("sankeyPaperRef");
         if (sankeyElem) {
@@ -505,15 +486,14 @@ const FLChart = ({ data }) => {
 
   const handleGenerateSankey = useCallback(() => {
     if (!selectedReviewer || !Array.isArray(data)) return;
-    const row = data.find((r) => r.name === selectedReviewer);
+    const row = data.find(r => r.name === selectedReviewer);
     if (!row) {
       alert("Reviewer not found in data.");
       return;
     }
-    const snapshot = getLatestSnapshot(row);
-    const total = snapshot ? (snapshot.casesPast30Days || 0) : 0;
-    const revised = snapshot ? Math.round(((snapshot.revisionRate || 0) * total) / 100) : 0;
-    const late = snapshot ? Math.round(((snapshot.lateCasePercentage || 0) * total) / 100) : 0;
+    const total = row.totalCases || 0;
+    const revised = Math.round(((row.revisionRate || 0) * total) / 100);
+    const late = Math.round(((row.lateCasePercentage || 0) * total) / 100);
     const directCompleted = Math.max(0, total - revised - late);
     const percentDirect = total ? (directCompleted / total) * 100 : 0;
     const percentRevised = total ? (revised / total) * 100 : 0;
@@ -548,72 +528,32 @@ const FLChart = ({ data }) => {
     });
   }, [selectedReviewer, data]);
 
-  const pieDataGenerated = Array.isArray(data) ? generatePieData(data) : [];
-  const performanceScatterData = generatePerformanceScatterData(data);
-
-  let lineData = [];
-  if (xValues.length && Math.max(...xValues) > 90) {
-    lineData = [
-      { x: minXData, y: 20 },
-      { x: 90, y: 30 },
-      { x: Math.max(...xValues), y: 30 }
-    ];
-  } else if (xValues.length) {
-    const slope = (30 - 20) / (90 - minXData);
-    lineData = [
-      { x: minXData, y: 20 },
-      { x: Math.max(...xValues), y: 20 + slope * (Math.max(...xValues) - minXData) }
-    ];
-  }
-
-  const renderCustomDot = (props) => {
-    const { cx, cy, payload } = props;
-    let expectedY;
-    if (payload.x <= minXData) {
-      expectedY = 20;
-    } else if (payload.x >= 90) {
-      expectedY = 30;
-    } else {
-      const slope = (30 - 20) / (90 - minXData);
-      expectedY = 20 + slope * (payload.x - minXData);
-    }
-    const fillColor = payload.y < expectedY ? "green" : "red";
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={5}
-        fill={fillColor}
-        stroke="#fff"
-        strokeWidth={1}
-      />
-    );
-  };
-
-  const renderCustomDotForPerformance = (props) => {
-    const { cx, cy, payload } = props;
-    const isGreen = payload.accuracy >= 75 && payload.timeliness >= 75;
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={5}
-        fill={isGreen ? "green" : "red"}
-        stroke="#fff"
-        strokeWidth={1}
-      />
-    );
-  };
-
-  if (!Array.isArray(data) || data.length === 0) {
-    return <Typography sx={{ ml: 2, mt: 2, color: textColor }}>No data available.</Typography>;
-  }
-
-  const overallKPIs = overallKPIsCalc(data);
+  // Compute overall KPIs across all reviewers.
+  const overallKPIs = useMemo(() => {
+    let totalCases = 0, totalRevised = 0, totalLate = 0;
+    data.forEach(reviewer => {
+      const total = reviewer.totalCases || 0;
+      const revised = Math.round(((reviewer.revisionRate || 0) * total) / 100);
+      const late = Math.round(((reviewer.lateCasePercentage || 0) * total) / 100);
+      totalCases += total;
+      totalRevised += revised;
+      totalLate += late;
+    });
+    const overallDirect = Math.max(0, totalCases - totalRevised - totalLate);
+    return {
+      totalCases,
+      overallDirect,
+      totalRevised,
+      totalLate,
+      percentDirect: totalCases ? (overallDirect / totalCases) * 100 : 0,
+      percentRevised: totalCases ? (totalRevised / totalCases) * 100 : 0,
+      percentLate: totalCases ? (totalLate / totalCases) * 100 : 0
+    };
+  }, [data]);
 
   return (
     <Box sx={{ mb: 4, px: 2 }}>
-      {/* --- Pie Chart Popover --- */}
+      {/* Pie Chart Popover */}
       <Popover
         open={Boolean(popoverAnchor)}
         anchorEl={popoverAnchor}
@@ -652,63 +592,56 @@ const FLChart = ({ data }) => {
 
       <Grid container spacing={3}>
         {/* CARD 1: Quality Scores */}
-<Grid item xs={12} md={expandedPanels["panel1"] ? 12 : 4}>
-  <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
-    <CardHeader
-      avatar={<BarChartIcon sx={{ color: "#fff" }} />}
-      title={
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
-          Quality Scores
-        </Typography>
-      }
-      subheader={
-        <Typography sx={{ color: "black" }}>
-          (Stacked Bar Chart)
-        </Typography>
-      }
-      sx={{
-        background: "linear-gradient(to right, #E3F2FD, #90CAF9)",
-        borderBottom: "1px solid #0D47A1",
-        cursor: "pointer"
-      }}
-      onClick={(e) => togglePanel("panel1", e)}
-    />
-    {!expandedPanels["panel1"] && (
-      <CardContent>
-        <MiniImage src={QABarChartImg} alt="Mini preview of Quality Scores" />
-      </CardContent>
-    )}
-    <Collapse in={expandedPanels["panel1"]} timeout="auto" unmountOnExit>
-      {/* Change background color for quality scores content in dark mode */}
-      <CardContent
-        id="qualityScoresRef"
-        sx={{
-          backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff",
-          p: 2
-        }}
-      >
-        <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="h6" sx={{ mb: 2, color: textColor }}>
-            This stacked bar chart shows each reviewer’s overall quality scores based on their latest snapshot.
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <InteractiveStackedBarChart data={qualityData} />
-          <Typography variant="caption" display="block" sx={{ mt: 1, color: textColor }}>
-            *Methodology: Quality Score = Accuracy (60%) + Timeliness (20%) + Efficiency (10%) + Coverage (6%) + Type (4%)*<br />
-            *Hover for cost comparison info.*
-          </Typography>
-        </Paper>
-      </CardContent>
-      <CardActions sx={{ justifyContent: "flex-end" }}>
-        <MuiTooltip title="Export Quality Scores to PDF">
-          <IconButton onClick={(e) => handleExportPDF("qualityScoresRef", "Quality Scores", e)}>
-            <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
-          </IconButton>
-        </MuiTooltip>
-      </CardActions>
-    </Collapse>
-  </Card>
-</Grid>
+        <Grid item xs={12} md={expandedPanels["panel1"] ? 12 : 4}>
+          <Card sx={{ minHeight: 240, borderRadius: 2, boxShadow: 3 }}>
+            <CardHeader
+              avatar={<BarChartIcon sx={{ color: "#fff" }} />}
+              title={
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
+                  Quality Scores
+                </Typography>
+              }
+              subheader={<Typography sx={{ color: "black" }}>(Stacked Bar Chart)</Typography>}
+              sx={{
+                background: "linear-gradient(to right, #E3F2FD, #90CAF9)",
+                borderBottom: "1px solid #0D47A1",
+                cursor: "pointer"
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedPanels(prev => ({ ...prev, panel1: !prev.panel1 }));
+              }}
+            />
+            {!expandedPanels["panel1"] && (
+              <CardContent>
+                <MiniImage src={QABarChartImg} alt="Mini preview of Quality Scores" />
+              </CardContent>
+            )}
+            <Collapse in={expandedPanels["panel1"]} timeout="auto" unmountOnExit>
+              <CardContent id="qualityScoresRef" sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff", p: 2 }}>
+                <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
+                  <Typography variant="h6" sx={{ mb: 2, color: textColor }}>
+                    Quality Scores by Reviewer
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1, color: textColor }}>
+                    Accuracy = 100 – Revision Rate | Timeliness = 100 – Late % | Efficiency = min((Avg Cases ÷ 5)×100,100)
+                  </Typography>
+                  <InteractiveStackedBarChart data={qualityData} />
+                  <Typography variant="caption" display="block" sx={{ mt: 1, color: textColor }}>
+                    *Methodology: Quality Score = (Accuracy×60%) + (Timeliness×20%) + (Efficiency×10%) + Coverage (max 6) + Type (4 or 2)*
+                  </Typography>
+                </Paper>
+              </CardContent>
+              <CardActions sx={{ justifyContent: "flex-end" }}>
+                <MuiTooltip title="Export Quality Scores to PDF">
+                  <IconButton onClick={(e) => handleExportPDF("qualityScoresRef", "Quality Scores", e)}>
+                    <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
+                  </IconButton>
+                </MuiTooltip>
+              </CardActions>
+            </Collapse>
+          </Card>
+        </Grid>
 
         {/* CARD 2: Reviewer Distribution */}
         <Grid item xs={12} md={expandedPanels["panel2"] ? 12 : 4}>
@@ -720,17 +653,16 @@ const FLChart = ({ data }) => {
                   Reviewer Distribution
                 </Typography>
               }
-              subheader={
-                <Typography sx={{ color: "black" }}>
-                  (Pie Chart)
-                </Typography>
-              }
+              subheader={<Typography sx={{ color: "black" }}>(Pie Chart)</Typography>}
               sx={{
                 background: "linear-gradient(to right, #E1F5FE, #81D4FA)",
                 borderBottom: "1px solid #0D47A1",
                 cursor: "pointer"
               }}
-              onClick={(e) => togglePanel("panel2", e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedPanels(prev => ({ ...prev, panel2: !prev.panel2 }));
+              }}
             />
             {!expandedPanels["panel2"] && (
               <CardContent>
@@ -738,10 +670,10 @@ const FLChart = ({ data }) => {
               </CardContent>
             )}
             <Collapse in={expandedPanels["panel2"]} timeout="auto" unmountOnExit>
-              <CardContent sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff" }}>
+              <CardContent id="reviewerDistRef" sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff" }}>
                 <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 1, color: textColor }}>
-                    This pie chart depicts the distribution of reviewers per client.
+                    Reviewer Distribution by Client
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <ResponsiveContainer width="100%" height={400}>
@@ -754,7 +686,10 @@ const FLChart = ({ data }) => {
                         label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
                         outerRadius={150}
                         dataKey="value"
-                        onClick={(dataObj, index, event) => handleSliceClick(dataObj.payload, event)}
+                        onClick={(dataObj, index, event) => {
+                          setPopoverAnchor(event.currentTarget);
+                          setPopoverData(dataObj.payload);
+                        }}
                       >
                         {pieDataGenerated.map((entry) => (
                           <Cell key={entry.name} fill={entry.color} style={{ cursor: "pointer" }} />
@@ -787,22 +722,19 @@ const FLChart = ({ data }) => {
                   Revisions vs. Case Volume
                 </Typography>
               }
-              subheader={
-                <Typography sx={{ color: "black" }}>
-                  (Composed Chart)
-                </Typography>
-              }
+              subheader={<Typography sx={{ color: "black" }}>(Composed Chart)</Typography>}
               action={
-                expandedPanels["panel3"]
-                  ? <KeyboardArrowUpIcon sx={{ color: "black" }} />
-                  : <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                expandedPanels["panel3"] ? <KeyboardArrowUpIcon sx={{ color: "black" }} /> : <KeyboardArrowDownIcon sx={{ color: "black" }} />
               }
               sx={{
                 background: "linear-gradient(to right, #F1F8E9, #C5E1A5)",
                 borderBottom: "1px solid #0D47A1",
                 cursor: "pointer"
               }}
-              onClick={(e) => togglePanel("panel3", e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedPanels(prev => ({ ...prev, panel3: !prev.panel3 }));
+              }}
             />
             {!expandedPanels["panel3"] && (
               <CardContent>
@@ -813,7 +745,7 @@ const FLChart = ({ data }) => {
               <CardContent id="revisionChartRef" sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff", p: 2 }}>
                 <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 1, color: textColor }}>
-                    "Yield". This chart compares the number of cases (from the latest snapshot's past 30 days) to the revision rate.
+                    Revisions vs. Total Cases
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <ResponsiveContainer width="100%" height={400}>
@@ -822,7 +754,7 @@ const FLChart = ({ data }) => {
                       <XAxis
                         type="number"
                         dataKey="x"
-                        label={{ value: "Cases Past 30 Days", position: "insideBottom", offset: -5, fill: textColor }}
+                        label={{ value: "Total Cases", position: "insideBottom", offset: -5, fill: textColor }}
                       />
                       <YAxis
                         type="number"
@@ -831,15 +763,7 @@ const FLChart = ({ data }) => {
                         label={{ value: "Revision Rate (%)", angle: -90, position: "insideLeft", offset: -10, fill: textColor }}
                       />
                       <Customized component={renderCustomVerticalLine} />
-                      <Line
-                        data={lineData}
-                        dataKey="y"
-                        stroke="#000"
-                        dot={false}
-                        isAnimationActive={false}
-                        activeDot={false}
-                        style={{ pointerEvents: "none" }}
-                      />
+                      <Line data={lineData} dataKey="y" stroke="#000" dot={false} isAnimationActive={false} activeDot={false} style={{ pointerEvents: "none" }} />
                       <Customized component={renderTriangleBackground} />
                       <RechartsTooltip content={<CustomTooltipRevision />} />
                       <Scatter data={revisionScatterData} shape={renderCustomDot} />
@@ -850,7 +774,7 @@ const FLChart = ({ data }) => {
               </CardContent>
               <CardActions sx={{ justifyContent: "flex-end" }}>
                 <MuiTooltip title="Export Revision Chart to PDF">
-                  <IconButton onClick={(e) => handleExportPDF("revisionChartRef", "Revision Rate vs. Cases Past 30 Days", e)}>
+                  <IconButton onClick={(e) => handleExportPDF("revisionChartRef", "Revision Rate vs. Total Cases", e)}>
                     <Box component="img" src={pdfIcon} alt="PDF Icon" sx={{ width: 40, height: 40 }} />
                   </IconButton>
                 </MuiTooltip>
@@ -869,18 +793,15 @@ const FLChart = ({ data }) => {
                   Timeliness vs. Accuracy
                 </Typography>
               }
-              subheader={
-                <Typography sx={{ color: "black" }}>
-                  (Scatter Chart with Quadrant Analysis)
-                </Typography>
-              }
+              subheader={<Typography sx={{ color: "black" }}>(Scatter Chart with Quadrant Analysis)</Typography>}
               action={
-                expandedPanels["panel4"]
-                  ? <KeyboardArrowUpIcon sx={{ color: "black" }} />
-                  : <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                expandedPanels["panel4"] ? <KeyboardArrowUpIcon sx={{ color: "black" }} /> : <KeyboardArrowDownIcon sx={{ color: "black" }} />
               }
               sx={{ background: "linear-gradient(to right, #FCE4EC, #F8BBD0)", borderBottom: "1px solid #0D47A1", cursor: "pointer" }}
-              onClick={(e) => togglePanel("panel4", e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedPanels(prev => ({ ...prev, panel4: !prev.panel4 }));
+              }}
             />
             {!expandedPanels["panel4"] && (
               <CardContent>
@@ -889,10 +810,9 @@ const FLChart = ({ data }) => {
             )}
             <Collapse in={expandedPanels["panel4"]} timeout="auto" unmountOnExit>
               <CardContent id="performanceChartRef" sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff" }}>
-                <Paper elevation={1} sx={{ p: 2, mb: 4, borderRadius: 2 }}>
+                <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 1, color: textColor }}>
-                    "Effectiveness". This chart plots each reviewer’s timeliness and accuracy from their latest snapshot.
-                    Green dots indicate strong performance.
+                    Accuracy and Timeliness Comparison
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <ResponsiveContainer width="100%" height={400}>
@@ -932,13 +852,12 @@ const FLChart = ({ data }) => {
                   Clients Per Reviewer
                 </Typography>
               }
-              subheader={
-                <Typography sx={{ color: "black" }}>
-                  (Grid)
-                </Typography>
-              }
+              subheader={<Typography sx={{ color: "black" }}>(Grid)</Typography>}
               sx={{ background: "linear-gradient(to right, #FFF3E0, #FFCC80)", borderBottom: "1px solid #0D47A1", cursor: "pointer" }}
-              onClick={(e) => togglePanel("panel5", e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedPanels(prev => ({ ...prev, panel5: !prev.panel5 }));
+              }}
             />
             {!expandedPanels["panel5"] && (
               <CardContent>
@@ -949,7 +868,7 @@ const FLChart = ({ data }) => {
               <CardContent sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff" }}>
                 <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 1, color: textColor }}>
-                    This grid shows which clients each reviewer handles.
+                    Reviewer - Client Assignments
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <ClientReviewerGrid data={data} />
@@ -969,18 +888,15 @@ const FLChart = ({ data }) => {
                   Workflow Sankey
                 </Typography>
               }
-              subheader={
-                <Typography sx={{ color: "black" }}>
-                  (Flow Diagram - Past 30 Days)
-                </Typography>
-              }
+              subheader={<Typography sx={{ color: "black" }}>(Flow Diagram - Past 30 Days)</Typography>}
               action={
-                expandedPanels["panel6"]
-                  ? <KeyboardArrowUpIcon sx={{ color: "black" }} />
-                  : <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                expandedPanels["panel6"] ? <KeyboardArrowUpIcon sx={{ color: "black" }} /> : <KeyboardArrowDownIcon sx={{ color: "black" }} />
               }
               sx={{ background: "linear-gradient(to right, #E8F5E9, #A5D6A7)", borderBottom: "1px solid #0D47A1", cursor: "pointer" }}
-              onClick={(e) => togglePanel("panel6", e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedPanels(prev => ({ ...prev, panel6: !prev.panel6 }));
+              }}
             />
             {!expandedPanels["panel6"] && (
               <CardContent>
@@ -991,16 +907,11 @@ const FLChart = ({ data }) => {
               <CardContent id="sankeyPaperRef" sx={{ backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff", p: 2 }}>
                 <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
                   <Typography variant="h6" sx={{ mb: 2, color: textColor }}>
-                    Generate a workflow Sankey diagram for a selected reviewer.
+                    Workflow Sankey Diagram
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel
-                      sx={{
-                        color: textColor,
-                        "&.Mui-focused": { color: textColor }
-                      }}
-                    >
+                    <InputLabel sx={{ color: textColor, "&.Mui-focused": { color: textColor } }}>
                       Reviewer
                     </InputLabel>
                     <Select
@@ -1012,15 +923,9 @@ const FLChart = ({ data }) => {
                       }}
                       sx={{
                         color: textColor,
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          borderColor: textColor,
-                        },
-                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                          borderColor: textColor,
-                        },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                          borderColor: textColor,
-                        },
+                        "& .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: textColor },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: textColor }
                       }}
                     >
                       <MenuItem value="" sx={{ color: textColor }}>
@@ -1102,21 +1007,21 @@ const FLChart = ({ data }) => {
                             </Typography>
                             <Typography variant="body2" sx={{ textAlign: "center", color: textColor }}>
                               <strong>Direct Completed:</strong> {kpiData.directCompleted} (
-                              <span style={{ color: getColor(kpiData.percentDirect, overallKPIsCalc(data).percentDirect, true) }}>
+                              <span style={{ color: kpiData.percentDirect >= overallKPIs.percentDirect ? "green" : "red" }}>
                                 {kpiData.percentDirect.toFixed(1)}%
                               </span>
                               )
                             </Typography>
                             <Typography variant="body2" sx={{ textAlign: "center", color: textColor }}>
                               <strong>Revised:</strong> {kpiData.revised} (
-                              <span style={{ color: getColor(kpiData.percentRevised, overallKPIsCalc(data).percentRevised, false) }}>
+                              <span style={{ color: kpiData.percentRevised <= overallKPIs.percentRevised ? "green" : "red" }}>
                                 {kpiData.percentRevised.toFixed(1)}%
                               </span>
                               )
                             </Typography>
                             <Typography variant="body2" sx={{ textAlign: "center", color: textColor }}>
                               <strong>Late:</strong> {kpiData.late} (
-                              <span style={{ color: getColor(kpiData.percentLate, overallKPIsCalc(data).percentLate, false) }}>
+                              <span style={{ color: kpiData.percentLate <= overallKPIs.percentLate ? "green" : "red" }}>
                                 {kpiData.percentLate.toFixed(1)}%
                               </span>
                               )

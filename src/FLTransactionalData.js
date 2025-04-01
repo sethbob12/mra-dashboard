@@ -26,9 +26,9 @@ const FLTransactionalData = [
     totalCases: 815,
     casesByClient: { PFR: 408, Lincoln: 407 },
     totalRevisions: 90,
-    avgCasesDay: 4.8,
-    revisionRate: 50.00,
-    lateCasePercentage: 12
+    avgCasesDay: 5.8,
+    revisionRate: 5.00,
+    lateCasePercentage: 3
   },
   {
     mra_id: 4,
@@ -357,8 +357,8 @@ const FLTransactionalData = [
     casesByClient: { PFR: 168, Lincoln: 168, Hartford: 167, "Peer Review": 167, Telco: 167, NYL: 167, Standard: 167 },
     totalRevisions: 28,
     avgCasesDay: 5.1,
-    revisionRate: 15.69,
-    lateCasePercentage: 5
+    revisionRate: 5.69,
+    lateCasePercentage: 3
   },
   {
     mra_id: 37,

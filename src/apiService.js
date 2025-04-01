@@ -1,11 +1,11 @@
 // src/apiService.js
 
 // Import mock data as fallback
-import FLData from "./FLData";         // Frontline Reviewer Data (Mock)
+import FLData from "./FLData";         // MRA Data (Mock)
 import QAData from "./QAData";           // Quality Assurance Data (Mock)
 import FeedbackData from "./FeedbackData"; // Feedback Data (Mock)
 
-// Toggle to force using mock data (for debugging/fallback)
+// Toggle to force using mock data (for debugging/demonstration)
 const USE_MOCK_DATA = false;
 
 // ===================================================================
@@ -13,14 +13,14 @@ const USE_MOCK_DATA = false;
 // Replace the endpoint URLs below with the corresponding Tableau Cloud API endpoints.
 // ===================================================================
 
-// Fetch Reviewer Data (Frontline Reviewer Data)
+// Fetch Reviewer Data (MRA Data)
 export const fetchReviewerData = async (forceMock = false) => {
   try {
     if (USE_MOCK_DATA || forceMock) {
       console.log("Using MOCK data for Reviewer Data.");
       return FLData;
     } else {
-      // TODO: Replace the URL below with the Tableau Cloud endpoint for Frontline Reviewer Data.
+      // TODO: Replace the URL below with the Tableau Cloud endpoint for MRA Data.
       const endpointUrl = "https://my-json-server-9oad.onrender.com/mockFLData";
       console.log("Fetching Reviewer Data from Tableau Cloud endpoint...");
       const response = await fetch(endpointUrl);
