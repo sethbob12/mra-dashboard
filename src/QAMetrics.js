@@ -27,9 +27,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -47,17 +45,15 @@ import {
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
-// Import static data for QA and Feedback.
+// Import static data
 import QAData from "./QAData";
 import FeedbackData from "./FeedbackData";
-
-dayjs.extend(utc);
 
 const openSansTheme = createTheme({
   typography: { fontFamily: "Open Sans, sans-serif" }
 });
 
-// Fallback mapping if QA member not found in QAData.
+// Fallback mapping if a QA member isn’t found in QAData
 const qaInternalMapping = {
   1: "Alice Cooper",
   2: "Brian Adams",
@@ -79,13 +75,13 @@ const baseColors = [
   "#8A2BE2"
 ];
 
-// Helper: Return the QA member name for a given qaMember id.
+// Helper: Return QA member name for a given qaMember id.
 const getQAName = (qaMember, qaData) => {
   const qaObj = qaData.find((item) => Number(item.qaMember) === Number(qaMember));
   return qaObj ? qaObj.name : qaInternalMapping[qaMember] || qaMember;
 };
 
-// Helper: Compute trend arrow and percentage change.
+// Helper: Compute trend arrow and percent change.
 const getTrend = (current, previous) => {
   if (previous === 0) return { arrow: "-", change: "N/A" };
   const diff = current - previous;
@@ -138,7 +134,6 @@ const computeCombinedTrend = (qaData, uniqueQAMemberIDs, endDate) => {
 };
 
 // Helper: Filter and sort internal feedback for a given QA member.
-// Using dayjs.utc for consistent comparisons.
 const getSortedFeedback = (qaMember, start, end, feedbackData) => {
   return feedbackData
     .filter((fb) => {
@@ -153,7 +148,7 @@ const getSortedFeedback = (qaMember, start, end, feedbackData) => {
     .sort((a, b) => dayjs.utc(a.date).valueOf() - dayjs.utc(b.date).valueOf());
 };
 
-// Sorting helpers for the feedback table.
+// Sorting helpers for feedback table.
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
@@ -183,7 +178,7 @@ export default function QAMetrics() {
   const textColor = theme.palette.mode === "dark" ? "#fff" : "#000";
   const bgColor = theme.palette.mode === "dark" ? "#424242" : "#f9f9f9";
 
-  // Set default date range (adjust as needed)
+  // Default date range.
   const [startDate, setStartDate] = useState(dayjs("2024-09-01"));
   const [endDate, setEndDate] = useState(dayjs("2025-04-01"));
 
@@ -196,7 +191,7 @@ export default function QAMetrics() {
 
   const noData = !Array.isArray(qaData) || qaData.length === 0;
 
-  // Get unique QA member IDs and a dropdown list.
+  // Get unique QA member IDs and dropdown list.
   const uniqueQAMemberIDs = useMemo(() => {
     return noData ? [] : Array.from(new Set(qaData.map((item) => item.qaMember)));
   }, [noData, qaData]);
@@ -266,19 +261,27 @@ export default function QAMetrics() {
     setReport(result);
   };
 
-  // Export the QA Metrics report to PDF.
+  // Improved PDF export that captures the entire report content.
   const exportReportToPDF = () => {
+    const input = document.getElementById("qaReportWrapper");
+    if (!input) return;
+    // Use a moderate scale for PDF quality.
+    import("html2canvas").then(({ default: html2canvas }) => {
+      html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        const doc = new jsPDF("p", "mm", "a4");
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        doc.save("qa_metrics_report.pdf");
+      });
+    });
+  };
+
+  // Export report data as CSV.
+  const exportReportToCSV = () => {
     if (!report || report.length === 0) return;
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("QA Metrics Report", 14, 20);
-    doc.setFontSize(12);
-    doc.text(
-      `Period: ${startDate.format("YYYY-MM-DD")} to ${endDate.format("YYYY-MM-DD")}`,
-      14,
-      30
-    );
-    const tableColumns = [
+    const headers = [
       "QA Member",
       "Name",
       "Avg Cases/Day",
@@ -288,7 +291,7 @@ export default function QAMetrics() {
       "Revisions (Week)",
       "Revision Rate (%)"
     ];
-    const tableRows = report.map((member) => {
+    const rows = report.map((member) => {
       const currentRevisionRate =
         member.totalCases > 0 ? (member.clientRevisionsWeek / member.totalCases) * 100 : 0;
       return [
@@ -302,8 +305,21 @@ export default function QAMetrics() {
         currentRevisionRate.toFixed(1)
       ];
     });
-    autoTable(doc, { head: [tableColumns], body: tableRows, startY: 40 });
-    doc.save("qa_metrics_report.pdf");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "qa_metrics_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Toggle the display of a QA member’s trend line in the combined trend chart.
+  const toggleLine = (qaMember) => {
+    setActiveQA((prev) => ({ ...prev, [qaMember]: !prev[qaMember] }));
   };
 
   // Initialize activeQA so that all QA member lines are shown by default.
@@ -319,8 +335,10 @@ export default function QAMetrics() {
 
   // Render the feedback table for a given QA member.
   const renderFeedbackTable = (qaMember) => {
-    const feedbackForMember = getSortedFeedback(qaMember, startDate, endDate, feedbackData);
-    const sortedFeedback = stableSort(feedbackForMember, getComparator(feedbackOrder, feedbackOrderBy));
+    const sortedFeedback = stableSort(
+      getSortedFeedback(qaMember, startDate, endDate, feedbackData),
+      getComparator(feedbackOrder, feedbackOrderBy)
+    );
     return (
       <Paper sx={{ overflowX: "auto", backgroundColor: bgColor }}>
         <Table size="small">
@@ -352,7 +370,19 @@ export default function QAMetrics() {
                   Client
                 </TableSortLabel>
               </TableCell>
-              <TableCell sx={{ color: textColor }}>Date</TableCell>
+              <TableCell sx={{ minWidth: "120px", color: textColor }}>
+                <TableSortLabel
+                  active={feedbackOrderBy === "date"}
+                  direction={feedbackOrderBy === "date" ? feedbackOrder : "asc"}
+                  onClick={() => {
+                    const isAsc = feedbackOrderBy === "date" && feedbackOrder === "asc";
+                    setFeedbackOrder(isAsc ? "desc" : "asc");
+                    setFeedbackOrderBy("date");
+                  }}
+                >
+                  Date
+                </TableSortLabel>
+              </TableCell>
               <TableCell sx={{ minWidth: "120px", color: textColor }}>Feedback</TableCell>
             </TableRow>
           </TableHead>
@@ -361,12 +391,7 @@ export default function QAMetrics() {
               <TableRow
                 key={idx}
                 sx={{
-                  backgroundColor:
-                    idx % 2 === 0
-                      ? theme.palette.mode === "dark"
-                        ? "#555"
-                        : "#f9f9f9"
-                      : "inherit"
+                  backgroundColor: idx % 2 === 0 ? (theme.palette.mode === "dark" ? "#555" : "#f9f9f9") : "inherit"
                 }}
               >
                 <TableCell sx={{ color: textColor }}>{fb.reviewer}</TableCell>
@@ -393,9 +418,15 @@ export default function QAMetrics() {
 
   return (
     <ThemeProvider theme={openSansTheme}>
-      <Box sx={{ mt: 4, mb: 4, backgroundColor: bgColor, p: 2, borderRadius: 2, color: textColor }}>
+      <Box
+        id="qaReportWrapper"
+        sx={{ mt: 4, mb: 4, backgroundColor: bgColor, p: 2, borderRadius: 2, color: textColor }}
+      >
         {/* Report Header & Filters */}
-        <Paper sx={{ p: 3, borderRadius: 2, backgroundColor: bgColor, color: textColor, mb: 3 }}>
+        <Paper
+          sx={{ p: 3, borderRadius: 2, backgroundColor: bgColor, color: textColor, mb: 3 }}
+          id="qaReportContent"
+        >
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: textColor }}>
             QA Metrics Report
           </Typography>
@@ -489,9 +520,22 @@ export default function QAMetrics() {
               </LocalizationProvider>
             </Grid>
           </Grid>
-          <Button variant="contained" color="primary" onClick={generateReport} sx={{ mt: 2, py: 1.2, fontWeight: "bold", fontSize: "1rem" }}>
-            Generate QA Metrics Report
-          </Button>
+          <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={generateReport}
+              sx={{ py: 1.2, fontWeight: "bold", fontSize: "1rem" }}
+            >
+              Generate QA Metrics Report
+            </Button>
+            <Button variant="contained" color="secondary" onClick={exportReportToPDF}>
+              Export as PDF
+            </Button>
+            <Button variant="contained" color="secondary" onClick={exportReportToCSV}>
+              Export as CSV
+            </Button>
+          </Box>
         </Paper>
 
         {/* Report Results */}
@@ -499,7 +543,8 @@ export default function QAMetrics() {
           <Box sx={{ mt: 3 }}>
             {report.map((member) => {
               const barData = computeBarDataForMember(member, startDate, endDate);
-              const currentRevisionRate = member.totalCases > 0 ? (member.clientRevisionsWeek / member.totalCases) * 100 : 0;
+              const currentRevisionRate =
+                member.totalCases > 0 ? (member.clientRevisionsWeek / member.totalCases) * 100 : 0;
               const revisionTrend = getTrend(currentRevisionRate, 0);
               const avgCasesTrend = getTrend(member.avgCasesDay, 0);
               return (
@@ -669,9 +714,7 @@ export default function QAMetrics() {
                         {getSortedFeedback(member.qaMember, startDate, endDate, feedbackData).length > 0 ? (
                           renderFeedbackTable(member.qaMember)
                         ) : (
-                          <Typography sx={{ color: textColor }}>
-                            No feedback in this date range.
-                          </Typography>
+                          <Typography sx={{ color: textColor }}>No feedback in this date range.</Typography>
                         )}
                       </Box>
                     </Collapse>
@@ -679,9 +722,12 @@ export default function QAMetrics() {
                 </Paper>
               );
             })}
-            <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Box sx={{ textAlign: "center", mt: 2, display: "flex", justifyContent: "center", gap: 2 }}>
               <Button variant="contained" color="secondary" onClick={exportReportToPDF}>
-                Export QA Metrics to PDF
+                Export as PDF
+              </Button>
+              <Button variant="contained" color="secondary" onClick={exportReportToCSV}>
+                Export as CSV
               </Button>
             </Box>
           </Box>
@@ -701,9 +747,7 @@ export default function QAMetrics() {
                 <Box
                   key={qaMember}
                   sx={{ display: "flex", alignItems: "center", cursor: "pointer", mb: 1 }}
-                  onClick={() => {
-                    /* All lines are shown by default */
-                  }}
+                  onClick={() => toggleLine(qaMember)}
                 >
                   <Box
                     sx={{
@@ -741,6 +785,7 @@ export default function QAMetrics() {
                     dataKey={`qa_${qaMember}`}
                     stroke={baseColors[qaMember % baseColors.length]}
                     strokeWidth={3}
+                    strokeOpacity={activeQA[qaMember] ? 1 : 0.1}
                     dot={false}
                     isAnimationActive={false}
                   />
