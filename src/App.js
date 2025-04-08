@@ -10,6 +10,7 @@ import liveIcon from "./assets/liveIcon.gif"; // Example live icon
 import Navbar from "./Navbar";
 import ThemeToggleSwitch from "./ThemeToggleSwitch";
 import Home from "./Home";
+import DashboardHome from "./DashboardHome"; // New dashboard home section
 import FLTable from "./FLTable";
 import FLChart from "./FLChart";
 import EmailListGenerator from "./EmailListGenerator";
@@ -66,7 +67,7 @@ function App() {
       }
     } else {
       console.log("🟡 Using MOCK data (FeedbackData, QAData).");
-      // Here you might load your static mock files if needed.
+      // Here one might load static mock files if needed.
     }
   }, [useLiveApi]);
 
@@ -200,7 +201,10 @@ function App() {
 
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          {/* Retain Home as the root route */}
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          {/* New DashboardHome section available at /dashboard-home */}
+          <Route path="/dashboard-home" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
           <Route
             path="/table"
             element={

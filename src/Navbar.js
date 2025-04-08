@@ -58,13 +58,17 @@ const Navbar = ({ mode, toggleTheme }) => {
         return <img src={oneGif} alt="QA Metrics" style={iconStyle} />;
       case "/admin-tools":
         return <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#FFA726" }} />;
+      case "/dashboard-home":
+        return <img src={houseChimney} alt="Dashboard Home" style={iconStyle} />;
       default:
         return <img src={houseChimney} alt="Dashboard" style={iconStyle} />;
     }
   };
 
   // Navigation items for full dashboard
+  // Added "Dashboard Home" as an additional section.
   const navItems = [
+    { label: "Dashboard Home", path: "/dashboard-home" },
     { label: "Data Table", path: "/table" },
     { label: "Visualizations", path: "/chart" },
     { label: "Email Generator", path: "/emails" },
@@ -87,18 +91,17 @@ const Navbar = ({ mode, toggleTheme }) => {
           display: "flex",
           flexWrap: "nowrap",
           justifyContent: "space-between",
-          alignItems: "center", // <-- changed from "flex-end" to "center"
+          alignItems: "center",
           overflowX: "auto",
           minHeight: 70,
           pt: 1,
-          pb: 1, // symmetrical top/bottom padding
+          pb: 1,
           px: 3,
           gap: 2,
         }}
       >
         {/* Left side: Logo area (serving as home link) */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
-          {/* Logo container */}
           <Box
             component={NavLink}
             to="/"
@@ -108,11 +111,11 @@ const Navbar = ({ mode, toggleTheme }) => {
               alignItems: "center",
               justifyContent: "center",
               textDecoration: "none",
-              backgroundColor: "rgba(255,255,255,0.6)", // semi-transparent white background
+              backgroundColor: "rgba(255,255,255,0.6)",
               padding: 0.5,
               borderRadius: 2,
               boxShadow: "0px 2px 4px rgba(0,0,0,0.3)",
-              border: "2px solid rgba(0,0,0,0.8)", // dark border
+              border: "2px solid rgba(0,0,0,0.8)",
               height: "55px",
             }}
           >
@@ -163,7 +166,6 @@ const Navbar = ({ mode, toggleTheme }) => {
             </React.Fragment>
           ))}
 
-          {/* Separator divider between navigation items and logout */}
           <Divider
             orientation="vertical"
             sx={{ borderColor: "white", height: 24, mx: 1, opacity: 0.7 }}

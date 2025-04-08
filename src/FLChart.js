@@ -51,7 +51,7 @@ import {
   Sankey
 } from "recharts";
 
-// Import static and dynamic data
+// Import static and transactional data
 import FLMasterData from "./FLMasterData";
 import FLTransactionalData from "./FLTransactionalData";
 
@@ -67,15 +67,28 @@ import GridImg from "./assets/Grid.jpg";
 import SankeyImg from "./assets/Sankey.jpg";
 
 // -------------------- Merge Data --------------------
-// Merge static master data and dynamic transactional data based on mra_id.
+// Merge static master data and dynamic transactional data based on mra_id,
+// but only include the most recent snapshot for each reviewer.
 const useMergedData = () => {
   return useMemo(() => {
+    // Create a mapping from mra_id to the master entry.
     const masterMap = {};
-    FLMasterData.forEach(entry => {
+    FLMasterData.forEach((entry) => {
       masterMap[entry.mra_id] = entry;
     });
-    // The transactional data overrides master data
-    return FLTransactionalData.map(dyn => ({
+
+    // Create a map to hold only the most recent transactional snapshot.
+    const latestTrans = {};
+    FLTransactionalData.forEach((trans) => {
+      // Compare snapshot dates
+      const current = latestTrans[trans.mra_id];
+      if (!current || new Date(trans.snapshotDate) > new Date(current.snapshotDate)) {
+        latestTrans[trans.mra_id] = trans;
+      }
+    });
+
+    // Merge the master data with the latest snapshot.
+    return Object.values(latestTrans).map((dyn) => ({
       ...masterMap[dyn.mra_id],
       ...dyn
     }));
@@ -99,7 +112,6 @@ const handleExportPDF = async (elementId, title, event) => {
 // -------------------- Quality Score Calculation --------------------
 // eslint-disable-next-line no-unused-vars
 const computeQualityScore = (reviewer) => {
-  // Dynamic fields from merged data:
   const revisionRate = reviewer.revisionRate || 0;
   const lateCasePercentage = reviewer.lateCasePercentage || 0;
   const avgCasesDay = reviewer.avgCasesDay || 0;
@@ -108,16 +120,15 @@ const computeQualityScore = (reviewer) => {
   const timelinessScore = 100 - lateCasePercentage;
   const efficiencyScore = Math.min((avgCasesDay / 5) * 100, 100);
 
-  // Compute client count from comma-separated string.
   let clientCount = 0;
   if (typeof reviewer.clients === "string") {
-    clientCount = reviewer.clients.split(",").map(s => s.trim()).filter(Boolean).length;
+    clientCount = reviewer.clients.split(",").map((s) => s.trim()).filter(Boolean).length;
   } else if (Array.isArray(reviewer.clients)) {
     clientCount = reviewer.clients.length;
   }
   const coveragePoints = Math.min(clientCount, 6);
   const typePoints = reviewer.caseType === "Both" ? 4 : 2;
-  return (accuracyScore * 0.6) + (timelinessScore * 0.2) + (efficiencyScore * 0.1) + coveragePoints + typePoints;
+  return accuracyScore * 0.6 + timelinessScore * 0.2 + efficiencyScore * 0.1 + coveragePoints + typePoints;
 };
 
 // -------------------- Custom Tooltips --------------------
@@ -155,8 +166,8 @@ const generatePieData = (data) => {
   data.forEach((reviewer) => {
     reviewer.clients
       .split(",")
-      .map(c => c.trim())
-      .forEach(client => {
+      .map((c) => c.trim())
+      .forEach((client) => {
         if (!clientData[client]) {
           clientData[client] = { count: 0, names: [] };
         }
@@ -174,16 +185,22 @@ const generatePieData = (data) => {
 };
 
 const generateRevisionRateScatterData = (data) =>
-  data.map(reviewer => ({
+  data.map((reviewer) => ({
     x: reviewer.totalCases || 0,
     y: reviewer.revisionRate || 0,
     reviewer: reviewer.name
   }));
 
 const generatePerformanceScatterData = (data) =>
-  data.map(reviewer => {
-    const accuracy = reviewer.accuracyScore !== undefined ? reviewer.accuracyScore : (100 - reviewer.revisionRate);
-    const timeliness = reviewer.timelinessScore !== undefined ? reviewer.timelinessScore : (100 - reviewer.lateCasePercentage);
+  data.map((reviewer) => {
+    const accuracy =
+      reviewer.accuracyScore !== undefined
+        ? reviewer.accuracyScore
+        : 100 - reviewer.revisionRate;
+    const timeliness =
+      reviewer.timelinessScore !== undefined
+        ? reviewer.timelinessScore
+        : 100 - reviewer.lateCasePercentage;
     return { accuracy, timeliness, reviewer: reviewer.name };
   });
 
@@ -203,7 +220,12 @@ function MiniImage({ src, alt }) {
         overflow: "hidden"
       }}
     >
-      <Box component="img" src={src} alt={alt} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <Box
+        component="img"
+        src={src}
+        alt={alt}
+        sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
     </Box>
   );
 }
@@ -221,17 +243,28 @@ const ClientReviewerGrid = ({ data }) => {
     "LTC",
     "Muckleshoot"
   ];
-  const rows = data.map(reviewer => {
-    const reviewerClients = reviewer.clients.split(",").map(c => c.trim());
+  const rows = data.map((reviewer) => {
+    const reviewerClients = reviewer.clients.split(",").map((c) => c.trim());
     let row = { Reviewer: reviewer.name };
-    fixedClientOrder.forEach(client => {
+    fixedClientOrder.forEach((client) => {
       row[client] = reviewerClients.includes(client) ? "X" : "";
     });
     return row;
   });
   return (
-    <Paper sx={{ mt: 2, border: "1px solid #ccc", overflowX: "auto", borderRadius: 2, boxShadow: 1 }}>
-      <Typography variant="h6" sx={{ p: 2, color: "#fff", textAlign: "center" }}>
+    <Paper
+      sx={{
+        mt: 2,
+        border: "1px solid #ccc",
+        overflowX: "auto",
+        borderRadius: 2,
+        boxShadow: 1
+      }}
+    >
+      <Typography
+        variant="h6"
+        sx={{ p: 2, color: "#fff", textAlign: "center" }}
+      >
         Reviewer - Client Assignments
       </Typography>
       <Box sx={{ width: "100%", overflowX: "auto" }}>
@@ -247,17 +280,37 @@ const ClientReviewerGrid = ({ data }) => {
         >
           <colgroup>
             <col style={{ width: `${100 / (fixedClientOrder.length + 1)}%` }} />
-            {fixedClientOrder.map(client => (
-              <col key={client} style={{ width: `${100 / (fixedClientOrder.length + 1)}%` }} />
+            {fixedClientOrder.map((client) => (
+              <col
+                key={client}
+                style={{ width: `${100 / (fixedClientOrder.length + 1)}%` }}
+              />
             ))}
           </colgroup>
           <thead>
             <tr style={{ backgroundColor: "#1976d2" }}>
-              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", color: "#fff", fontWeight: "bold" }}>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "4px",
+                  textAlign: "center",
+                  color: "#fff",
+                  fontWeight: "bold"
+                }}
+              >
                 Reviewer
               </th>
-              {fixedClientOrder.map(client => (
-                <th key={client} style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", color: "#fff", fontWeight: "bold" }}>
+              {fixedClientOrder.map((client) => (
+                <th
+                  key={client}
+                  style={{
+                    border: "1px solid #ccc",
+                    padding: "4px",
+                    textAlign: "center",
+                    color: "#fff",
+                    fontWeight: "bold"
+                  }}
+                >
                   {client}
                 </th>
               ))}
@@ -265,12 +318,29 @@ const ClientReviewerGrid = ({ data }) => {
           </thead>
           <tbody>
             {rows.map((row, index) => (
-              <tr key={index} style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f5f5f5" }}>
-                <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", fontWeight: "bold" }}>
+              <tr
+                key={index}
+                style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f5f5f5" }}
+              >
+                <td
+                  style={{
+                    border: "1px solid #ccc",
+                    padding: "4px",
+                    textAlign: "center",
+                    fontWeight: "bold"
+                  }}
+                >
                   {row["Reviewer"]}
                 </td>
-                {fixedClientOrder.map(client => (
-                  <td key={client} style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>
+                {fixedClientOrder.map((client) => (
+                  <td
+                    key={client}
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "4px",
+                      textAlign: "center"
+                    }}
+                  >
                     {row[client]}
                   </td>
                 ))}
@@ -289,7 +359,7 @@ const ReviewerDotTable = ({ data, minXData }) => {
   return (
     <Paper sx={{ p: 1, width: "50%", margin: "16px auto" }}>
       <Box
-        onClick={() => setOpen(prev => !prev)}
+        onClick={() => setOpen((prev) => !prev)}
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -302,7 +372,10 @@ const ReviewerDotTable = ({ data, minXData }) => {
           mb: 1
         }}
       >
-        <Typography variant="subtitle1" sx={{ fontWeight: "bold", textAlign: "center", flex: 1 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: "bold", textAlign: "center", flex: 1 }}
+        >
           Reviewer Dot Table
         </Typography>
         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -325,10 +398,42 @@ const ReviewerDotTable = ({ data, minXData }) => {
           </colgroup>
           <thead>
             <tr style={{ backgroundColor: "#e0e0e0" }}>
-              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Reviewer</th>
-              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Cases</th>
-              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Revision Rate (%)</th>
-              <th style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>Meets Goal</th>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "4px",
+                  textAlign: "center"
+                }}
+              >
+                Reviewer
+              </th>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "4px",
+                  textAlign: "center"
+                }}
+              >
+                Cases
+              </th>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "4px",
+                  textAlign: "center"
+                }}
+              >
+                Revision Rate (%)
+              </th>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "4px",
+                  textAlign: "center"
+                }}
+              >
+                Meets Goal
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -347,12 +452,43 @@ const ReviewerDotTable = ({ data, minXData }) => {
               const rowBgColor = i % 2 === 0 ? "#fff" : "#f9f9f9";
               return (
                 <tr key={i} style={{ backgroundColor: rowBgColor }}>
-                  <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <td
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "4px",
+                      textAlign: "center",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}
+                  >
                     {d.reviewer}
                   </td>
-                  <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>{d.x}</td>
-                  <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center" }}>{d.y.toFixed(1)}</td>
-                  <td style={{ border: "1px solid #ccc", padding: "4px", textAlign: "center", backgroundColor: dotColor }}>
+                  <td
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "4px",
+                      textAlign: "center"
+                    }}
+                  >
+                    {d.x}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "4px",
+                      textAlign: "center"
+                    }}
+                  >
+                    {d.y.toFixed(1)}
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "4px",
+                      textAlign: "center",
+                      backgroundColor: dotColor
+                    }}
+                  >
                     &nbsp;
                   </td>
                 </tr>
@@ -375,7 +511,7 @@ const FLChart = () => {
 
   // Compute quality scores for each reviewer.
   const qualityData = useMemo(() => {
-    return data.map(reviewer => {
+    return data.map((reviewer) => {
       const revisionRate = reviewer.revisionRate || 0;
       const lateCasePercentage = reviewer.lateCasePercentage || 0;
       const avgCasesDay = reviewer.avgCasesDay || 0;
@@ -383,16 +519,20 @@ const FLChart = () => {
       const timelinessScore = 100 - lateCasePercentage;
       const efficiencyScore = Math.min((avgCasesDay / 5) * 100, 100);
 
-      // Count clients.
       let clientCount = 0;
       if (typeof reviewer.clients === "string") {
-        clientCount = reviewer.clients.split(",").map(s => s.trim()).filter(Boolean).length;
+        clientCount = reviewer.clients.split(",").map((s) => s.trim()).filter(Boolean).length;
       } else if (Array.isArray(reviewer.clients)) {
         clientCount = reviewer.clients.length;
       }
       const coveragePoints = Math.min(clientCount, 6);
       const typePoints = reviewer.caseType === "Both" ? 4 : 2;
-      const overallQualityScore = (accuracyScore * 0.6) + (timelinessScore * 0.2) + (efficiencyScore * 0.1) + coveragePoints + typePoints;
+      const overallQualityScore =
+        accuracyScore * 0.6 +
+        timelinessScore * 0.2 +
+        efficiencyScore * 0.1 +
+        coveragePoints +
+        typePoints;
       return {
         ...reviewer,
         accuracyScore,
@@ -403,15 +543,20 @@ const FLChart = () => {
     });
   }, [data]);
 
-  // Generate chart data.
-  const revisionScatterData = useMemo(() => generateRevisionRateScatterData(data), [data]);
-  const performanceScatterData = useMemo(() => generatePerformanceScatterData(data), [data]);
+  const revisionScatterData = useMemo(
+    () => generateRevisionRateScatterData(data),
+    [data]
+  );
+  const performanceScatterData = useMemo(
+    () => generatePerformanceScatterData(data),
+    [data]
+  );
   const pieDataGenerated = useMemo(() => generatePieData(data), [data]);
 
-  const xValues = revisionScatterData.map(d => d.x);
+  const xValues = revisionScatterData.map((d) => d.x);
   const minXData = xValues.length ? Math.min(...xValues) : 0;
 
-  // For composed chart (Revisions vs. Total Cases)
+  // Generate line data for the composed chart.
   let lineData = [];
   if (xValues.length && Math.max(...xValues) > 90) {
     lineData = [
@@ -423,7 +568,10 @@ const FLChart = () => {
     const slope = (30 - 20) / (90 - minXData);
     lineData = [
       { x: minXData, y: 20 },
-      { x: Math.max(...xValues), y: 20 + slope * (Math.max(...xValues) - minXData) }
+      {
+        x: Math.max(...xValues),
+        y: 20 + slope * (Math.max(...xValues) - minXData)
+      }
     ];
   }
 
@@ -474,7 +622,7 @@ const FLChart = () => {
     const reviewerParam = searchParams.get("reviewer");
     if (reviewerParam) {
       setSelectedReviewer(reviewerParam);
-      setExpandedPanels(prev => ({ ...prev, panel6: true }));
+      setExpandedPanels((prev) => ({ ...prev, panel6: true }));
       setTimeout(() => {
         const sankeyElem = document.getElementById("sankeyPaperRef");
         if (sankeyElem) {
@@ -486,7 +634,7 @@ const FLChart = () => {
 
   const handleGenerateSankey = useCallback(() => {
     if (!selectedReviewer || !Array.isArray(data)) return;
-    const row = data.find(r => r.name === selectedReviewer);
+    const row = data.find((r) => r.name === selectedReviewer);
     if (!row) {
       alert("Reviewer not found in data.");
       return;
@@ -530,8 +678,10 @@ const FLChart = () => {
 
   // Compute overall KPIs across all reviewers.
   const overallKPIs = useMemo(() => {
-    let totalCases = 0, totalRevised = 0, totalLate = 0;
-    data.forEach(reviewer => {
+    let totalCases = 0,
+      totalRevised = 0,
+      totalLate = 0;
+    data.forEach((reviewer) => {
       const total = reviewer.totalCases || 0;
       const revised = Math.round(((reviewer.revisionRate || 0) * total) / 100);
       const late = Math.round(((reviewer.lateCasePercentage || 0) * total) / 100);
@@ -609,7 +759,7 @@ const FLChart = () => {
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                setExpandedPanels(prev => ({ ...prev, panel1: !prev.panel1 }));
+                setExpandedPanels((prev) => ({ ...prev, panel1: !prev.panel1 }));
               }}
             />
             {!expandedPanels["panel1"] && (
@@ -661,7 +811,7 @@ const FLChart = () => {
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                setExpandedPanels(prev => ({ ...prev, panel2: !prev.panel2 }));
+                setExpandedPanels((prev) => ({ ...prev, panel2: !prev.panel2 }));
               }}
             />
             {!expandedPanels["panel2"] && (
@@ -724,7 +874,11 @@ const FLChart = () => {
               }
               subheader={<Typography sx={{ color: "black" }}>(Composed Chart)</Typography>}
               action={
-                expandedPanels["panel3"] ? <KeyboardArrowUpIcon sx={{ color: "black" }} /> : <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                expandedPanels["panel3"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
               }
               sx={{
                 background: "linear-gradient(to right, #F1F8E9, #C5E1A5)",
@@ -733,7 +887,7 @@ const FLChart = () => {
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                setExpandedPanels(prev => ({ ...prev, panel3: !prev.panel3 }));
+                setExpandedPanels((prev) => ({ ...prev, panel3: !prev.panel3 }));
               }}
             />
             {!expandedPanels["panel3"] && (
@@ -795,12 +949,20 @@ const FLChart = () => {
               }
               subheader={<Typography sx={{ color: "black" }}>(Scatter Chart with Quadrant Analysis)</Typography>}
               action={
-                expandedPanels["panel4"] ? <KeyboardArrowUpIcon sx={{ color: "black" }} /> : <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                expandedPanels["panel4"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
               }
-              sx={{ background: "linear-gradient(to right, #FCE4EC, #F8BBD0)", borderBottom: "1px solid #0D47A1", cursor: "pointer" }}
+              sx={{
+                background: "linear-gradient(to right, #FCE4EC, #F8BBD0)",
+                borderBottom: "1px solid #0D47A1",
+                cursor: "pointer"
+              }}
               onClick={(e) => {
                 e.stopPropagation();
-                setExpandedPanels(prev => ({ ...prev, panel4: !prev.panel4 }));
+                setExpandedPanels((prev) => ({ ...prev, panel4: !prev.panel4 }));
               }}
             />
             {!expandedPanels["panel4"] && (
@@ -856,7 +1018,7 @@ const FLChart = () => {
               sx={{ background: "linear-gradient(to right, #FFF3E0, #FFCC80)", borderBottom: "1px solid #0D47A1", cursor: "pointer" }}
               onClick={(e) => {
                 e.stopPropagation();
-                setExpandedPanels(prev => ({ ...prev, panel5: !prev.panel5 }));
+                setExpandedPanels((prev) => ({ ...prev, panel5: !prev.panel5 }));
               }}
             />
             {!expandedPanels["panel5"] && (
@@ -890,12 +1052,16 @@ const FLChart = () => {
               }
               subheader={<Typography sx={{ color: "black" }}>(Flow Diagram - Past 30 Days)</Typography>}
               action={
-                expandedPanels["panel6"] ? <KeyboardArrowUpIcon sx={{ color: "black" }} /> : <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                expandedPanels["panel6"] ? (
+                  <KeyboardArrowUpIcon sx={{ color: "black" }} />
+                ) : (
+                  <KeyboardArrowDownIcon sx={{ color: "black" }} />
+                )
               }
               sx={{ background: "linear-gradient(to right, #E8F5E9, #A5D6A7)", borderBottom: "1px solid #0D47A1", cursor: "pointer" }}
               onClick={(e) => {
                 e.stopPropagation();
-                setExpandedPanels(prev => ({ ...prev, panel6: !prev.panel6 }));
+                setExpandedPanels((prev) => ({ ...prev, panel6: !prev.panel6 }));
               }}
             />
             {!expandedPanels["panel6"] && (
@@ -961,13 +1127,21 @@ const FLChart = () => {
                             link={{ stroke: "#8884d8", strokeWidth: 4 }}
                             node={({ x, y, width, height, payload }) => {
                               let infoText = "";
-                              if (payload.name === "Received" || payload.name === "Completed") {
+                              if (
+                                payload.name === "Received" ||
+                                payload.name === "Completed"
+                              ) {
                                 infoText = `${payload.value || 0}`;
                               } else {
                                 infoText = `${payload.percent ? payload.percent.toFixed(1) : 0}%`;
                               }
                               return (
-                                <MuiTooltip title={`${payload.name}: ${infoText}`} arrow enterDelay={100} leaveDelay={100}>
+                                <MuiTooltip
+                                  title={`${payload.name}: ${infoText}`}
+                                  arrow
+                                  enterDelay={100}
+                                  leaveDelay={100}
+                                >
                                   <g>
                                     <rect
                                       x={x}
