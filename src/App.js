@@ -10,7 +10,6 @@ import liveIcon from "./assets/liveIcon.gif"; // Example live icon
 import Navbar from "./Navbar";
 import ThemeToggleSwitch from "./ThemeToggleSwitch";
 import Home from "./Home";
-import DashboardHome from "./DashboardHome"; // New dashboard home section
 import FLTable from "./FLTable";
 import FLChart from "./FLChart";
 import EmailListGenerator from "./EmailListGenerator";
@@ -28,7 +27,7 @@ import FLMasterData from "./FLMasterData";
 import FLTransactionalData from "./FLTransactionalData";
 
 function App() {
-  // Light/Dark mode
+  // Light/Dark mode state and theme
   const [mode, setMode] = useState("light");
   const theme = useMemo(
     () =>
@@ -46,7 +45,7 @@ function App() {
     [mode]
   );
 
-  // For feedback and QA data
+  // Data for feedback and QA charts
   const [feedbackData, setFeedbackData] = useState([]);
   const [qaData, setQaData] = useState([]);
 
@@ -67,7 +66,7 @@ function App() {
       }
     } else {
       console.log("🟡 Using MOCK data (FeedbackData, QAData).");
-      // Here one might load static mock files if needed.
+      // Optionally load local static mock data here.
     }
   }, [useLiveApi]);
 
@@ -83,7 +82,8 @@ function App() {
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
 
-  // Merge static master data with transactional snapshot.
+  // Merge static master data with transactional data.
+  // (This example simply maps the master data with a transactional snapshot for each reviewer.)
   const mergedReviewerData = useMemo(() => {
     return FLMasterData.map((master) => {
       const trans = FLTransactionalData.find((t) => t.mra_id === master.mra_id);
@@ -99,7 +99,7 @@ function App() {
           avgCasesPerDay: trans.avgCasesDay,
           revisionRate: trans.revisionRate,
           lateCasePercentage: trans.lateCasePercentage
-          // Note: No efficiency, accuracy, or timeliness here.
+          // Note: Efficiency, accuracy, or timeliness are not included in this snapshot.
         };
         return { ...master, snapshots: [snapshot] };
       }
@@ -119,9 +119,10 @@ function App() {
           margin: "0 auto",
           maxWidth: 1600,
           width: "100%",
-          px: 2
+          px: 2,
         }}
       >
+        {/* Mode toggle positioned at the top-right */}
         <Box
           sx={{
             position: "absolute",
@@ -130,10 +131,15 @@ function App() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 0.1
+            gap: 0.1,
           }}
         >
-          <Box sx={{ transition: "transform 0.3s ease", "&:hover": { transform: "scale(1.1)" } }}>
+          <Box
+            sx={{
+              transition: "transform 0.3s ease",
+              "&:hover": { transform: "scale(1.1)" },
+            }}
+          >
             <ThemeToggleSwitch checked={mode === "dark"} onChange={toggleTheme} size={34} />
           </Box>
           <Typography variant="caption" sx={{ color: mode === "dark" ? "#fff" : "#000", mt: 0 }}>
@@ -141,13 +147,14 @@ function App() {
           </Typography>
         </Box>
 
+        {/* Data source and Refresh Data buttons */}
         <Box
           sx={{
             my: 2,
             display: "flex",
             alignItems: "center",
             gap: 2,
-            justifyContent: "flex-start"
+            justifyContent: "flex-start",
           }}
         >
           <Tooltip
@@ -164,7 +171,7 @@ function App() {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1
+                gap: 1,
               }}
             >
               {useLiveApi ? (
@@ -189,8 +196,8 @@ function App() {
                 padding: "4px 8px",
                 transition: "background-color 0.3s ease",
                 "&:hover": {
-                  backgroundColor: mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"
-                }
+                  backgroundColor: mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                },
               }}
             >
               <RefreshIcon sx={{ mr: 1 }} />
@@ -199,12 +206,11 @@ function App() {
           </Tooltip>
         </Box>
 
+        {/* App Routes */}
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          {/* Retain Home as the root route */}
+          {/* Home is retained as the root route */}
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          {/* New DashboardHome section available at /dashboard-home */}
-          <Route path="/dashboard-home" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
           <Route
             path="/table"
             element={

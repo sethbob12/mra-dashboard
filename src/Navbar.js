@@ -68,7 +68,6 @@ const Navbar = ({ mode, toggleTheme }) => {
   // Navigation items for full dashboard
   // Added "Dashboard Home" as an additional section.
   const navItems = [
-    { label: "Dashboard Home", path: "/dashboard-home" },
     { label: "Data Table", path: "/table" },
     { label: "Visualizations", path: "/chart" },
     { label: "Email Generator", path: "/emails" },
