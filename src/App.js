@@ -5,7 +5,7 @@ import { Box, CssBaseline, Button, Tooltip, Typography } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-import liveIcon from "./assets/liveIcon.gif"; // Example live icon
+import liveIcon from "./assets/liveIcon.gif";
 
 import Navbar from "./Navbar";
 import ThemeToggleSwitch from "./ThemeToggleSwitch";
@@ -22,12 +22,14 @@ import LoginPage from "./LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import apiService from "./apiService";
 
-// Import master and transactional data.
+// Import mock master and transactional data
 import FLMasterData from "./FLMasterData";
 import FLTransactionalData from "./FLTransactionalData";
 
+// Import new test component for live API data display
+import TestLiveData from "./TestLiveData";
+
 function App() {
-  // Light/Dark mode state and theme
   const [mode, setMode] = useState("light");
   const theme = useMemo(
     () =>
@@ -45,28 +47,70 @@ function App() {
     [mode]
   );
 
-  // Data for feedback and QA charts
+  const [useLiveApi, setUseLiveApi] = useState(false);
+  const [reviewerData, setReviewerData] = useState([]);
   const [feedbackData, setFeedbackData] = useState([]);
   const [qaData, setQaData] = useState([]);
 
-  // Toggle for live API vs. mock
-  const [useLiveApi, setUseLiveApi] = useState(false);
+  // Transformation function: converts live API reviewer data into the structure our components expect
+  const transformLiveReviewerData = (liveData) => {
+    return liveData.map((item) => ({
+      mra_id: item.email, // Using email as a unique identifier (adjust if you have an explicit ID)
+      name: item.Name,
+      rate: item.Rate,
+      email: item.email,
+      caseCountSinceJan: item.CaseCountSinceJan,
+      // Create a dummy snapshot for compatibility with components expecting a nested snapshots array.
+      snapshots: [
+        {
+          totalCases: item.CaseCountSinceJan,
+          // Additional derived metrics can be added here if needed.
+        },
+      ],
+    }));
+  };
 
   const fetchData = useCallback(async () => {
     if (useLiveApi) {
       console.log("🔄 Fetching LIVE API data...");
       try {
+        // Retrieve reviewer data from live API
+        const liveReviewerData = await apiService.fetchReviewerData("2025-01-01", "2025-01-03");
+        const transformedReviewerData = transformLiveReviewerData(liveReviewerData);
+        // Retrieve other data sets as needed
         const fData = await apiService.fetchFeedbackData();
         const qData = await apiService.fetchQualityData();
+        setReviewerData(transformedReviewerData);
         setFeedbackData(fData);
         setQaData(qData);
-        console.log("✅ Loaded live API data.");
+        console.log("✅ Live data loaded and transformed.");
       } catch (error) {
         console.error("❌ Error fetching live API data:", error);
       }
     } else {
-      console.log("🟡 Using MOCK data (FeedbackData, QAData).");
-      // Optionally load local static mock data here.
+      console.log("🟡 Using MOCK data (FLMasterData + FLTransactionalData).");
+      const merged = FLMasterData.map((master) => {
+        const trans = FLTransactionalData.find((t) => t.mra_id === master.mra_id);
+        if (trans) {
+          const casesPast30Days = Object.values(trans.casesByClient).reduce(
+            (acc, val) => acc + val,
+            0
+          );
+          const snapshot = {
+            snapshotDate: trans.snapshotDate,
+            totalCases: trans.totalCases,
+            casesPast30Days,
+            avgCasesPerDay: trans.avgCasesDay,
+            revisionRate: trans.revisionRate,
+            lateCasePercentage: trans.lateCasePercentage,
+          };
+          return { ...master, snapshots: [snapshot] };
+        }
+        return master;
+      });
+      setReviewerData(merged);
+      setFeedbackData([]);
+      setQaData([]);
     }
   }, [useLiveApi]);
 
@@ -81,31 +125,6 @@ function App() {
   const toggleTheme = () => {
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
-
-  // Merge static master data with transactional data.
-  // (This example simply maps the master data with a transactional snapshot for each reviewer.)
-  const mergedReviewerData = useMemo(() => {
-    return FLMasterData.map((master) => {
-      const trans = FLTransactionalData.find((t) => t.mra_id === master.mra_id);
-      if (trans) {
-        const casesPast30Days = Object.values(trans.casesByClient).reduce(
-          (acc, val) => acc + val,
-          0
-        );
-        const snapshot = {
-          snapshotDate: trans.snapshotDate,
-          totalCases: trans.totalCases,
-          casesPast30Days,
-          avgCasesPerDay: trans.avgCasesDay,
-          revisionRate: trans.revisionRate,
-          lateCasePercentage: trans.lateCasePercentage
-          // Note: Efficiency, accuracy, or timeliness are not included in this snapshot.
-        };
-        return { ...master, snapshots: [snapshot] };
-      }
-      return master;
-    });
-  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -122,7 +141,7 @@ function App() {
           px: 2,
         }}
       >
-        {/* Mode toggle positioned at the top-right */}
+        {/* Top-right controls */}
         <Box
           sx={{
             position: "absolute",
@@ -147,7 +166,7 @@ function App() {
           </Typography>
         </Box>
 
-        {/* Data source and Refresh Data buttons */}
+        {/* Data source and refresh controls */}
         <Box
           sx={{
             my: 2,
@@ -160,23 +179,24 @@ function App() {
           <Tooltip
             title={
               useLiveApi
-                ? "Live API: Data is fetched from a publicly hosted json-server; actual DB API endpoint will eventually replace."
-                : "Mock Data: Local static data is used for testing."
+                ? "Live API: Fetches real-time data from your internal system."
+                : "Mock Data: Uses hardcoded reviewer and snapshot data."
             }
           >
             <Button
               variant="contained"
               color={useLiveApi ? "success" : "warning"}
               onClick={toggleDataSource}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
             >
               {useLiveApi ? (
                 <>
-                  <Box component="img" src={liveIcon} alt="Live Icon" sx={{ width: 24, height: 24 }} />
+                  <Box
+                    component="img"
+                    src={liveIcon}
+                    alt="Live Icon"
+                    sx={{ width: 24, height: 24 }}
+                  />
                   Using LIVE API Data
                 </>
               ) : (
@@ -209,13 +229,12 @@ function App() {
         {/* App Routes */}
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          {/* Home is retained as the root route */}
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route
             path="/table"
             element={
               <ProtectedRoute>
-                <FLTable data={mergedReviewerData} />
+                <FLTable data={reviewerData} />
               </ProtectedRoute>
             }
           />
@@ -223,7 +242,7 @@ function App() {
             path="/chart"
             element={
               <ProtectedRoute>
-                <FLChart data={mergedReviewerData} />
+                <FLChart data={reviewerData} />
               </ProtectedRoute>
             }
           />
@@ -231,7 +250,7 @@ function App() {
             path="/emails"
             element={
               <ProtectedRoute>
-                <EmailListGenerator data={mergedReviewerData} />
+                <EmailListGenerator data={reviewerData} />
               </ProtectedRoute>
             }
           />
@@ -255,7 +274,7 @@ function App() {
             path="/reports"
             element={
               <ProtectedRoute>
-                <Reports reviewerData={mergedReviewerData} feedbackData={feedbackData} />
+                <Reports reviewerData={reviewerData} feedbackData={feedbackData} />
               </ProtectedRoute>
             }
           />
@@ -275,6 +294,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* New test route for verifying live API data */}
+          <Route
+  path="/test-live"
+  element={
+    <ProtectedRoute>
+      <TestLiveData useLiveApi={useLiveApi} />
+    </ProtectedRoute>
+  }
+/>
         </Routes>
       </Box>
     </ThemeProvider>

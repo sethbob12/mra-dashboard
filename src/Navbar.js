@@ -1,14 +1,10 @@
+// src/Navbar.js
 import React, { useState, useEffect } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Button,
-  Box,
-  Divider,
-} from "@mui/material";
+import { AppBar, Toolbar, Button, Box, Divider } from "@mui/material";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import BugReportIcon from "@mui/icons-material/BugReport"; // New icon for Test Live section
 import growthChartGif from "./assets/growth-chart.gif";
 import houseChimney from "./assets/house-chimney.png";
 import tableGif from "./assets/table.gif";
@@ -60,14 +56,16 @@ const Navbar = ({ mode, toggleTheme }) => {
         return <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#FFA726" }} />;
       case "/dashboard-home":
         return <img src={houseChimney} alt="Dashboard Home" style={iconStyle} />;
+      case "/test-live":
+        return <BugReportIcon sx={{ fontSize: 40, color: "white" }} />;
       default:
         return <img src={houseChimney} alt="Dashboard" style={iconStyle} />;
     }
   };
 
-  // Navigation items for full dashboard
-  // Added "Dashboard Home" as an additional section.
+  // Updated navigation items with Test Live placed first
   const navItems = [
+    { label: "Test Live", path: "/test-live" },
     { label: "Data Table", path: "/table" },
     { label: "Visualizations", path: "/chart" },
     { label: "Email Generator", path: "/emails" },
@@ -147,13 +145,24 @@ const Navbar = ({ mode, toggleTheme }) => {
                   whiteSpace: "nowrap",
                   display: "flex",
                   alignItems: "center",
+                  // Special styling for Test Live
+                  ...(item.path === "/test-live" && {
+                    backgroundColor: "#4caf50",
+                    color: "white",
+                    fontWeight: "bold",
+                    px: 2,
+                    py: 1,
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "#43a047",
+                      transform: "scale(1.06)",
+                    },
+                  }),
                 }}
               >
                 {item.label}
                 {location.pathname === item.path && (
-                  <Box sx={{ ml: 1 }}>
-                    {getSectionIcon(item.path)}
-                  </Box>
+                  <Box sx={{ ml: 1 }}>{getSectionIcon(item.path)}</Box>
                 )}
               </Button>
               {index < navItems.length - 1 && (
@@ -165,10 +174,7 @@ const Navbar = ({ mode, toggleTheme }) => {
             </React.Fragment>
           ))}
 
-          <Divider
-            orientation="vertical"
-            sx={{ borderColor: "white", height: 24, mx: 1, opacity: 0.7 }}
-          />
+          <Divider orientation="vertical" sx={{ borderColor: "white", height: 24, mx: 1, opacity: 0.7 }} />
 
           <Button
             onClick={handleLogout}
