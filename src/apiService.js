@@ -1,23 +1,11 @@
 // src/apiService.js
 
-// Import mock data as fallback
-import FLData from "./FLData";         // MRA Data (Mock)
-import QAData from "./QAData";           // Quality Assurance Data (Mock)
-import FeedbackData from "./FeedbackData"; // Feedback Data (Mock)
+import FLData from "./FLData";
+import QAData from "./QAData";
+import FeedbackData from "./FeedbackData";
 
-// Toggle to force using mock data (for debugging/demonstration)
 const USE_MOCK_DATA = false;
 
-/**
- * Fetch Reviewer Data (MRA Data) using the serverless proxy endpoint to bypass CORS.
- * Accepts startDate and endDate parameters (in YYYY-MM-DD format).
- * Falls back to FLData (mock data) on error or if forced.
- *
- * @param {string} d1 - Start date string (YYYY-MM-DD)
- * @param {string} d2 - End date string (YYYY-MM-DD)
- * @param {boolean} forceMock - Set to true to force using mock data.
- * @returns {Promise<any>} - Returns a promise that resolves to the data.
- */
 export const fetchReviewerData = async (
   d1 = "2025-01-01",
   d2 = "2025-01-03",
@@ -28,19 +16,16 @@ export const fetchReviewerData = async (
       console.log("Using MOCK data for Reviewer Data.");
       return FLData;
     } else {
-      // Using the serverless function endpoint (relative URL) on Vercel to bypass CORS restrictions.
-      const endpointUrl = `/api/reviewer-stats?d1=${d1}&d2=${d2}`;
-      console.log("Fetching Reviewer Data from proxy endpoint:", endpointUrl);
-      
-      // We rely on the proxy (serverless function) to handle the API key.
+      const endpointUrl = `http://localhost:5000/api/reviewer-stats?d1=${d1}&d2=${d2}`;
+      console.log("Fetching Reviewer Data from local proxy:", endpointUrl);
+
       const response = await fetch(endpointUrl);
-      
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      console.log("Reviewer Data successfully loaded from proxy.");
+      console.log("Reviewer Data loaded from proxy.");
       return data;
     }
   } catch (error) {

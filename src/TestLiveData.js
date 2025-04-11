@@ -1,144 +1,174 @@
 // src/TestLiveData.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   CircularProgress,
   Typography,
   Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Alert,
+  useTheme,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import apiService from "./apiService";
 
 const TestLiveData = ({ useLiveApi }) => {
   const theme = useTheme();
-  const [data, setData] = useState([]); // Live API data array
+
+  // Column definitions
+  const columns = useMemo(
+    () => [
+      { field: "name", headerName: "Name", flex: 1, headerAlign: "left", align: "left" },
+      { field: "email", headerName: "Email", flex: 1, headerAlign: "left", align: "left" },
+      {
+        field: "rate",
+        headerName: "Rate (%)",
+        type: "number",
+        flex: 0.5,
+        headerAlign: "right",
+        align: "right",
+      },
+      {
+        field: "cases",
+        headerName: "Case Count",
+        type: "number",
+        flex: 0.5,
+        headerAlign: "right",
+        align: "right",
+      },
+    ],
+    []
+  );
+
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // useEffect will run whenever useLiveApi changes
+  // Fetch data when live mode toggles on
   useEffect(() => {
-    // If not in live mode, do not fetch data.
     if (!useLiveApi) {
       setLoading(false);
-      setData([]);
+      setRows([]);
       return;
     }
-
     setLoading(true);
-    const fetchData = async () => {
-      try {
-        // Fetch live reviewer data. Adjust dates if needed.
-        const result = await apiService.fetchReviewerData("2025-01-01", "2025-01-03", false);
-        console.log("Fetched data:", result);
-        setData(result);
-      } catch (err) {
-        console.error("Error fetching live API data:", err);
+    apiService
+      .fetchReviewerData("2025-01-01", "2025-01-03", false)
+      .then((data) => {
+        setRows(
+          data.map((r, idx) => ({
+            id: idx,
+            name: r.Name,
+            email: r.email,
+            rate: r.Rate,
+            cases: r.CaseCountSinceJan,
+          }))
+        );
+      })
+      .catch((err) => {
+        console.error(err);
         setError("Failed to retrieve live API data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .finally(() => setLoading(false));
   }, [useLiveApi]);
 
-  // If not in live mode, display an Alert message.
   if (!useLiveApi) {
     return (
       <Box p={2}>
         <Alert severity="info">
-          No hardcoded data available for this section. Please toggle the data source to
-          <strong> LIVE API</strong> to view data.
+          No hardcoded data available here. Please toggle to <strong>LIVE API</strong> to view data.
         </Alert>
       </Box>
     );
   }
 
-  // While loading, display a spinner.
   if (loading) {
     return (
-      <Box display="flex" alignItems="center" justifyContent="center" minHeight="200px">
+      <Box display="flex" alignItems="center" justifyContent="center" minHeight="300px">
         <CircularProgress />
       </Box>
     );
   }
 
-  // If an error occurred, show the error message.
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    return (
+      <Box p={2}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
   }
 
   return (
-    <Box p={2} sx={{ color: theme.palette.mode === "dark" ? "white" : "inherit" }}>
-      <Typography variant="h5" gutterBottom>
+    <Box p={2}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{ color: theme.palette.mode === "dark" ? "white" : "inherit" }}
+      >
         Live API Data
       </Typography>
       <Paper
-        elevation={3}
+        elevation={4}
         sx={{
-          overflowX: "auto",
+          height: "75vh",
           borderRadius: 2,
-          p: 2,
-          backgroundColor: theme.palette.mode === "dark" ? "#424242" : "#fff",
+          overflow: "hidden",
+          bgcolor: theme.palette.background.paper,
+          // Global text color
+          color: theme.palette.mode === "dark" ? "white" : "inherit",
+          "& .MuiDataGrid-root": {
+            border: "none",
+            color: theme.palette.mode === "dark" ? "white" : "inherit",
+          },
+          // Header
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? theme.palette.grey[900]
+                : theme.palette.grey[100],
+            color: theme.palette.mode === "dark" ? "white" : "inherit",
+          },
+          "& .MuiDataGrid-columnHeaderTitle": {
+            color: theme.palette.mode === "dark" ? "white" : "inherit",
+          },
+          // Rows
+          "& .MuiDataGrid-cell": {
+            color: theme.palette.mode === "dark" ? "white" : "inherit",
+          },
+          // Virtual scroller background
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? theme.palette.grey[800]
+                : theme.palette.common.white,
+          },
+          // Footer and pagination
+          "& .MuiDataGrid-footerContainer": {
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? theme.palette.grey[900]
+                : theme.palette.grey[100],
+          },
+          "& .MuiTablePagination-root, .MuiTablePagination-caption, .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows": {
+            color: theme.palette.mode === "dark" ? "white" : "inherit",
+          },
+          "& .MuiSvgIcon-root": {
+            color: theme.palette.mode === "dark" ? "white" : "inherit",
+          },
+          // Toolbar
+          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+            color: theme.palette.mode === "dark" ? "white" : "inherit",
+          },
         }}
       >
-        <Table sx={{ minWidth: 650 }} aria-label="Live API Data Table">
-          <TableHead
-            sx={{
-              backgroundColor: theme.palette.mode === "dark" ? "#616161" : "#f5f5f5",
-              "& .MuiTableCell-root": {
-                fontWeight: "bold",
-                color: theme.palette.mode === "dark" ? "white" : "black",
-              },
-            }}
-          >
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell align="right">Rate</TableCell>
-              <TableCell align="right">Case Count</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((row, index) => (
-              <TableRow
-                key={row.email || index}
-                hover
-                sx={{
-                  "&:hover": {
-                    backgroundColor:
-                      theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
-                  },
-                }}
-              >
-                <TableCell sx={{ color: theme.palette.mode === "dark" ? "white" : "inherit" }}>
-                  {row.Name}
-                </TableCell>
-                <TableCell sx={{ color: theme.palette.mode === "dark" ? "white" : "inherit" }}>
-                  {row.email}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ color: theme.palette.mode === "dark" ? "white" : "inherit" }}
-                >
-                  {row.Rate}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ color: theme.palette.mode === "dark" ? "white" : "inherit" }}
-                >
-                  {row.CaseCountSinceJan}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          components={{ Toolbar: GridToolbar }}
+          disableSelectionOnClick
+          pageSize={10}
+          rowsPerPageOptions={[5, 10, 20]}
+        />
       </Paper>
     </Box>
   );
