@@ -1,39 +1,105 @@
-// server.js
-console.log("Starting local proxy server...");
+// src/apiService.js
 
-const express = require("express");
-const fetch = require("node-fetch").default;
-const cors = require("cors");
+// Import mock data as fallback
+import FLData from "./FLData";
+import QAData from "./QAData";
+import FeedbackData from "./FeedbackData";
 
-const app = express();
-app.use(cors()); // Allow all origins locally
+// Toggle to force using mock data (for debugging/demonstration)
+const USE_MOCK_DATA = false;
 
-const PORT = 5000;
-
-app.get("/api/reviewer-stats", async (req, res) => {
+/**
+ * Fetch Reviewer Data directly from the live API.
+ */
+export const fetchReviewerData = async (
+  d1 = "2025-01-01",
+  d2 = "2025-01-03",
+  forceMock = false
+) => {
   try {
-    const { d1, d2 } = req.query;
-    const targetUrl = `http://136.179.36.245:8001/api/reviewer-stats?d1=${d1}&d2=${d2}`;
-    console.log("Proxying request to:", targetUrl);
+    if (USE_MOCK_DATA || forceMock) {
+      console.log("Using MOCK data for Reviewer Data.");
+      return FLData;
+    }
 
-    const response = await fetch(targetUrl, {
-      headers: { "X-API-Key": "pxc-super-secret-key" },
+    const endpointUrl = `https://apifm.peerxc.com/api/reviewer-stats?d1=${d1}&d2=${d2}`;
+    console.log("Fetching Reviewer Data from live API:", endpointUrl);
+
+    const response = await fetch(endpointUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": "pxc-super-secret-key",
+      },
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      console.error("Upstream error:", response.status, text);
-      return res.status(response.status).send(text);
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    console.error("Proxy error:", err);
-    res.status(500).json({ error: err.message });
+    console.log("Reviewer Data successfully loaded from live API.");
+    return data;
+  } catch (error) {
+    console.error("Error fetching Reviewer Data from live API:", error);
+    console.log("Falling back to MOCK data.");
+    return FLData;
   }
-});
+};
 
-app.listen(PORT, () => {
-  console.log(`Local proxy server running on http://localhost:${PORT}`);
-});
+/**
+ * Fetch QA Data (Quality Assurance Data) from the live API.
+ */
+export const fetchQualityData = async (forceMock = false) => {
+  try {
+    if (USE_MOCK_DATA || forceMock) {
+      console.log("Using MOCK data for QA Data.");
+      return QAData;
+    }
+    const endpointUrl = "https://apifm.peerxc.com/api/mockQAData"; // update when real QA endpoint exists
+    console.log("Fetching QA Data from live API endpoint...", endpointUrl);
+    const response = await fetch(endpointUrl, {
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    console.log("QA Data successfully loaded.");
+    return data;
+  } catch (error) {
+    console.error("Error fetching QA Data:", error);
+    console.log("Falling back to MOCK data.");
+    return QAData;
+  }
+};
+
+/**
+ * Fetch Feedback Data from the live API.
+ */
+export const fetchFeedbackData = async (forceMock = false) => {
+  try {
+    if (USE_MOCK_DATA || forceMock) {
+      console.log("Using MOCK data for Feedback Data.");
+      return FeedbackData;
+    }
+    const endpointUrl = "https://apifm.peerxc.com/api/mockFeedbackData"; // update when real Feedback endpoint exists
+    console.log("Fetching Feedback Data from live API endpoint...", endpointUrl);
+    const response = await fetch(endpointUrl, {
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    console.log("Feedback Data successfully loaded.");
+    return data;
+  } catch (error) {
+    console.error("Error fetching Feedback Data:", error);
+    console.log("Falling back to MOCK data.");
+    return FeedbackData;
+  }
+};
+
+const apiService = {
+  fetchReviewerData,
+  fetchQualityData,
+  fetchFeedbackData,
+};
+
+export default apiService;
