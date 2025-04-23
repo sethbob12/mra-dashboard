@@ -42,6 +42,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
+import { useTheme } from "@mui/material/styles";
 
 // --- sorting helpers ---
 function descendingComparator(a, b, orderBy) {
@@ -87,22 +88,34 @@ const slRating = (cost) => {
   };
   return { count, color: colors[count] };
 };
+
+// --- status color mapping ---
 const statusColor = {
   Released: "#4caf50",
   QA: "#ffeb3b",
   Pending: "#ff9800",
   MRA: "#e91e63",
 };
+
 const PIE_COLORS = [
-  "#4caf50", "#8bc34a", "#ffb300", "#ff5722", "#f44336",
-  "#03a9f4", "#9c27b0", "#e91e63", "#00bcd4", "#ffc107",
+  "#4caf50",
+  "#8bc34a",
+  "#ffb300",
+  "#ff5722",
+  "#f44336",
+  "#03a9f4",
+  "#9c27b0",
+  "#e91e63",
+  "#00bcd4",
+  "#ffc107",
 ];
 
 export default function BillingReports() {
-  // --- today's date + defaults ---
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const today = new Date().toISOString().slice(0, 10);
 
-  // --- states ---
+  // State
   const [findCaseId, setFindCaseId] = useState("5-");
   const [startDate, setStartDate] = useState("2025-01-01");
   const [endDate, setEndDate] = useState(today);
@@ -118,12 +131,14 @@ export default function BillingReports() {
   const [showCaseTable, setShowCaseTable] = useState(false);
   const [showDailyCostChart, setShowDailyCostChart] = useState(false);
 
-  // --- enrich & validate ---
+  // Enrich and normalize cases with MRA/SL costs
   const enhanced = useMemo(() => {
     return billingCases.map((c, idx) => {
       const mra = billingMRAReports.find((m) => m.name === c.mra) || {};
-      const valid = Array.isArray(mra.clients) ? mra.clients : [];
-      const client = valid.includes(c.client) ? c.client : valid[0] || c.client;
+      const validClients = Array.isArray(mra.clients) ? mra.clients : [];
+      const client = validClients.includes(c.client)
+        ? c.client
+        : validClients[0] || c.client;
       const mraCost = mra.costPerCase?.[client] ?? "";
       const sl = billingSLReports[idx % billingSLReports.length] || {};
       let slCost = "";
@@ -137,17 +152,17 @@ export default function BillingReports() {
     });
   }, []);
 
-  // --- dropdown lists with ALL + blank ---
+  // Dropdown options
   const mraOptions = useMemo(
-    () => ["All", ...Array.from(new Set(enhanced.map((c) => c.mra))).filter(Boolean).sort()],
+    () => ["All", ...new Set(enhanced.map((c) => c.mra))].sort(),
     [enhanced]
   );
   const slOptions = useMemo(
-    () => ["All", ...Array.from(new Set(enhanced.map((c) => c.sl))).filter(Boolean).sort()],
+    () => ["All", ...new Set(enhanced.map((c) => c.sl))].sort(),
     [enhanced]
   );
 
-  // --- filter by date/MRA/SL ---
+  // Filtering by date/MRA/SL
   const filtered = useMemo(() => {
     return enhanced
       .filter(
@@ -163,7 +178,7 @@ export default function BillingReports() {
       );
   }, [enhanced, startDate, endDate, selectedMra, selectedSl]);
 
-  // --- daily cost for the big chart ---
+  // Daily cost chart data
   const dailyCostData = useMemo(() => {
     const map = {};
     filtered.forEach((r) => {
@@ -172,10 +187,12 @@ export default function BillingReports() {
       map[day].mraCost += Number(r.mraCost) || 0;
       map[day].slCost += Number(r.slCost) || 0;
     });
-    return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
+    return Object.values(map).sort((a, b) =>
+      a.date.localeCompare(b.date)
+    );
   }, [filtered]);
 
-  // --- sort & paginate ---
+  // Sorting & pagination
   const sorted = useMemo(
     () => stableSort(filtered, getComparator(order, orderBy)),
     [filtered, order, orderBy]
@@ -186,7 +203,7 @@ export default function BillingReports() {
     return sorted.slice(start, start + rowsPerPage);
   }, [sorted, page]);
 
-  // --- CSV export helper ---
+  // CSV export helper
   const exportCSV = (data, filename) => {
     if (!data?.length) return;
     const header = Object.keys(data[0]);
@@ -194,7 +211,9 @@ export default function BillingReports() {
     let csv =
       header.join(",") +
       "\n" +
-      rows.map((row) => row.map((f) => `"${f}"`).join(",")).join("\n");
+      rows
+        .map((row) => row.map((f) => `"${f}"`).join(","))
+        .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -205,18 +224,77 @@ export default function BillingReports() {
     link.remove();
   };
 
-  // --- handlers ---
-  const handleSort = (prop) => {
-    const isAsc = orderBy === prop && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(prop);
+  // Find case handler
+  const findCase = () => {
+    const c = enhanced.find(
+      (x) => x.caseID.toLowerCase() === findCaseId.toLowerCase()
+    );
+    setFoundCase(c || null);
   };
-  const handlePageChange = (_, newPage) => setPage(newPage);
 
-  const generateCaseCostInfo = () => {
-    setShowCaseTable(true);
+  // Generate payment ledger
+  const generateLedger = () => {
+    if (selectedMra && selectedSl) {
+      alert("Please select either an MRA or an SL, not both.");
+      return;
+    }
+    const includeStatus = selectedSl
+      ? ["Released"]
+      : ["Released", "QA", "Pending"];
+    const submitted = filtered.filter((r) =>
+      includeStatus.includes(r.status)
+    );
+    const totalAssigned = filtered.length;
+    const totalSubmitted = submitted.length;
+
+    const byClient = {};
+    submitted.forEach((r) => {
+      const costPerCase = selectedSl ? r.slCost : r.mraCost;
+      if (!byClient[r.client]) {
+        byClient[r.client] = { costPerCase, count: 0 };
+      }
+      byClient[r.client].count++;
+    });
+    const clientStats = Object.entries(byClient).map(
+      ([client, { costPerCase, count }]) => ({
+        client,
+        costPerCase,
+        count,
+        totalCost: (Number(costPerCase) || 0) * count,
+      })
+    );
+    const totalPayment = clientStats.reduce(
+      (sum, cs) => sum + cs.totalCost,
+      0
+    );
+
+    const monthlyMap = {};
+    submitted.forEach((r) => {
+      const month = r.submittedAt.slice(0, 7);
+      const cost = Number(selectedSl ? r.slCost : r.mraCost) || 0;
+      monthlyMap[month] = (monthlyMap[month] || 0) + cost;
+    });
+    const monthlyStats = Object.entries(monthlyMap)
+      .sort()
+      .map(([month, totalCost]) => ({ month, totalCost }));
+
+    setLedger({
+      dateRange: { startDate, endDate },
+      totalAssigned,
+      totalSubmitted,
+      clientStats,
+      totalPayment,
+      monthlyStats,
+    });
+
+    setTimeout(() => {
+      document
+        .getElementById("ledger-section")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
-  const toggleDailyCostChart = () => setShowDailyCostChart((v) => !v);
+
+  // Clear everything
   const clearAll = () => {
     setFindCaseId("5-");
     setStartDate("2025-01-01");
@@ -229,69 +307,15 @@ export default function BillingReports() {
     setShowCaseTable(false);
     setShowDailyCostChart(false);
   };
-  const findCase = () => {
-    const c = enhanced.find(
-      (x) => x.caseID.toLowerCase() === findCaseId.toLowerCase()
-    );
-    setFoundCase(c || null);
-  };
-  const generateLedger = () => {
-    if (selectedMra && selectedSl) {
-      alert("Please select either an MRA or an SL, not both.");
-      return;
-    }
-    const includeStatus = selectedSl ? ["Released"] : ["Released", "QA", "Pending"];
-    const submitted = filtered.filter(r => includeStatus.includes(r.status));
-    const totalAssigned = filtered.length;
-    const totalSubmitted = submitted.length;
-  
-    // group by client, selecting the correct cost per case
-    const byClient = {};
-    submitted.forEach(r => {
-      const costPerCase = selectedSl ? r.slCost : r.mraCost;
-      if (!byClient[r.client]) {
-        byClient[r.client] = { costPerCase, count: 0 };
-      }
-      byClient[r.client].count++;
-    });
-    const clientStats = Object.entries(byClient).map(([client, { costPerCase, count }]) => ({
-      client,
-      costPerCase,
-      count,
-      totalCost: (Number(costPerCase) || 0) * count,
-    }));
-    const totalPayment = clientStats.reduce((sum, cs) => sum + cs.totalCost, 0);
-  
-    // monthly cost totals
-    const monthlyMap = {};
-    submitted.forEach(r => {
-      const month = r.submittedAt.slice(0, 7);
-      const cost = Number(selectedSl ? r.slCost : r.mraCost) || 0;
-      monthlyMap[month] = (monthlyMap[month] || 0) + cost;
-    });
-    const monthlyStats = Object.entries(monthlyMap)
-      .sort()
-      .map(([month, totalCost]) => ({ month, totalCost }));
-  
-    setLedger({
-      mraNames: selectedMra && selectedMra !== "All" ? [selectedMra] : [],
-      slNames:  selectedSl  && selectedSl  !== "All" ? [selectedSl]  : [],
-      dateRange: { startDate, endDate },
-      totalAssigned,
-      totalSubmitted,
-      clientStats,
-      totalPayment,
-      monthlyStats,
-    });
-  
-    // scroll into view
-    setTimeout(() => {
-      document.getElementById("ledger-section")?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
 
   return (
-    <Box sx={{ p: 4, position: "relative" }}>
+    <Box
+      sx={{
+        p: 4,
+        bgcolor: isDark ? "#121212" : "inherit",
+        color: isDark ? "#fff" : "inherit",
+      }}
+    >
       {/* 1) Find Case */}
       <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
         <TextField
@@ -299,37 +323,55 @@ export default function BillingReports() {
           value={findCaseId}
           onChange={(e) => setFindCaseId(e.target.value)}
           size="small"
+          InputLabelProps={{
+            sx: { color: isDark ? "#fff" : "inherit" },
+          }}
+          InputProps={{
+            sx: { color: isDark ? "#fff" : "inherit" },
+          }}
         />
         <Button variant="contained" onClick={findCase}>
           Find Case
         </Button>
       </Box>
 
-      {/* Found Case */}
+      {/* Found Case Output */}
       {foundCase && (
-        <Paper sx={{ p: 2, mb: 3, maxWidth: 500 }}>
-          <Typography>
+        <Paper
+          sx={{
+            p: 2,
+            mb: 3,
+            maxWidth: 500,
+            bgcolor: isDark ? "#1e1e1e" : "inherit",
+          }}
+        >
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>Case ID:</strong> {foundCase.caseID}
           </Typography>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>Submitted:</strong> {foundCase.submittedAt}
           </Typography>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>Status:</strong>{" "}
             <Box
               component="span"
-              sx={{ color: statusColor[foundCase.status] }}
+              sx={{
+                color:
+                  statusColor[foundCase.status.trim()] ||
+                  (isDark ? "#fff" : "inherit"),
+                fontWeight: "bold",
+              }}
             >
               {foundCase.status}
             </Box>
           </Typography>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>Client:</strong> {foundCase.client}
           </Typography>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>MRA:</strong> {foundCase.mra}
           </Typography>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>SL:</strong> {foundCase.sl}
           </Typography>
         </Paper>
@@ -346,8 +388,22 @@ export default function BillingReports() {
         }}
       >
         {/* MRA */}
-        <FormControl sx={{ minWidth: 160 }} size="small">
-          <InputLabel>MRA</InputLabel>
+        <FormControl
+          size="small"
+          sx={{
+            minWidth: 160,
+            ...(isDark && {
+              "& .MuiInputLabel-root": { color: "#fff" },
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#555",
+              },
+              "& .MuiSelect-icon": { color: "#fff" },
+            }),
+          }}
+        >
+          <InputLabel sx={{ color: isDark ? "#fff" : "inherit" }}>
+            MRA
+          </InputLabel>
           <Select
             value={selectedMra}
             label="MRA"
@@ -355,23 +411,50 @@ export default function BillingReports() {
               setSelectedMra(e.target.value);
               if (e.target.value !== "All") setSelectedSl("");
             }}
+            sx={{ color: isDark ? "#fff" : "inherit" }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  bgcolor: isDark ? "#333" : "#fff",
+                  color: isDark ? "#fff" : "inherit",
+                },
+              },
+            }}
           >
             <MenuItem value="">
               <em></em>
             </MenuItem>
             {mraOptions.map((m) => (
-              <MenuItem key={m} value={m}>
+              <MenuItem
+                key={m}
+                value={m}
+                sx={{ color: isDark ? "#fff" : "inherit" }}
+              >
                 {m}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
-        <Typography>or</Typography>
+        <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>or</Typography>
 
         {/* SL */}
-        <FormControl sx={{ minWidth: 160 }} size="small">
-          <InputLabel>SL</InputLabel>
+        <FormControl
+          size="small"
+          sx={{
+            minWidth: 160,
+            ...(isDark && {
+              "& .MuiInputLabel-root": { color: "#fff" },
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#555",
+              },
+              "& .MuiSelect-icon": { color: "#fff" },
+            }),
+          }}
+        >
+          <InputLabel sx={{ color: isDark ? "#fff" : "inherit" }}>
+            SL
+          </InputLabel>
           <Select
             value={selectedSl}
             label="SL"
@@ -379,12 +462,25 @@ export default function BillingReports() {
               setSelectedSl(e.target.value);
               if (e.target.value !== "All") setSelectedMra("");
             }}
+            sx={{ color: isDark ? "#fff" : "inherit" }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  bgcolor: isDark ? "#333" : "#fff",
+                  color: isDark ? "#fff" : "inherit",
+                },
+              },
+            }}
           >
             <MenuItem value="">
               <em></em>
             </MenuItem>
             {slOptions.map((s) => (
-              <MenuItem key={s} value={s}>
+              <MenuItem
+                key={s}
+                value={s}
+                sx={{ color: isDark ? "#fff" : "inherit" }}
+              >
                 {s}
               </MenuItem>
             ))}
@@ -397,7 +493,13 @@ export default function BillingReports() {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          InputLabelProps={{
+            shrink: true,
+            sx: { color: isDark ? "#fff" : "inherit" },
+          }}
+          InputProps={{
+            sx: { color: isDark ? "#fff" : "inherit" },
+          }}
           size="small"
         />
         <TextField
@@ -405,12 +507,21 @@ export default function BillingReports() {
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          InputLabelProps={{
+            shrink: true,
+            sx: { color: isDark ? "#fff" : "inherit" },
+          }}
+          InputProps={{
+            sx: { color: isDark ? "#fff" : "inherit" },
+          }}
           size="small"
         />
 
-        {/* Generate Buttons */}
-        <Button variant="contained" color="secondary" onClick={generateCaseCostInfo}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => setShowCaseTable(true)}
+        >
           Generate Case/Cost Info
         </Button>
         <Button variant="contained" color="primary" onClick={generateLedger}>
@@ -418,7 +529,7 @@ export default function BillingReports() {
         </Button>
       </Box>
 
-      {/* Clear All below MRA dropdown, left aligned */}
+      {/* Clear All */}
       <Box sx={{ mb: 2 }}>
         <Button variant="outlined" onClick={clearAll}>
           Clear All
@@ -429,10 +540,20 @@ export default function BillingReports() {
       {ledger && (
         <Paper
           id="ledger-section"
-          sx={{ mb: 3, p: 2, backgroundColor: "#f9f9f9" }}
-        >
+          sx={{
+            mb: 3,
+            p: 2,
+            bgcolor: isDark ? "#1e1e1e" : "#f9f9f9",
+          }}>
+
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                flexGrow: 1,
+                color: isDark ? "#fff" : "inherit",
+              }}
+            >
               Payment Ledger
             </Typography>
             <Button
@@ -454,20 +575,21 @@ export default function BillingReports() {
               CSV
             </Button>
           </Box>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>Date Range:</strong> {ledger.dateRange.startDate} to{" "}
             {ledger.dateRange.endDate}
           </Typography>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>Total Assigned:</strong> {ledger.totalAssigned}
           </Typography>
-          <Typography>
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
             <strong>Total Submitted:</strong> {ledger.totalSubmitted}
           </Typography>
-          <Typography>
-            <strong>Total Payment:</strong> ${ledger.totalPayment.toFixed(2)}
+          <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
+            <strong>Total Payment:</strong> $
+            {ledger.totalPayment.toFixed(2)}
           </Typography>
-          <Divider sx={{ my: 1, borderColor: "#ddd" }} />
+          <Divider sx={{ my: 1, borderColor: "#555" }} />
 
           <Box
             sx={{
@@ -477,9 +599,19 @@ export default function BillingReports() {
               overflowX: "auto",
             }}
           >
-            {/* ledger table */}
+            {/* Ledger Table */}
             <Box sx={{ minWidth: 250, flex: 1 }}>
-              <Table size="small" sx={{ "& th,& td": { py: 0.5, px: 0.5 } }}>
+              <Table
+                size="small"
+                sx={{
+                  "& th, & td": {
+                    py: 0.5,
+                    px: 0.5,
+                    color: isDark ? "#fff" : "inherit",
+                    borderColor: isDark ? "#555" : "inherit",
+                  },
+                }}
+              >
                 <TableHead>
                   <TableRow>
                     <TableCell>Client</TableCell>
@@ -515,7 +647,7 @@ export default function BillingReports() {
               </Table>
             </Box>
 
-            {/* pie chart */}
+            {/* Pie Chart */}
             <Box sx={{ width: 250, height: 250 }}>
               <ResponsiveContainer>
                 <PieChart>
@@ -527,10 +659,7 @@ export default function BillingReports() {
                     label
                   >
                     {ledger.clientStats.map((_, i) => (
-                      <Cell
-                        key={i}
-                        fill={PIE_COLORS[i % PIE_COLORS.length]}
-                      />
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
                   <RechartsTooltip
@@ -545,15 +674,18 @@ export default function BillingReports() {
               </ResponsiveContainer>
             </Box>
 
-            {/* monthly cost line chart */}
+            {/* Monthly Cost Line Chart */}
             <Box sx={{ width: 325, height: 225 }}>
               <ResponsiveContainer>
                 <LineChart data={ledger.monthlyStats}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: isDark ? "#fff" : "inherit" }}
+                  />
+                  <YAxis tick={{ fill: isDark ? "#fff" : "inherit" }} />
                   <RechartsTooltip formatter={(val) => `$${val.toFixed(2)}`} />
-                  <Legend />
+                  <Legend wrapperStyle={{ color: isDark ? "#fff" : "#000" }} />
                   <Line
                     type="monotone"
                     dataKey="totalCost"
@@ -564,9 +696,19 @@ export default function BillingReports() {
               </ResponsiveContainer>
             </Box>
 
-            {/* monthly table */}
+            {/* Monthly Table */}
             <Box sx={{ minWidth: 250 }}>
-              <Table size="small" sx={{ "& th,& td": { py: 0.5, px: 0.5 } }}>
+              <Table
+                size="small"
+                sx={{
+                  "& th, & td": {
+                    py: 0.5,
+                    px: 0.5,
+                    color: isDark ? "#fff" : "inherit",
+                    borderColor: isDark ? "#555" : "inherit",
+                  },
+                }}
+              >
                 <TableHead>
                   <TableRow>
                     <TableCell>Month</TableCell>
@@ -603,7 +745,7 @@ export default function BillingReports() {
       {/* 4) Main Table */}
       {showCaseTable && (
         <>
-          {/* CSV + Show Cost Chart + pagination */}
+          {/* CSV + Chart + Pagination Controls */}
           <Box
             sx={{
               display: "flex",
@@ -624,7 +766,7 @@ export default function BillingReports() {
               <Button
                 size="small"
                 variant="outlined"
-                onClick={toggleDailyCostChart}
+                onClick={() => setShowDailyCostChart((v) => !v)}
               >
                 {showDailyCostChart ? "Hide Cost Chart" : "Show Cost Chart"}
               </Button>
@@ -633,33 +775,36 @@ export default function BillingReports() {
               <IconButton
                 onClick={() => setPage((p) => Math.max(p - 1, 0))}
                 disabled={page === 0}
+                sx={{ color: isDark ? "#fff" : "inherit" }}
               >
                 <NavigateBeforeIcon />
               </IconButton>
-              <Typography>
+              <Typography sx={{ color: isDark ? "#fff" : "inherit" }}>
                 Page {page + 1} of {pageCount || 1}
               </Typography>
               <IconButton
-                onClick={() =>
-                  setPage((p) => Math.min(p + 1, pageCount - 1))
-                }
+                onClick={() => setPage((p) => Math.min(p + 1, pageCount - 1))}
                 disabled={page + 1 >= pageCount}
+                sx={{ color: isDark ? "#fff" : "inherit" }}
               >
                 <NavigateNextIcon />
               </IconButton>
             </Box>
           </Box>
 
-          {/* big daily cost chart */}
+          {/* Daily Cost Chart */}
           {showDailyCostChart && (
             <Box sx={{ width: "100%", height: 300, mb: 2 }}>
               <ResponsiveContainer>
                 <LineChart data={dailyCostData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fill: isDark ? "#fff" : "inherit" }}
+                  />
+                  <YAxis tick={{ fill: isDark ? "#fff" : "inherit" }} />
                   <RechartsTooltip formatter={(val) => `$${val.toFixed(2)}`} />
-                  <Legend />
+                  <Legend wrapperStyle={{ color: isDark ? "#fff" : "#000" }} />
                   <Line
                     type="monotone"
                     dataKey="mraCost"
@@ -679,56 +824,67 @@ export default function BillingReports() {
             </Box>
           )}
 
-          <Table
-            size="small"
-            sx={{ "& th,& td": { py: 0.75, whiteSpace: "nowrap" } }}
+<Table
+  size="small"
+  sx={{
+    "& th, & td": {
+      py: 0.75,
+      whiteSpace: "nowrap",
+      color: isDark ? "#fff" : "inherit",
+      borderColor: isDark ? "#555" : "inherit",
+    },
+  }}
+>
+  <TableHead>
+    <TableRow>
+      {[
+        { id: "caseID", label: "Case ID" },
+        { id: "submittedAt", label: "Submitted" },
+        { id: "status", label: "Status" },
+        { id: "client", label: "Client", width: 80 },
+        { id: "mra", label: "MRA" },
+        { id: "mraCost", label: "MRA Cost" },
+        { id: "sl", label: "SL" },
+        { id: "slCost", label: "SL Cost" },
+      ].map((col, idx) => {
+        const isSubmitted = col.id === "submittedAt";
+      
+        return (
+          <TableCell
+            key={col.id}
+            sortDirection={orderBy === col.id ? order : false}
+            sx={{
+              borderRight: idx === 3 ? "2px solid #ccc" : undefined,
+              px: ["mra", "mraCost", "sl", "slCost"].includes(col.id) ? 0.5 : 1,
+              ...(col.width && { width: col.width }),
+              color: isDark ? "#fff" : "inherit",    // base cell color
+            }}
           >
-            <TableHead>
-              <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ borderBottom: 0 }}>
-                  <strong>Case Information</strong>
-                </TableCell>
-                <TableCell colSpan={4} align="center" sx={{ borderBottom: 0 }}>
-                  <strong>Cost Information</strong>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                {[
-                  { id: "caseID", label: "Case ID" },
-                  { id: "submittedAt", label: "Submitted" },
-                  { id: "status", label: "Status" },
-                  { id: "client", label: "Client", width: 80 },
-                  { id: "mra", label: "MRA" },
-                  { id: "mraCost", label: "MRA Cost" },
-                  { id: "sl", label: "SL" },
-                  { id: "slCost", label: "SL Cost" },
-                ].map((col, idx) => {
-                  const isDivider = idx === 3;
-                  const tight = ["mra", "mraCost", "sl", "slCost"].includes(
-                    col.id
-                  );
-                  return (
-                    <TableCell
-                      key={col.id}
-                      sortDirection={orderBy === col.id ? order : false}
-                      sx={{
-                        borderRight: isDivider ? "2px solid #ccc" : undefined,
-                        px: tight ? 0.5 : 1,
-                        ...(col.width && { width: col.width }),
-                      }}
-                    >
-                      <TableSortLabel
-                        active={orderBy === col.id}
-                        direction={orderBy === col.id ? order : "asc"}
-                        onClick={() => handleSort(col.id)}
-                      >
-                        {col.label}
-                      </TableSortLabel>
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            </TableHead>
+            <TableSortLabel
+              active={orderBy === col.id}
+              direction={orderBy === col.id ? order : "asc"}
+              onClick={() => {
+                const isAsc = orderBy === col.id && order === "asc";
+                setOrder(isAsc ? "desc" : "asc");
+                setOrderBy(col.id);
+              }}
+              sx={{
+                // force the label & icon to white only for "Submitted"
+                "&, & .MuiTableSortLabel-label, & .MuiTableSortLabel-icon": {
+                  color:
+                    isSubmitted && isDark
+                      ? "#fff !important"
+                      : "inherit",
+                },
+              }}
+            >
+              {col.label}
+            </TableSortLabel>
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  </TableHead>
             <TableBody>
               {paginated.map((row) => {
                 const mraBar = mraRating(row.mraCost);
@@ -737,17 +893,17 @@ export default function BillingReports() {
                   <TableRow key={row.caseID}>
                     <TableCell>{row.caseID}</TableCell>
                     <TableCell>{row.submittedAt}</TableCell>
+                    {/* STATUS CELL COLOR‐CODED */}
                     <TableCell
-                      sx={{ color: statusColor[row.status] }}
-                    >
-                      {row.status}
-                    </TableCell>
+  sx={{
+    color: `${statusColor[row.status.trim()] || (isDark ? "#fff" : "#000")} !important`,
+    fontWeight: "bold",
+  }}
+>
+  {row.status}
+</TableCell>
                     <TableCell
-                      sx={{
-                        borderRight: "2px solid #eee",
-                        width: 80,
-                        px: 0.5,
-                      }}
+                      sx={{ borderRight: "2px solid #eee", width: 80, px: 0.5 }}
                     >
                       {row.client}
                     </TableCell>
@@ -785,9 +941,17 @@ export default function BillingReports() {
             component="div"
             count={sorted.length}
             page={page}
-            onPageChange={handlePageChange}
+            onPageChange={(_, newPage) => setPage(newPage)}
             rowsPerPage={rowsPerPage}
             rowsPerPageOptions={[rowsPerPage]}
+            sx={{
+              color: isDark ? "#fff" : "inherit",
+              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+                { color: isDark ? "#fff" : "inherit" },
+              "& .MuiTablePagination-actions": {
+                color: isDark ? "#fff" : "inherit",
+              },
+            }}
           />
         </>
       )}
@@ -800,28 +964,25 @@ export default function BillingReports() {
           top: "50%",
           right: 16,
           transform: "translateY(-110%)",
-          backgroundColor: "#1976d2",
+          bgcolor: "#1976d2",
           color: "#fff",
-          "&:hover": { backgroundColor: "#115293" },
+          "&:hover": { bgcolor: "#115293" },
         }}
       >
         <ArrowUpwardIcon />
       </IconButton>
       <IconButton
         onClick={() =>
-          window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth",
-          })
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })
         }
         sx={{
           position: "fixed",
           top: "50%",
           right: 16,
           transform: "translateY(10%)",
-          backgroundColor: "#1976d2",
+          bgcolor: "#1976d2",
           color: "#fff",
-          "&:hover": { backgroundColor: "#115293" },
+          "&:hover": { bgcolor: "#115293" },
         }}
       >
         <ArrowDownwardIcon />
