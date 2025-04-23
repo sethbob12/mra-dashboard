@@ -4,7 +4,9 @@ import { AppBar, Toolbar, Button, Box, Divider } from "@mui/material";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import BugReportIcon from "@mui/icons-material/BugReport"; // New icon for Test Live section
+import BugReportIcon from "@mui/icons-material/BugReport";
+import ReceiptIcon from "@mui/icons-material/Receipt"; // ← Billing Reports icon
+
 import growthChartGif from "./assets/growth-chart.gif";
 import houseChimney from "./assets/house-chimney.png";
 import tableGif from "./assets/table.gif";
@@ -12,14 +14,13 @@ import threeGif from "./assets/3.gif";
 import doveGif from "./assets/dove.gif";
 import reportsGif from "./assets/reports.gif";
 import oneGif from "./assets/1.gif";
-import mraDashboardGif from "./assets/MRADashboard.gif"; // Animated logo GIF
+import mraDashboardGif from "./assets/MRADashboard.gif";
 
 const Navbar = ({ mode, toggleTheme }) => {
   const [logoKey, setLogoKey] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Remount logo on route change to retrigger GIF animation
   useEffect(() => {
     setLogoKey(Date.now());
   }, [location.pathname]);
@@ -29,7 +30,6 @@ const Navbar = ({ mode, toggleTheme }) => {
     navigate("/login");
   };
 
-  // Common style for nav link icons
   const iconStyle = {
     width: "30px",
     height: "30px",
@@ -37,7 +37,6 @@ const Navbar = ({ mode, toggleTheme }) => {
     boxShadow: "0px 3px 6px rgba(0,0,0,0.5)",
   };
 
-  // Helper: Return an icon for a given section
   const getSectionIcon = (path) => {
     switch (path) {
       case "/login":
@@ -54,8 +53,8 @@ const Navbar = ({ mode, toggleTheme }) => {
         return <img src={oneGif} alt="QA Metrics" style={iconStyle} />;
       case "/admin-tools":
         return <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#FFA726" }} />;
-      case "/dashboard-home":
-        return <img src={houseChimney} alt="Dashboard Home" style={iconStyle} />;
+      case "/billing":
+        return <ReceiptIcon sx={{ fontSize: 40, color: "#FFD54F" }} />;
       case "/test-live":
         return <BugReportIcon sx={{ fontSize: 40, color: "white" }} />;
       default:
@@ -63,15 +62,15 @@ const Navbar = ({ mode, toggleTheme }) => {
     }
   };
 
-  // Updated navigation items with Test Live placed first
   const navItems = [
-    { label: "Test Live", path: "/test-live" },
-    { label: "Data Table", path: "/table" },
-    { label: "Visualizations", path: "/chart" },
-    { label: "Email Generator", path: "/emails" },
-    { label: "MRA Reports", path: "/reports" },
-    { label: "QA Metrics", path: "/qa-metrics" },
-    { label: "Admin Tools", path: "/admin-tools" },
+    { label: "Test Live",        path: "/test-live"    },
+    { label: "Data Table",       path: "/table"        },
+    { label: "Visualizations",   path: "/chart"        },
+    { label: "Email Generator",  path: "/emails"       },
+    { label: "MRA Reports",      path: "/reports"      },
+    { label: "QA Metrics",       path: "/qa-metrics"   },
+    { label: "Billing Reports",  path: "/billing"      }, // ← new entry
+    { label: "Admin Tools",      path: "/admin-tools"  },
   ];
 
   return (
@@ -97,7 +96,7 @@ const Navbar = ({ mode, toggleTheme }) => {
           gap: 2,
         }}
       >
-        {/* Left side: Logo area (serving as home link) */}
+        {/* Logo/Home Link */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
           <Box
             component={NavLink}
@@ -125,7 +124,7 @@ const Navbar = ({ mode, toggleTheme }) => {
           </Box>
         </Box>
 
-        {/* Right side: Navigation links and logout */}
+        {/* Navigation Links */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
           {navItems.map((item, index) => (
             <React.Fragment key={item.label}>
@@ -145,10 +144,8 @@ const Navbar = ({ mode, toggleTheme }) => {
                   whiteSpace: "nowrap",
                   display: "flex",
                   alignItems: "center",
-                  // Special styling for Test Live
                   ...(item.path === "/test-live" && {
                     backgroundColor: "#4caf50",
-                    color: "white",
                     fontWeight: "bold",
                     px: 2,
                     py: 1,
@@ -166,35 +163,28 @@ const Navbar = ({ mode, toggleTheme }) => {
                 )}
               </Button>
               {index < navItems.length - 1 && (
-                <Divider
-                  orientation="vertical"
-                  sx={{ borderColor: "white", height: 24, mx: 0.5, opacity: 0.7 }}
-                />
+                <Divider orientation="vertical" sx={{ borderColor: "white", height: 24, mx: 0.5, opacity: 0.7 }} />
               )}
             </React.Fragment>
           ))}
 
           <Divider orientation="vertical" sx={{ borderColor: "white", height: 24, mx: 1, opacity: 0.7 }} />
 
+          {/* Logout */}
           <Button
             onClick={handleLogout}
             startIcon={<ExitToAppIcon />}
             sx={{
-              ml: 2.5,
               color: "white",
-              backgroundColor: "transparent",
               textTransform: "none",
               fontSize: "1rem",
               fontWeight: 600,
-              border: "none",
               borderRadius: 4,
               px: 2,
               py: 0.75,
               position: "relative",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.05)",
-              },
+              transition: "transform 0.3s ease",
+              "&:hover": { transform: "scale(1.05)" },
               "&:after": {
                 content: '""',
                 position: "absolute",

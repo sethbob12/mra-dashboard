@@ -345,7 +345,7 @@ const SLData = [
       name: "Kevin Kohan, DO",
       specialties: ["Physical Medicine & Rehabilitation", "Pain Medicine", "PMR"],
       states: ["CA"],
-      costPerCase: 25,
+      costPerCase: 35,
       avgSignOffTime: 24,
       casesCompleted30Days: 0,
       dnu: ["PFR"]

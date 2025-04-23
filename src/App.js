@@ -29,6 +29,9 @@ import FLTransactionalData from "./FLTransactionalData";
 // Import new test component for live API data display
 import TestLiveData from "./TestLiveData";
 
+// ---- NEW import for your billing reports component ----
+import BillingReports from "./BillingReports";
+
 function App() {
   const [mode, setMode] = useState("light");
   const theme = useMemo(
@@ -294,15 +297,24 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* ---- NEW BillingReports route ---- */}
+          <Route
+            path="/billing"
+            element={
+              <ProtectedRoute>
+                <BillingReports />
+              </ProtectedRoute>
+            }
+          />
           {/* New test route for verifying live API data */}
           <Route
-  path="/test-live"
-  element={
-    <ProtectedRoute>
-      <TestLiveData useLiveApi={useLiveApi} />
-    </ProtectedRoute>
-  }
-/>
+            path="/test-live"
+            element={
+              <ProtectedRoute>
+                <TestLiveData useLiveApi={useLiveApi} />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Box>
     </ThemeProvider>

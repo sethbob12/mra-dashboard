@@ -13,7 +13,7 @@ const USE_MOCK_DATA = false;
  */
 export const fetchReviewerData = async (
   d1 = "2025-01-01",
-  d2 = "2025-01-03",
+  d2 = "2025-04-01",
   forceMock = false
 ) => {
   try {
