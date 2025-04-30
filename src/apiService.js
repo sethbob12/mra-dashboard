@@ -8,15 +8,31 @@ import FeedbackData from "./FeedbackData";
 // Toggle to force using mock data (for debugging/demonstration)
 const USE_MOCK_DATA = false;
 
+// Cache config
+const CACHE_KEY_REVIEWER = "reviewerDataCache";
+const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours
+
 /**
- * Fetch Reviewer Data directly from the live API.
+ * Fetch Reviewer Data directly from the live API, with 12-hour caching.
  */
 export const fetchReviewerData = async (
   d1 = "2025-01-01",
   d2 = "2025-04-01",
-  forceMock = false
+  forceMock = false,
+  forceRefresh = false
 ) => {
   try {
+    if (!forceRefresh && !USE_MOCK_DATA && !forceMock) {
+      const cached = localStorage.getItem(CACHE_KEY_REVIEWER);
+      if (cached) {
+        const { timestamp, data } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_DURATION_MS) {
+          console.log("Serving Reviewer Data from cache.");
+          return data;
+        }
+      }
+    }
+
     if (USE_MOCK_DATA || forceMock) {
       console.log("Using MOCK data for Reviewer Data.");
       return FLData;
@@ -38,6 +54,13 @@ export const fetchReviewerData = async (
 
     const data = await response.json();
     console.log("Reviewer Data successfully loaded from live API.");
+
+    // Cache the result
+    localStorage.setItem(
+      CACHE_KEY_REVIEWER,
+      JSON.stringify({ timestamp: Date.now(), data })
+    );
+
     return data;
   } catch (error) {
     console.error("Error fetching Reviewer Data from live API:", error);

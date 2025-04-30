@@ -170,8 +170,8 @@ const Home = () => {
 <Box sx={{ mt: 6 }}>
   <NewsTicker
     messages={[
-      "✅ Accomplished: Refactored all components to Master/Transactional schema. Retrieved/displayed DB exports in JSON schema for a successful proof-of-concept!",
-      "Pending: Address the CORS error; current workaround with local proxy server - does not work for prod url."
+      "✅ Accomplished: Refactored all components to Master/Transactional schema. Retrieved/displayed DB exports in JSON schema for a successful proof-of-concept! Added client-side caching using local storage (q12h refresh), with manual refresh if needed",
+      "Pending: Expand data points received from live API calls to more fully populate dashboard. Build out custom tools for any user-specific needs/workflows."
     ]}
     sx={{ fontSize: "1.5rem" }}
   />

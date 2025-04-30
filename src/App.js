@@ -78,7 +78,7 @@ function App() {
       console.log("🔄 Fetching LIVE API data...");
       try {
         // Retrieve reviewer data from live API
-        const liveReviewerData = await apiService.fetchReviewerData("2025-01-01", "2025-01-03");
+        const liveReviewerData = await apiService.fetchReviewerData("2025-01-01", "2025-01-03", false, true);
         const transformedReviewerData = transformLiveReviewerData(liveReviewerData);
         // Retrieve other data sets as needed
         const fData = await apiService.fetchFeedbackData();
